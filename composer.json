@@ -1,6 +1,6 @@
 {
-    name: mtc_core,
-    repositories: [
+    "name": "mtc_core",
+    "repositories": [
         {
             "type": "composer",
             "url": "./user_me"
