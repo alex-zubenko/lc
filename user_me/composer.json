@@ -1,0 +1,13 @@
+{
+  "name": "mtc/user_me",
+  "type": "drupal-custom-module",
+  "description": "MTC Core",
+  "keywords": ["Drupal"],
+  "license": "GPL-2.0+",
+  "homepage": "https://github.com/MetaCoaching/DrupalCore",
+  "minimum-stability": "dev",
+  "support": {
+    "issues": "https://github.com/MetaCoaching/DrupalCore/issues",
+    "source": "https://github.com/MetaCoaching/DrupalCore"
+  }
+}
