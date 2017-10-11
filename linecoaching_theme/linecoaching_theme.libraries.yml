@@ -1,0 +1,198 @@
+global-styling:
+  version: 8.2
+  css:
+    base:
+      css/base/main.css: {}
+      css/custom-style.css: {}
+    layout:
+      css/layout.css: {}
+    theme:
+      css/colors.css: {}
+      css/print.css: { media: print }
+  js:
+    js/main.js: {}
+  dependencies:
+    - core/jquery.cookie
+
+
+modal-actions:
+  version: VERSION
+  js:
+    js/modal.js: {}
+#taxonomy article-forum-node styling
+taxonomy-article-styling:
+  version: 8.2
+  css:
+    base:
+      css/base/taxonomy-article.css: {}
+      css/base/forum.css: {}
+  js:
+    js/base/taxonomy-article.js: {}
+    js/base/forum.js: {}
+
+player-vzaar:
+  version: VERSION
+  js:
+    //player.vzaar.com/libs/flashtakt/client.js : { type: external }
+
+bootstrap-dialog:
+  version: VERSION
+  css:
+    theme:
+      //cdnjs.cloudflare.com/ajax/libs/bootstrap3-dialog/1.34.7/css/bootstrap-dialog.min.css : {type: external }
+  js:
+    //cdnjs.cloudflare.com/ajax/libs/bootstrap3-dialog/1.34.7/js/bootstrap-dialog.min.js : { type: external }
+
+#homepage styling
+homepage-styling:
+  version: VERSION
+  css:
+    base:
+      css/base/homepage.css: {}
+  js:
+    js/base/homepage.js: {}
+    //cl.avis-verifies.com/fr/widget4/widget02.js : { type: external }
+
+#library allows the onhover effect that shows title, text (exmple page themes)
+slider-caption:
+  version: 1.x
+  css:
+    theme:
+      css/slider-caption/slider-caption.css: {}
+  dependencies:
+    - core/jquery
+
+ # Lightweight, accessible and responsive lightbox. https://github.com/jsor/lity
+lity:
+  version: 2.1.1
+  css:
+    theme:
+      includes/lity/css/lity.min.css: {}
+  js:
+    includes/lity/js/lity.min.js: {}
+  dependencies:
+    - core/jquery
+
+#addthis js,https://www.addtoany.com(sharebuttons)
+addtoany.addtoanyjs:
+  version: Version
+  js:
+    //static.addtoany.com/menu/page.js : { type: external}
+
+#stickyNavbar  menu (static menu on scroll) js https://github.com/jbutko/stickyNavbar.js
+stickyNavbar:
+  version: 1.3.4
+  js:
+    includes/stickyNavbar/js/jquery.stickyNavbar.min.js: {}
+  dependencies:
+    - core/jquery
+
+#sticky-kit  make any menu visible on scroll js https://github.com/leafo/sticky-kit
+sticky-kit:
+  version: v1.1.2
+  js:
+    includes/jquery-sticky/jquery.sticky-kit.min.js: {}
+  dependencies:
+    - core/jquery
+
+#Aos (animate on scroll)  https://github.com/michalsnik/aos
+aos:
+  version: 2.1.1
+  js:
+    includes/aos/dist/aos.js: {}
+  css:
+    theme:
+      includes/aos/dist/aos.css: {}
+  dependencies:
+    - core/jquery
+#jquery visible (check if visible in viewport)  https://github.com/customd/jquery-visible
+jquery-visible:
+  version: 1.2.0
+  js:
+    includes/jquery-visible/jquery.visible.min.js: {}
+  dependencies:
+    - core/jquery
+
+# mtc web service
+mtc-ws:
+  version: 1.0.0
+#  js:
+#    js/mtc-ws.js: {}
+  css:
+    theme:
+      css/mtc-ws.css: {}
+
+# payment tunnel common
+mtc-ws-tunnel-common:
+  version: 1.0.0
+  js:
+    includes/jquery-validator/jquery-validator.min.js: {}
+  dependencies:
+    - core/jquery
+  css:
+    theme:
+      css/tunnel-form.css: {}
+      css/tunnel-breadcrum.css: {}
+
+# payment tunnel step 1
+mtc-ws-tunnel-offers:
+  version: 1.0.0
+  js:
+    js/tunnel-offers.js: {}
+    js/tunnel-step1.js: {}
+  dependencies:
+    - core/jquery
+  css:
+    theme:
+      css/tunnel-cga.css: {}
+      css/tunnel-offers.css: {}
+
+# payment tunnel step 2
+mtc-ws-tunnel-payment:
+  version: 1.0.0
+  js:
+    js/tunnel-step2.js: {}
+
+# payment tunnel step 3
+mtc-ws-tunnel-account:
+  version: 1.0.0
+  js:
+    js/tunnel-step3.js: {}
+
+# old prog css, to delete once prog is updated
+prog-d6-styling:
+  version: 1.0.0
+  dependencies:
+    - core/jquery
+  js:
+    js/prog/prog-d6-sidebar.js: {}
+  css:
+    theme:
+      css/prog/sidebar.css: {}
+      css/prog/homeClient.css: {}
+
+# old prog css, to delete once prog is updated
+prog-d6-home-client-styling:
+  version: 1.0.0
+  dependencies:
+    - core/jquery
+  js:
+    js/prog/prog-d6-home-client.js: {}
+  css:
+    theme:
+      css/prog/homeClient.css: {}
+      css/prog/mc.css: {}
+
+# old prog css, to delete once prog is updated
+admin-backoffice:
+  version: 1.0.0
+  css:
+    theme:
+      css/base/admin.css: {}
+
+#List of js for all pages once connected
+#watcheezy
+js-connected-all-pages:
+  version: 1.0.0
+  js:
+     //www.watcheezy.net/deliver/watcheezy.js?key=5d6b7b5648557fa47aa8d7ff6f062ec9&install=footer&lang=FR: { type: external }

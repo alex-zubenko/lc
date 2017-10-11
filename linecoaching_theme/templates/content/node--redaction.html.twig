@@ -1,0 +1,34 @@
+{#
+/**
+ * @file
+ * Theme override to display a node dossier.
+ */
+#}
+{%
+  set classes = [
+    'node',
+    'node--type-' ~ node.bundle|clean_class,
+    node.isPromoted() ? 'node--promoted',
+    node.isSticky() ? 'node--sticky',
+    not node.isPublished() ? 'node--unpublished',
+    view_mode ? 'node--view-mode-' ~ view_mode|clean_class,
+    'taxonomy-article'
+  ]
+%}
+{% import "themes/custom/linecoaching_theme/templates/macro/node-taxonomy-macro.html.twig" as display %}
+{{ attach_library('linecoaching_theme/article') }}
+<article{{ attributes.addClass(classes) }}>
+   {{ title_prefix }}
+   <h1>{{ node.getTitle() }}</h1>
+   {{ title_suffix}}
+   <div class="chapeau">
+        {{ content.field_chapeau }}
+   </div>
+    <div class="body">
+        {{ node.body.value|raw}}
+    </div>
+    <div class="video-carrousel">
+        {{ content.field_carrousel_video}}
+    </div>
+</article>
+{{ display.social_media }}

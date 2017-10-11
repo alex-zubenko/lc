@@ -1,0 +1,72 @@
+{#
+/**
+ * @file
+ * Theme override for a field.
+ *
+ * To override output, copy the "field.html.twig" from the templates directory
+ * to your theme's directory and customize it, just like customizing other
+ * Drupal templates such as page.html.twig or node.html.twig.
+ *
+ * Instead of overriding the theming for all fields, you can also just override
+ * theming for a subset of fields using
+ * @link themeable Theme hook suggestions. @endlink For example,
+ * here are some theme hook suggestions that can be used for a field_foo field
+ * on an article node type:
+ * - field--node--field-foo--article.html.twig
+ * - field--node--field-foo.html.twig
+ * - field--node--article.html.twig
+ * - field--field-foo.html.twig
+ * - field--text-with-summary.html.twig
+ * - field.html.twig
+ *
+ * Available variables:
+ * - attributes: HTML attributes for the containing element.
+ * - label_hidden: Whether to show the field label or not.
+ * - title_attributes: HTML attributes for the title.
+ * - label: The label for the field.
+ * - multiple: TRUE if a field can contain multiple items.
+ * - items: List of all the field items. Each item contains:
+ *   - attributes: List of HTML attributes for each item.
+ *   - content: The field item's content.
+ * - entity_type: The entity type to which the field belongs.
+ * - field_name: The name of the field.
+ * - field_type: The type of the field.
+ * - label_display: The display settings for the label.
+ *
+ * @see template_preprocess_field()
+ */
+#}
+{% set fieldType = element['#field_type'] %}
+{% if fieldType == 'text_with_summary' %}
+       {{ title_prefix }}
+       {{ items[0].content }}
+       {{ title_suffix }}
+{% endif %}
+{% if fieldType == 'field_collection' %}
+    {% set blockId = element['#object'].id() %}
+    {% set block = display_block(blockId, true, false) %}
+    {% set fields = block['field_video_temoignage']['#items']|field_collection_items%}
+
+    {% for field in fields %}
+     <article  class="video-block screenshot article-view col-sm-4">
+          {% if field.video_link_text is not empty %}
+             <div class="image"  style="background-image:url({{ file_url(field.fileuri) }})">
+                  <a href="{{field.video_link_text }}" data-lity  class="right-col-video"></a>
+             </div>
+         {% endif %}
+         <div class="caption-text screenshot-caption screenshot-caption_bottom">
+             {{ title_prefix }}
+             {% if field.title is not empty %}
+                 <h4 class="title">{{ field.title }}</h4>
+              {% endif %}
+             {{ title_suffix }}
+             {% if field.text is not empty %}
+                 <p class="tem_text">
+                    {{ field.text | strip_tags_allow_entity}}
+                 </p>
+             {% endif %}
+          </div>
+     </article>
+    {% endfor %}
+{% endif %}
+

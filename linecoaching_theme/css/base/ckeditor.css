@@ -1,0 +1,35 @@
+blockquote {
+  background: #f7f7f7;
+  border-left: 1px solid #bbb; /* LTR */
+  font-style: italic;
+  margin: 1.5em 10px;
+  padding: 0.5em 10px;
+}
+blockquote sup{
+  font-size: 65%;
+  color: #777777;
+}
+[dir="rtl"] blockquote {
+  border-left: none;
+  border-right: 1px solid #bbb;
+}
+blockquote:before {
+  color: #bbb;
+  content: "\201C";
+  font-size: 3em;
+  line-height: 0.1em;
+  margin-right: 0.2em; /* LTR */
+  vertical-align: -0.4em;
+}
+[dir="rtl"] blockquote:before {
+  content: "\201D";
+  margin-left: 0.2em;
+  margin-right: 0;
+}
+blockquote:after {
+  color: #bbb;
+  content: "\201D";
+  font-size: 3em;
+  line-height: 0.1em;
+  vertical-align: -0.45em;
+}

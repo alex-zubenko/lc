@@ -1,0 +1,56 @@
+name: LineCoaching theme
+type: theme
+base theme: multipurpose_business_theme
+description: 'Linecoaching responsive theme.'
+version: '8.2.0'
+core: '8.x'
+package: Core
+libraries:
+  - linecoaching_theme/global-styling
+  - linecoaching_theme/stickyNavbar
+  - linecoaching_theme/lity
+  - linecoaching_theme/sticky-kit
+  - linecoaching_theme/mtc-ws
+regions:
+  header: 'Header'
+  search: 'Search form'
+  user_menu: 'User menu'
+  primary_menu: 'Primary Menu'
+  showcase: 'Showcase - Home page'
+  welcome_banner_text: 'Welcome Banner Text'
+  topwidget_first: 'Top First Widget'
+  topwidget_second: 'Top Second Widget'
+  topwidget_third: 'Top Third Widget'
+  showcase: 'Showcase Widget'
+  skills_first: 'Skills First Widget'
+  skills_second: 'Skills Second Widget'
+  features_first: 'Features First Widget'
+  features_second: 'Features Second Widget'
+  portfolio_first: 'Portfolio First Widget'
+  portfolio_second: 'Portfolio Second Widget'
+  portfolio_third: 'Portfolio Third Widget'
+  pricetable_first: 'Price Table First Widget'
+  pricetable_second: 'Price Table Second Widget'
+  pricetable_third: 'Price Table Third Widget'
+  pricetable_forth: 'Price Table Forth Widget'
+  pricetable_fifth: 'Price Table Fifth Widget'
+  testimonials: 'Testimonials'
+  price_introduction: 'Price Front Introduction'
+  showcase_footer: 'Showcase Footer Hompage Widget'
+  highlighted: 'Highlighted'
+  page_title: 'Page Title'
+  breadcrumb: 'Breadcrumb'
+  content: 'Content'
+  sidebar_first: 'Left Sidebar'
+  sidebar_second: 'Right Sidebar'
+  bottom_first: 'Bottom First Widget'
+  bottom_second: 'Bottom Second Widget'
+  bottom_third: 'Bottom Third Widget'
+  bottom_forth: 'Bottom Forth Widget'
+  footer_first: 'Footer First Widget'
+  footer_second: 'Footer Second Widget'
+  footer_third: 'Footer Third Widget'
+  footer_menu: 'Footer Menu'
+  google_map: 'Google Map'
+  contact_address: 'Contact Address'
+  auto_hidden_block: 'Auto hidden blocks'

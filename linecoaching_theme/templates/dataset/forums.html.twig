@@ -1,0 +1,31 @@
+{#
+/**
+ * @file
+ * Theme override to display a forum.
+ *
+ * May contain forum containers as well as forum topics.
+ *
+ * Available variables:
+ * - forums: The forums to display (as processed by forum-list.html.twig).
+ * - topics: The topics to display.
+ * - topics_pager: The topics pager.
+ * - forums_defined: A flag to indicate that the forums are configured.
+ *
+ * @see template_preprocess_forums()
+ */
+#}
+{% import "themes/custom/linecoaching_theme/templates/macro/taxonomy-macro.html.twig" as display %}
+<h1 class="forum-title">Forums</h1>
+<section class="recent-posts">
+  {{ display_block('lcforumrecentpostsblock', false, true) }}
+  {{ 'blocksinscriregratuitement'|twig_load_block }}
+</section>
+<article class="forum">
+    {% if forums_defined %}
+      {{ topics_pager }}
+      {{ forums }}
+      {{ topics }}
+      {{ topics_pager }}
+    {% endif %}
+</article>
+

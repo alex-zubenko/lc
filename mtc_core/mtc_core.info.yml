@@ -1,0 +1,12 @@
+name: MTC Core
+project: mtc_core
+type: module
+description: Custom base module for developing purposes
+core: 8.x
+package: Custom
+dependencies:
+  - node
+  - block
+  - ckeditor
+interface translation project: mtc_core
+interface translation server pattern: modules/custom/mtc_core/translations/%language.po

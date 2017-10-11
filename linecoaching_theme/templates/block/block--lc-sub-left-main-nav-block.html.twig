@@ -1,0 +1,34 @@
+{#
+/**
+ * @file
+ * Theme override to display a book tree.
+ *
+ * Returns HTML for a wrapper for a book sub-tree.
+ *
+ * Available variables:
+ * - items: A nested list of  items. Each book item contains:
+ *   - attributes: HTML attributes for the book item.
+ *   - title: The  link title.
+ *   - url: The  link URL, instance of \Drupal\Core\Url.
+ */
+#}
+{# bloc that displays under the main menu for navigation depth 2 #}
+{% if content.items | length > 0 %}
+    <nav  class="sub-left-main-menu" role="navigation" aria-labelledby="sub-left-main-menu-navigation">
+     {# set parent #}
+     <span class="mobile-main-menu-title"> {{content.parent.title}}</span>
+         <ul>
+        {% for item in content.items %}
+          {%
+            set classes = [
+              'sub-left-main-menu-item',
+              item.in_active_trail ? 'active',
+            ]
+          %}
+          <li{{ item.attributes.addClass(classes)}}>
+            {{ link(item.title, item.url) }}
+          </li>
+        {% endfor %}
+        </ul>
+    </nav>
+{% endif %}

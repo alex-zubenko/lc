@@ -1,0 +1,78 @@
+{#
+/**
+ * @file
+ * Theme override for temoignage  list template.
+ *
+ * Available variables:
+ * - attributes: Remaining HTML attributes for the element.
+ * - css_name: A css-safe version of the view name.
+ * - css_class: The user-specified classes names, if any.
+ * - header: The optional header.
+ * - footer: The optional footer.
+ * - rows: The results of the view query, if any.
+ * - empty: The content to display if there are no rows.
+ * - pager: The optional pager next/prev links to display.
+ * - exposed: Exposed widget form/info to display.
+ * - feed_icons: Optional feed icons to display.
+ * - more: An optional link to the next page of results.
+ * - title: Title of the view, only used when displaying in the admin preview.
+ * - title_prefix: Additional output populated by modules, intended to be
+ *   displayed in front of the view title.
+ * - title_suffix: Additional output populated by modules, intended to be
+ *   displayed after the view title.
+ * - attachment_before: An optional attachment view to be displayed before the
+ *   view content.
+ * - attachment_after: An optional attachment view to be displayed after the
+ *   view content.
+ * - dom_id: Unique id for every view being printed to give unique class for
+ *   Javascript.
+ *
+ * @see template_preprocess_views_view()
+ */
+#}
+{% import "themes/custom/linecoaching_theme/templates/macro/views-macro.html.twig" as display %}
+{%
+  set classes = [
+    dom_id ? 'js-view-dom-id-' ~ dom_id,
+  ]
+%}
+<section class="page-temoignage view-page list-articles">
+    <div{{ attributes.addClass(classes) }}>
+      {{ title_prefix }}
+       <h1 class="title">{{ view.getTitle() }}</h1>
+      {{ title_suffix }}
+       <section class="list-view-header">
+          {{ display.social_widgets() }}
+          {{ header }}
+      </section>
+      <div id="filter-anchor" class="form-filters">
+        {{ exposed }}
+      </div>
+      {{ attachment_before }}
+      {{ rows }}
+      {{ empty }}
+      {{ pager }}
+
+      {{ attachment_after }}
+      {{ more }}
+
+      {% if footer %}
+        <footer>
+          {{ footer }}
+        </footer>
+      {% endif %}
+      {{ feed_icons }}
+      <div class="alert alert-info" role="alert">
+        Les témoignages présentés sont des expériences individuelles. Comme pour tout programme de rééquilibrage alimentaire, les résultats qui peuvent être obtenus varient notamment en fonction des caractéristiques génétique, constitutionnelle, et d'historique pondéral de chacun.
+      </div>
+    </div>
+    {# scroll to filters in case of search#}
+    <script type="text/javascript">
+     window.onload = function(e){
+            if(~window.location.search.indexOf('poids') || ~window.location.search.indexOf('age') ){
+                jQuery('html, body').animate({ scrollTop: jQuery("#filter-anchor").offset().top - 180});
+
+             }
+        };
+    </script>
+</section>

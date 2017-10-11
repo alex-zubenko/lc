@@ -1,0 +1,37 @@
+{#
+/**
+ * @file
+ * Theme override to display a node dossier.
+ */
+#}
+{%
+  set classes = [
+    'node',
+    'node--type-' ~ node.bundle|clean_class,
+    node.isPromoted() ? 'node--promoted',
+    node.isSticky() ? 'node--sticky',
+    not node.isPublished() ? 'node--unpublished',
+    view_mode ? 'node--view-mode-' ~ view_mode|clean_class,
+   'diaporama-article'
+  ]
+%}
+{% import "themes/custom/linecoaching_theme/templates/macro/node-taxonomy-macro.html.twig" as display %}
+<article{{ attributes.addClass(classes) }} >
+   {{ title_prefix }}
+   <h1>{{ node.getTitle() }}</h1>
+   {{ title_suffix }}
+   {{ display.display_header_tags(node) }}
+   {{ display.widgets(content.field_rating, node.id(), node.field_tag_transverse_format, author_name) }}
+  <div{{ content_attributes.addClass('node__content') }}>
+      {% set diaporamas =  content.field_slider['#items']|field_collection_items %}
+      {{ display.diaporama(diaporamas) }}
+  </div>
+</article>
+
+{{ display.widgets(content.field_rating, node.id(), node.field_tag_transverse_format, author_name) }}
+{{ display.display_diaporama_articles(diaporamaThemeArticles) }}
+{{ display.show_linked_articles(relatedThemeArticles) }}
+{{ display.show_same_theme(sameThemeArticles, currentTerm) }}
+<section class="comments">
+    {{ content.comment }}
+</section>

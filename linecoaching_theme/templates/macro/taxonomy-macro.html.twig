@@ -1,0 +1,670 @@
+{#
+/**
+ * @file
+ * Macro for page taxonomonie
+ * promoted_article => article à l'une
+ */
+#}
+{% macro promoted_article(promotedArticle) %}
+    {% set title = promotedArticle.getTitle()|capitalize %}
+    {% set url   = path('entity.node.canonical', {'node': promotedArticle.id()}) %}
+    {% set txt   = promotedArticle.field_chapeau.value|raw %}
+    <article class="promoted-article">
+        <div class='promoted-image' style="background-image:url({{ file_url(promotedArticle.field_photo.entity.fileuri) }})">
+        </div>
+        <div class="caption-text screenshot-caption screenshot-caption_bottom">
+           {{ promotedArticle.field_tag_transverse_format|display_tag_content|raw }}
+           <h3 class="title"><a href="{{ url }}" title="{{ title }}">{{ title }}</a></h3>
+           {{  _self.display_information_recette(promotedArticle) }}
+         </div>
+    </article>
+{% endmacro %}
+{#
+  Promoted article with narrow  image
+#}
+{% macro promoted_article_narrow(promotedArticle) %}
+    {% set title = promotedArticle.getTitle() | capitalize %}
+    {% set url   = path('entity.node.canonical', {'node': promotedArticle.id()}) %}
+    {% set txt   = promotedArticle.field_chapeau.value|strip_tags_allow_entity|truncate(300, true, true)|raw %}
+    <article class="promoted-article-narrow">
+        <div class='promoted-image-narrow' style="background-image:url({{ file_url(promotedArticle.field_photo.entity.fileuri) }})">
+        </div>
+        <div class="caption-text">
+           <h3 class="title"><a href="{{ url }}" title="{{ title }}">{{ title }}</a></h3>
+            {{  _self.display_information_recette(promotedArticle) }}
+            {{ promotedArticle.field_tag_transverse_format|display_tag_content|raw }}
+            <div title="Réagissez à cet article" class="comment-count badge">
+                {{ promotedArticle.id|comment_count}}
+            </div>
+            {% if promotedArticle.field_rating.values is defined %}
+               <div class="rating">
+                  {{ drupal_field('field_rating', 'node', promotedArticle.id()) }}
+                </div>
+            {% else %}
+                <div class="rating">
+                 {{ default_fivestar_widget(promotedArticle.id()) }}
+                </div>
+            {% endif %}
+          <a href="{{ url }}" title="{{ title }}"> {{ txt }}</a>
+         </div>
+    </article>
+{% endmacro %}
+
+{#
+  Promoted article with wide  image
+#}
+{% macro mag_promoted_article(promotedArticle) %}
+    {% set title = promotedArticle.getTitle() | capitalize %}
+    {% set url   = path('entity.node.canonical', {'node': promotedArticle.id()}) %}
+    {% set txt   = promotedArticle.field_chapeau.value|strip_tags_allow_entity|truncate(500, true)|raw %}
+    <article onClick="location.href='{{ url }}'"   class="mag-promoted-article screenshot">
+        <a href="{{ url }}" title="{{ title }}">
+             <div  class='promoted-image' style="background-image:url({{ file_url(promotedArticle.field_photo.entity.fileuri) }})">
+             </div>
+         </a>
+         <div class="caption-text screenshot-caption screenshot-caption_bottom">
+             {{ promotedArticle.field_tag_transverse_format|display_tag_content|raw }}
+             {{ promotedArticle.field_theme|display_tag_content(true, 3)|raw }}
+             <h3 class="title"><a href="{{ url }}" title="{{ title }}">{{ title }}</a></h3>
+             {{  _self.display_information_recette(promotedArticle) }}
+             <a href="{{ url }}" title="{{ title }}">{{ txt }}</a>
+         </div>
+     </article>
+{% endmacro %}
+
+
+{% macro mag_related_articles(relatedArticles) %}
+    <section class="mag-related-articles">
+        {% for article in relatedArticles %}
+           {% set title = article.getTitle() | capitalize %}
+           {% set url   = path('entity.node.canonical', {'node': article.id()}) %}
+           {% set txt   = article.field_chapeau.value|strip_tags_allow_entity|truncate(300)|raw %}
+           {% if loop.index == 1 %}
+           <article class="first mag-article col-sm-4">
+                <div  class="mag-image" style="background-image:url({{ file_url(article.field_photo.entity.fileuri) }})">
+                </div>
+            </article>
+             <article class="first mag-article col-sm-4">
+                 {{ article.field_tag_transverse_format|display_tag_content|raw }}
+                 {{ article.field_theme|display_tag_content(true, 3)|raw }}
+                 <h3 class="title"><a href="{{ url }}" title="{{ title }}"> {{ title }} </a></h3>
+                 <div class="chapeau"><a href="{{ url }}" title="{{ title }}">{{ txt }}</a></div>
+            </article>
+            {% elseif loop.index < 6 %}
+            <article class="screenshot mag-article col-sm-4">
+                <div class="mag-image" style="background-image:url({{ file_url(article.field_photo.entity.fileuri) }})">
+                </div>
+                 <div class="caption-text screenshot-caption screenshot-caption_bottom">
+                     {{ article.field_tag_transverse_format|display_tag_content|raw }}
+                     {{ article.field_theme|display_tag_content(true, 3)|raw }}
+                     <h3 class="title"><a href="{{ url }}"title="{{ title }}"> {{ title }} </a></h3>
+                     <a href="{{ url }}"title="{{ title }}">{{txt }}</a>
+                  </div>
+            </article>
+            {% endif %}
+        {% endfor %}
+       </section>
+{% endmacro %}
+
+{% macro bilan_gratuit() %}
+    <section class="bilan_gratuit">
+        <h4>Mon bilan minceur gratuit en 4 minutes</h4>
+        <a class="btn btn-default" href="https://bilan.linecoaching.com" role="button">Je commence</a>
+    </section>
+{% endmacro %}
+
+
+{#
+/**
+ * @file
+ * Macro for page taxonomonie (notably page taxonomy)
+ * Displays articles in list form horizontally(one article per line)
+ */
+#}
+
+{% macro list_articles(articles) %}
+    <section class="list-articles">
+        {% for article in articles %}
+            {% set title = article.getTitle()| capitalize %}
+            {% set url   = path('entity.node.canonical', {'node': article.id()}) %}
+            <article class="article-artivariablescle col-sm-12">
+                  <a  title="{{ title }}" href="{{ url }}">
+                     {% if article.type() == 'diaporama' %}
+                       {% set diaporama  = article.field_slider | field_collection_items|first %}
+                       <div class='col-sm-3 article-image'  style="background-image:url({{ file_url(diaporama.fileuri) }})">
+                        </div>
+                     {% else %}
+                        <div class='col-sm-3 article-image'  style="background-image:url({{ file_url(article.field_photo.entity.fileuri) }})">
+                        </div>
+                     {% endif %}
+                    </a>
+                    <h3 class="title">
+                      <a href="{{ url }}"title="{{ title}}">{{ title}}</a>
+                    </h3>
+                    {{ article.field_tag_transverse_format|display_tag_content|raw }}
+                     <div class="block_widgets">
+                         <span title="Réagissez à cet article" class="comment-count badge">{{ article.id|comment_count}}</span>
+                         {% if article.field_rating['#object'] is defined %}
+                             {{ rating }}
+                         {% else %}
+                            {{ default_fivestar_widget(article.id) }}
+                         {% endif %}
+                      </div>
+                     {{  _self.display_information_recette(article) }}
+                     {% if article.type() == 'diaporama' %}
+                         {% set diaporama  = article.field_slider|field_collection_items|first %}
+                         {{ diaporama.text|strip_tags_allow_entity|strip_tags_allow_entity|truncate(180, true, true,true)|raw}}
+                     {% else %}
+                         {{ article.field_chapeau.value|strip_tags_allow_entity|truncate(180, true, true,true)|raw}}
+                     {% endif %}
+                    <br><a class="more" title="{{ title }}" href="{{ url }}">
+                     Lire plus
+                    </a>
+            </article>
+        {% endfor %}
+       </section>
+{% endmacro %}
+{#
+/**
+ * @file
+ * Macro for page taxonomonie
+ * Displays articles in list form horizontally(one article per line)
+ */
+#}
+
+{% macro list_articles_abc(childTerms) %}
+    <section class="anchor-abc">
+    {% for child in childTerms %}
+      {% if child.firstLetter is not empty %}
+        <a href="#{{ child.firstLetter }}" class="btn">{{ child.firstLetter }}</a>
+      {% endif %}
+     {% endfor %}
+    </section>
+    <section class="list-articles">
+      {% for child in childTerms %}
+         <h2 id="{{ child.firstLetter }}" class="abc-title">{{ child.term.getName() | capitalize}}</h2>
+        {% for article in child.recentArticles %}
+            {% set title = article.getTitle()| capitalize %}
+            {% set url   = path('entity.node.canonical', {'node': article.id()}) %}
+            <article class="article-artivariablescle col-sm-12">
+               <a href="{{ url }}"title="{{ title }}">
+                <div class='col-sm-3 article-image' style="background-image:url({{ file_url(article.field_photo.entity.fileuri) }})">
+                </div>
+               </a>
+                    <h3 class="title">
+                      <a href="{{ url }}"title="{{ title }}">{{ title  }}</a>
+                    </h3>
+                    <div class="sub-line">
+                    {{ article.field_tag_transverse_format|display_tag_content|raw }}
+
+                     <div class="block_widgets">
+                         <span title="Réagissez à cet article" class="comment-count badge">{{ article.id|comment_count}}</span>
+                         {% if article.field_rating['#object'] is defined %}
+                            {{ drupal_field('field_rating', 'node', article.id()) }}
+                         {% else %}
+                            {{ default_fivestar_widget(article.id()) }}
+                         {% endif %}
+                     </div>
+                     </div>
+                     {{ article.field_chapeau.value|strip_tags_allow_entity|truncate(180, true, true)|raw }}
+                    <br><a class="more" title="{{ title }}" href="{{ url }}">
+                     Lire plus
+                    </a>
+            </article>
+        {% endfor %}
+       {% endfor %}
+     </section>
+{% endmacro %}
+
+{#
+/**Tag dossier**/
+#}
+{% macro key_words(keywords ,hide_title) %}
+    <section class="list-keywords">
+     {% if not hide_title %}
+      <span class="keyword-title">
+       On en parle
+      </span>
+    {% endif %}
+    {% for key in keywords %}
+     <div class="keyword">
+          {% set termUrl = path('entity.taxonomy_term.canonical', {'taxonomy_term': key.id()}) %}
+          <span class="tag"> <a title ="{{ key.getName() | capitalize }}" href = "{{ termUrl }}" >{{ key.getName() | capitalize }}</a></span>
+     </div>
+   {% endfor %}
+   </section>
+{% endmacro %}
+{#
+/**
+ * @file
+ Display all articles without limit (4 per line) in carte forme
+ */
+#}
+{% macro display_article_transverse(article ,parentTid, index) %}
+     {% set title = article.getTitle()|strip_tags_allow_entity|capitalize %}
+     {% set titleLng = title|length %}
+     {% set url   = path('entity.node.canonical', {'node': article.id()}) %}
+     {% set maxTxtLgth = 150 - titleLng %}
+     {% if article.type() == 'diaporama' %}
+         {% set diaporama  = article.field_slider|field_collection_items|first %}
+         {% set fileuri = diaporama.fileuri %}
+         {% set txt = diaporama.text|strip_tags_allow_entity %}
+{# |truncate(maxTxtLgth,true, true)|raw #}
+     {% else %}
+         {% set txt = article.field_chapeau.value |strip_tags_allow_entity %}
+{# |truncate(maxTxtLgth,true, true)|raw %} #}
+         {% set fileuri = article.field_photo.entity.fileuri %}
+     {% endif %}
+     <a href="{{ url }}"  title ="{{ title }}">
+         <article class="cartes-format {{ _self.view_row_index_class(index)|trim }} screenshot col-sm-3 article-article taxonomy-filter-{{parentTid}} taxonomy-filter-{{parentTid}}-{{ article.field_theme.value.0.target_id }}">
+           <div class="article-image" style="background-image:url({{ file_url(fileuri) }})"></div>
+           <div>{{ article.field_theme|display_tag_content(true, 3)|raw }}</div>
+            <h3 class="title"><a href="{{ url }}"title="{{ title }}">{{ title  }}</a> </h3>
+            <div class="block_widgets">
+                 {{ article.field_tag_transverse_format|display_tag_content|raw }}
+                 <div class="article-field-theme">{{ article.field_theme|display_tag_content|raw }}</div>
+
+                 <span title="Réagissez à cet article" class="comment-count badge">{{ article.id|comment_count}}</span>
+                 {% if article.field_rating['#object'] is defined %}
+                     {{ rating }}
+                 {% else %}
+                    {{ default_fivestar_widget(article.id) }}
+                 {% endif %}
+                 <span title="Réagissez à cet article" class="comment-count badge">{{ article.id|comment_count}}</span>
+             </div>
+            <div class="lctooltip"><p>{{txt|strip_tags_allow_entity|truncate(300, true, true)}}<span class="more-link">Lire</span></p></div>
+         </article>
+       </a>
+    {% endmacro %}
+{#
+/**
+ * @file
+ Display all articles without limit (4 per line)
+ */
+#}
+{% macro display_article_transverse_horizontal(article ,parentTid) %}
+     {% set title = article.getTitle() | capitalize %}
+     {% set titleLng = title | length %}
+     {% set url   = path('entity.node.canonical', {'node': article.id()}) %}
+     {% set maxTxtLgth = 150 - titleLng %}
+     {% if article.type() == 'diaporama' %}
+         {% set diaporama  = article.field_slider|field_collection_items|first %}
+         {% set fileuri = diaporama.fileuri %}
+         {% set txt = diaporama.text|strip_tags_allow_entity|truncate(maxTxtLgth,true, true)|raw %}
+     {% else %}
+         {% set txt = article.field_chapeau.value |strip_tags_allow_entity|truncate(maxTxtLgth,true, true)|raw %}
+         {% set fileuri = article.field_photo.entity.fileuri %}
+     {% endif %}
+          <article onClick="location.href='{{ url }}'" class="article-artivariablescle article-article col-sm-12 taxonomy-filter-{{parentTid}} taxonomy-filter-{{parentTid}}-{{ article.field_theme.value.0.target_id }}">
+            <a  title="{{ title }}" href="{{ url }}">
+              <div class='col-sm-3 article-image' style="background-image:url({{ file_url(fileuri) }})"></div>
+            </a>
+            <h3 class="title"><a href="{{ url }}"title="{{ title }}">{{ title  }}</a> </h3>
+             <div class="block_widgets">
+                 {{ article.field_tag_transverse_format|display_tag_content|raw }}
+                 <span title="Réagissez à cet article" class="comment-count badge">{{ article.id|comment_count}}</span>
+                 {% if article.field_rating['#object'] is defined %}
+                     {{ rating }}
+                 {% else %}
+                    {{ default_fivestar_widget(article.id) }}
+                 {% endif %}
+              </div>
+              {{ txt|strip_tags_allow_entity|strip_tags_allow_entity|truncate(180, true, true,true)|raw}}
+            <a class="more" title="{{ title }}" href="{{ url }}">
+             Lire plus
+            </a>
+           </article>
+{% endmacro %}
+
+{#
+/**
+ * @file
+ * Macro for page taxonomonie theme
+ * Display teaser for article (3  blocks per line except for first element)
+ */
+#}
+{% macro display_article(article, counter, isMag) %}
+     {% set title = article.getTitle()| capitalize %}
+     {% set titleLng = title | length %}
+     {% set url   = path('entity.node.canonical', {'node': article.id()}) %}
+     {% if counter == 1 %}
+         {% set maxTxtLgth = 240 - titleLng %}
+         {% set txt   = article.field_chapeau.value |strip_tags_allow_entity|truncate(maxTxtLgth,true, true)|raw  %}
+          <article class="col-sm-4 article-article">
+            <div class='article-intro'>
+               <div class='article-image' style="background-image:url({{ file_url(article.field_photo.entity.fileuri) }})">
+                </div>
+            </div>
+          </article>
+           <article class="col-sm-4 article-article">
+            <div class='article-intro'>
+               {{ article.field_tag_transverse_format|display_tag_content|raw }}
+               {% if isMag %}
+                  {{ article.field_theme|display_tag_content(true, 3)|raw }}
+               {% endif %}
+               <h3 class="title"><a href="{{ url }}"title="{{ title }}"> {{ title  }}</a> </h3>
+                {{ _self.display_information_recette(article) }}
+                {% if article.type() != 'dossier_recette' %}
+                  <div class="chapeau"><a title="{{ title }}" href="{{ url }}">{{ txt}}</a></div>
+                {% endif %}
+            </div>
+          </article>
+      {% elseif counter < 6%}
+           {% set maxTxtLgth = 150 - titleLng %}
+           {% set txt   = article.field_chapeau.value | strip_tags_allow_entity|truncate(maxTxtLgth,true, true)|raw  %}
+          <article class="screenshot col-sm-4 article-article">
+               <div class='article-image' style="background-image:url({{ file_url(article.field_photo.entity.fileuri) }})">
+               </div>
+               <div class="caption-text screenshot-caption screenshot-caption_bottom">
+                   {{ article.field_tag_transverse_format|display_tag_content|raw }}
+                   {% if isMag %}
+                      {{ article.field_theme|display_tag_content(true, 3)|raw }}
+                   {% endif %}
+                   <h3 class="title"><a href="{{ url }}" title="{{ title }}"> {{ title }} </a></h3>
+                   {{  _self.display_information_recette(article) }}
+                   {% if article.type() != 'dossier_recette' %}
+                      <a title="{{ title }}" href="{{ url }}">{{txt }}</a>
+                   {% endif %}
+              </div>
+          </article>
+      {% endif %}
+{% endmacro %}
+{#
+/**
+ * @file
+  Macro that displays information recette
+ */
+#}
+{% macro display_information_recette(article) %}
+       {% if article.type() == 'dossier_recette' %}
+           <div class="boxprep">
+              <span class="wrap_prep"><span class="prepspec num_person fa fa-user"><b>Nombre de personnes</b></span>
+                     <span>{{ article.field_nb_personnes.value|raw}}</span>
+               </span>
+              <span class="wrap_prep"><span class="prepspec preparation_time fa fa-clock-o"><b>Temps de préparation</b></span>
+                   <span>{{ article.field_temp_preparation.value|convert_time_to_minutes}} min</span>
+              </span>
+              <span class="wrap_prep">
+                <span class="prepspec cooking_time fa fa-fire">
+                  <b>Temps de cuisson</b>
+                </span>
+                <span>{{ article.field_temp_cuisson.value|convert_time_to_minutes }} min</span>
+              </span>
+              {% set niveau = node.field_niveau.value %}
+              <span class="wrap_prep">
+                  <span class="prepspec niveau fa fa-cutlery"><b>Niveau</b></span>
+                  <span>
+                    {% if niveau == 0 or niveau == 1 %}
+                    Facile
+                    {% elseif niveau == 2 %}
+                    Intermédiaire
+                    {% elseif niveau == 3 %}
+                    Difficile
+                    {% else %}
+                    Facile
+                    {% endif %}
+                  </span>
+               </span>
+
+             <!--span class="wrap_prep"><span class="prepspec level"><b>Coût</b>
+             {% for i in 0 .. article.field_cout.value %}
+                  <i class="level fa fa-eur"></i>
+             {% endfor %}
+             </span></span-->
+           </div>
+           <div class="prepend"></div>
+      {% endif %}
+{% endmacro %}
+{#
+/**
+ * @file
+ * Macro for page taxonomonie dossier
+ * Display teaser for article (2 blocks per line)
+ */
+#}
+{% macro display_article_duo(article, counter) %}
+     {% set title = article.getTitle() | capitalize %}
+     {% set titleLng = title | length %}
+     {% set url   = path('entity.node.canonical', {'node': article.id()}) %}
+     {% set maxTxtLgth = 150 - titleLng %}
+     {% set txt   = article.field_chapeau.value |strip_tags_allow_entity|truncate(maxTxtLgth,true, true)|raw  %}
+      <article class="screenshot col-md-6 article-article">
+           <div class='article-image' style="background-image:url({{ file_url(article.field_photo.entity.fileuri) }})">
+           </div>
+           <div class="caption-text screenshot-caption screenshot-caption_bottom">
+               {{ article.field_tag_transverse_format|display_tag_content|raw }}
+               {{ article.field_theme|display_tag_content(true, 3)|raw }}
+               <h3 class="title"><a href="{{ url }}" title="{{ title  }}"> {{ title }} </a></h3>
+               <a title="{{ title }}" href="{{ url }}">{{txt }}</a>
+          </div>
+      </article>
+{% endmacro %}
+
+{#
+/**
+ * @file
+ * Macro for page taxonomonie
+ * Displays list of taxonomy sections
+ *
+ */
+#}
+
+{% macro display_taxonomy_section(childTerm, isMag, isAbcRegimes ) %}
+    {%  set articles = childTerm.termFields.relatedArticles %}
+    {%  set termUrl  = path('entity.taxonomy_term.canonical', {'taxonomy_term': childTerm.term.id()}) %}
+    <section class="col-xs-12 sub-taxonomy">
+        <h2 class="sub-taxonomy-header"><a href="{{ termUrl }}" >{{ childTerm.term.getName() | capitalize }}</a></h2>
+          {% if childTerm.subChildren is defined and not isAbcRegimes %}
+          <div class="tag-dossier-container sttd_wrap">
+            <div class="sub-taxonmy-tag-dossier sttd_box">
+              {% for term in childTerm.subChildren %}
+                  {% set subTermUrl = path('entity.taxonomy_term.canonical', {'taxonomy_term': term.id()}) %}
+                  <span class="taxonomy"><a title = "{{ term.getName() | capitalize}}" href="{{ subTermUrl }}">{{ term.getName()| capitalize }} </a></span>
+              {% endfor %}
+            </div>
+
+          </div>
+          <div class="keywords">
+              <ul class="slides">
+               {% for term in childTerm.subChildren %}
+               {% set subTermUrl = path('entity.taxonomy_term.canonical', {'taxonomy_term': term.id()}) %}
+                  <li class="taxonomy"><a title = "{{ term.getName() | capitalize}}" href="{{ subTermUrl }}">{{ term.getName()| capitalize }} </a></li>
+               {% endfor %}
+              </ul>
+          </div>
+          {% endif %}
+        <section class="article-list">
+            {% for article in articles %}
+              {{ _self.display_article (article, loop.index, isMag)}}
+            {% endfor %}
+        </section>
+         {{ _self.key_words_theme(childTerm.termDossier) }}
+    </section>
+{% endmacro %}
+{#
+/**
+ * @file
+ * Macro for page taxonomonie
+ * Displays list of taxonomy sections
+ *
+ */
+#}
+
+{% macro key_words_theme(termDossiers) %}
+      {% if termDossiers is not empty%}
+        <div class="sub-taxonmy-tag-dossier keyword">
+              <span class="keyword-title">
+                 On en parle
+              </span>
+          {% for term in termDossiers %}
+              {% set subTermUrl = path('entity.taxonomy_term.canonical', {'taxonomy_term': term.id()}) %}
+              <span class="taxonomy tag"><a title = "{{ term.getName() | capitalize}}" href="{{ subTermUrl }}">{{ term.getName()| capitalize }} </a></span>
+          {% endfor %}
+        </div>
+      {% endif %}
+{% endmacro %}
+
+      {# index content.. #}
+{% macro view_row_index_class(index) %}
+   {% if (index%4) == 0 %}
+     {% set position = 'first' %}
+   {% elseif (index%4) == 1  %}
+     {% set position = 'second' %}
+   {% elseif (index%4)  == 2  %}
+     {% set position = 'second' %}
+   {% elseif (index%4) == 2  %}
+     {% set position = 'third' %}
+   {% else %}
+     {% set position = 'fourth' %}
+   {% endif %}
+    {{ position }}
+{% endmacro %}
+
+{#
+/**
+ * @file
+ * Macro for page taxonomonie
+ * Displays display 4 elements per line
+ *
+ */
+#}
+
+{% macro display_taxonomy_transverse_section_wthout_filters(childTerm, displayHorizontal) %}
+    {%  set articles = childTerm.articles %}
+    {%  set termUrl  = path('entity.taxonomy_term.canonical', {'taxonomy_term': childTerm.term.id()}) %}
+    <section class="col-xs-12 sub-taxonomy">
+        <h2 class="sub-taxonomy-header"><a href="{{ termUrl }}" >{{ childTerm.term.getName() | capitalize }}</a></h2>
+        {% if displayHorizontal == 'true' %}
+            <section class="list-articles article-list ">
+            {# display line per line #}
+                {% for article in articles %}
+                      {{ _self.display_article_transverse_horizontal(article, childTerm.term.id())}}
+                {% endfor %}
+            </section>
+        {% else %}
+        {# display in carte format #}
+            <section class="article-list cartes-format">
+                {% for article in articles %}
+                      {{ _self.display_article_transverse(article, childTerm.term.id(), loop.index) }}
+                {% endfor %}
+            </section>
+        {% endif %}
+    </section>
+{% endmacro %}
+{#
+/**
+ * @file
+ * Macro for page taxonomonie
+ * Displays display 4 elements per line
+ *
+ */
+#}
+
+{% macro display_taxonomy_transverse_section(childTerm, displayHorizontal) %}
+    {%  set articles = childTerm.articles %}
+    {%  set termUrl  = path('entity.taxonomy_term.canonical', {'taxonomy_term': childTerm.term.id()}) %}
+    <section class="col-xs-12 sub-taxonomy">
+        <h2 class="sub-taxonomy-header"><a href="{{ termUrl }}" >{{ childTerm.term.getName() | capitalize }}</a></h2>
+        <div class="taxonomy_filters">
+            <label for="taxonomy-filter-{{childTerm.term.id()}}">Trier par:</label>
+            <select name="taxonomy-filter-{{childTerm.term.id()}}" class="form-control taxonomy-transverse-filter">
+                <option value="taxonomy-filter-{{ childTerm.term.id()}}">Tous</option>
+                {% for subtheme in childTerm.subthemes %}
+                   <option value="taxonomy-filter-{{ childTerm.term.id()}}-{{subtheme.id() }}">{{ subtheme.getName() }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        {% if displayHorizontal == 'true' %}
+            <section class="list-articles article-list taxonomy-{{ term.id() }}">
+                {% for article in articles %}
+                      {{ _self.display_article_transverse_horizontal(article, childTerm.term.id())}}
+                {% endfor %}
+            </section>
+        {% else %}
+            <section class="article-list taxonomy-{{ term.id() }}">
+                {% for article in articles %}
+                      {{ _self.display_article_transverse (article, childTerm.term.id())}}
+                {% endfor %}
+            </section>
+        {% endif %}
+    </section>
+{% endmacro %}
+{#
+/**
+ * @file
+ * Macro for page taxonomonie
+ * Displays Title and introduction  text */
+#}
+{% macro show_header(mainTerm)%}
+    <section class="header">
+       <h1 class="title"> {{ mainTerm.defaultTitle | capitalize}} </h1>
+      {{ _self.social_media() }}
+      {% if mainTerm.termFields.introText[0].value is defined %}
+          <div class="intro">
+            {{ mainTerm.termFields.introText[0].value|raw }}
+          </div>
+      {% endif %}
+    </section>
+{% endmacro %}
+
+{#
+/**
+ * @file
+ * Macro for social media default
+ */
+#}
+
+{% macro social_media() %}
+    <div class="social-media taxonomy">
+        <div class="social-media taxonomy">
+            <a  href="#" class="print" onclick="window.print();" class="glyphicon glyphicon-print"></a>
+            <b class="w_bullets">•</b>
+           <!-- AddToAny BEGIN -->
+           <div class="a2a_kit a2a_kit_size_32 a2a_default_style">
+              <a class="a2a_button_email" title="Partagez ce contenu par E-mail"></a>
+              <a class="a2a_button_facebook" title="Partagez ce contenu sur Facebook"></a>
+              <a class="a2a_button_twitter" title="Partagez ce contenu sur Twitter"></a>
+           </div>
+          {{ attach_library('linecoaching_theme/addtoany.addtoanyjs') }}
+          <!-- AddToAny END -->
+       </div>
+    </div>
+{% endmacro %}
+
+
+{#
+/**
+ * @file
+ * Macro for social media transverse
+ */
+#}
+
+{% macro social_media_transverse() %}
+    <div class="social-media taxonomy">
+        <div class="social-media taxonomy">
+           <!-- AddToAny BEGIN -->
+           <div class="a2a_kit a2a_kit_size_32 a2a_default_style">
+              <a class="a2a_button_email" title="Partagez ce contenu par E-mail"></a>
+              <a class="a2a_button_facebook" title="Partagez ce contenu sur Facebook"></a>
+              <a class="a2a_button_twitter" title="Partagez ce contenu sur Twitter"></a>
+           </div>
+          {{ attach_library('linecoaching_theme/addtoany.addtoanyjs') }}
+          <!-- AddToAny END -->
+       </div>
+    </div>
+{% endmacro %}
+
+{% macro forum_header(logged_in)%}
+    {% if logged_in %}
+    <ul id="forum-nav" class="nav nav-tabs">
+      <li class="nav-item"><span class="nav-link active forum-front" data-ref="{{ path('forum.index') }}">Accueil</span></li>
+        <li class="nav-item"><a class="use-ajax" href="{{ path('mtc_core.lc_forum_controller_users_followers') }}"><span class="nav-link" data-href="{{ path('mtc_core.lc_forum_controller_users_followers') }}">Sujets suivis</span></a></li>
+      <li class="nav-item"><a class="use-ajax" href="{{ path('mtc_core.lc_forum_controller_subject_new') }}"><span class="nav-link" data-href="{{ path('mtc_core.lc_forum_controller_subject_new') }}">Nouveaux Sujets</span></a></li>
+      <li class="nav-item"><a class="use-ajax" href="{{ path('mtc_core.lc_forum_controller_subject_active') }}"><span class="nav-link" data-href="{{ path('mtc_core.lc_forum_controller_subject_active') }}">Sujets Actifs</span></a></li>
+      <li class="nav-item"><a class="use-ajax" href="{{ path('mtc_core.lc_forum_controller_subject_no_comments') }}"><span class="nav-link" data-href="{{ path('mtc_core.lc_forum_controller_subject_no_comments') }}">Sujets Sans Réponse</span></a></li>
+        {% if logged_in %}
+            <li class="nav-item"><span class=" forum-membre nav-link" data-href="{{ path('mtc_core.lc_forum_controller_forum_members') }}">Membres</span></li>
+        {% endif %}
+    </ul>
+    {% endif %}
+{% endmacro %}

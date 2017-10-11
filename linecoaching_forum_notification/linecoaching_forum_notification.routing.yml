@@ -1,0 +1,7 @@
+forum_notification.setting_form:
+  path: '/admin/form/forum_notification'
+  defaults:
+    _form: '\Drupal\linecoaching_forum_notification\Form\LcForumNotificationForm'
+    _title: 'Forum Notification Form'
+  requirements:
+    _access: 'TRUE'

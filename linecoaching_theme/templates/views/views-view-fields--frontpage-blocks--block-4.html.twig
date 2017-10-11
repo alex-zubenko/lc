@@ -1,0 +1,61 @@
+{#
+/**
+ * @file
+ * Theme override to display all the fields in a row.
+ * Bloc - front page : quel est votre profil
+ * Available variables:
+ * - view: The view in use.
+ * - fields: A list of fields, each one contains:
+ *   - content: The output of the field.
+ *   - raw: The raw data for the field, if it exists. This is NOT output safe.
+ *   - class: The safe class ID to use.
+ *   - handler: The Views field handler controlling this field.
+ *   - inline: Whether or not the field should be inline.
+ *   - wrapper_element: An HTML element for a wrapper.
+ *   - wrapper_attributes: List of attributes for wrapper element.
+ *   - separator: An optional separator that may appear before a field.
+ *   - label: The field's label text.
+ *   - label_element: An HTML element for a label wrapper.
+ *   - label_attributes: List of attributes for label wrapper.
+ *   - label_suffix: Colon after the label.
+ *   - element_type: An HTML element for the field content.
+ *   - element_attributes: List of attributes for HTML element for field content.
+ *   - has_label_colon: A boolean indicating whether to display a colon after
+ *     the label.
+ *   - element_type: An HTML element for the field content.
+ *   - element_attributes: List of attributes for HTML element for field content.
+ * - row: The raw result from the query, with all data it fetched.
+ *
+ * @see template_preprocess_views_view_fields()
+ */
+#}
+{# modal hp#}
+<div data-aos="zoom-in"  data-aos-once="true"  data-toggle="modal" data-target="#hpProfile-{{row.nid}}" class="col-sm-3">
+  {% if fields.field_image is defined %}
+    <div class="field-content image">{{ fields.field_image.content }}</div>
+  {% endif %}
+  {% if fields.title is defined %}
+    <div class="field-content title">{{ fields.title.content }}</div>
+  {% endif %}
+  {% if fields.body is defined %}
+    <div class="field-content body">{{ fields.body.content }}</div>
+  {% endif %}
+  <div class="field-content more"><span>Plus d'infos</span>   {{ fields.edit_node.content }}</div>
+</div>
+<div id="hpProfile-{{row.nid}}"  class="modal fade" role="dialog">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal">&times;</button>
+      </div>
+      <div class="modal-body">
+        {% if fields.field_modal is defined %}
+            <p>{{ fields.field_modal.content  }}</p>
+        {% endif %}
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Fermer</button>
+      </div>
+    </div>
+  </div>
+</div>

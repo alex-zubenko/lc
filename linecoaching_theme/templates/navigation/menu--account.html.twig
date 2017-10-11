@@ -1,0 +1,87 @@
+{#
+/**
+ * @file
+ * Default theme implementation to display a menu.
+ *
+ * Available variables:
+ * - menu_name: The machine name of the menu.
+ * - items: A nested list of menu items. Each menu item contains:
+ *   - attributes: HTML attributes for the menu item.
+ *   - below: The menu item child items.
+ *   - title: The menu link title.
+ *   - url: The menu link url, instance of \Drupal\Core\Url
+ *   - localized_options: Menu link localized options.
+ *
+ * @ingroup templates
+ */
+#}
+<nav class="navbar-account">
+    <div class="n_a_user">
+        {% if user.id() > 0 %}
+            <span class="user-name">Bonjour,&nbsp; {{ user.getDisplayName() }}</span>
+        {% endif %}
+        {% if user.id() > 0 and not free_user %}
+            <span class="espace-personel"> <a href="{{ path('mtc_core.subscriber.home.program') }}"
+                                              title="Mon espace personel">Mon espace personnel</a>
+          </span>
+        {% endif %}
+    </div>
+    <ul class="menu account toggle_mobile nav navbar-nav navbar-right">
+        {% for key, item in items %}
+            {% set classes = [
+            'menu-item',
+            item.title | clean_id
+            ] %}
+            {% if key == 'user.page' %}
+                <li class="dropdown">
+                    <a href="#" class="mtc-btn-nav dropdown-toggle"
+                       data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
+                        <i class="glyphicon glyphicon-user"></i>
+                        <i class="caret"></i>
+                    </a>
+                    <ul class="dropdown-menu">
+                        <li><a href="{{ path('mtc_core.subscription.profile') }}" title="Mon Compte">Mon Compte</a></li>
+                        <li><a href="{{ path('user.logout.http') }}" title="Se déconnecter">Se déconnecter</a></li>
+                    </ul>
+                </li>
+            {% elseif key == 'user.logout' and  user.id() == 0 %}
+                <li><span class="mtc-login" data-target="#MtcLoginModal" data-backdrop="true" data-toggle="modal" title="{{ item.title }}" data-date="{{ 'now' | date('YmdHis') }}">{{ item.title }}</span></li>
+            {% elseif key == 'user.logout' and  user.id() > 0 %}
+
+            {% else %}
+                <li {{ item.attributes.addClass(classes) }}><a
+                            href="{{ item.url.toString() | relative_to_absolute }}"
+                            title="{{ item.title }}">{{ item.title }}</a></li>
+            {% endif %}
+        {% endfor %}
+        {% if user.id() > max_user_id %}
+        <ul class="right-bottom-btn">
+            <li>
+                <a href="{{ path('mtc_core.user.receivedMessages', {'user': user.id()} ) }}" class="mtc-btn-nav" role="button">
+                    <i class="glyphicon glyphicon-envelope"></i>
+                </a>
+            </li>
+            <li>
+                <a href="/therapy/favorites" class="mtc-btn-nav" role="button">
+                    <i class="glyphicon glyphicon-bookmark"></i>
+                </a>
+            </li>
+        </ul>
+        {% endif %}
+    </ul>
+<div class="modal fade" id="MtcLoginModal" tabindex="-1" role="dialog" aria-hidden="true">
+        <div class="modal-dialog" style="max-width:400px; min-width:320px;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+                <h4 class="modal-title">Se connecter</h4>
+            </div>
+            <div class="modal-body" style="min-height:350px;">
+                <div align="center">
+                    <img src="/themes/custom/linecoaching_theme/images/ajax-loader.gif" border="0"/>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</nav>

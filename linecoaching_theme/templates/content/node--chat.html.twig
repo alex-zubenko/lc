@@ -1,0 +1,39 @@
+{# /** * @file * Theme override to display a node dossier. */ #}
+{%
+  set classes = [
+    'node',
+    'node--type-' ~ node.bundle|clean_class,
+    node.isPromoted() ? 'node--promoted',
+    node.isSticky() ? 'node--sticky',
+    not node.isPublished() ? 'node--unpublished',
+    view_mode ? 'node--view-mode-' ~ view_mode|clean_class,
+   'taxonomy-article'
+
+  ]
+%}
+{% import "themes/custom/linecoaching_theme/templates/macro/node-taxonomy-macro.html.twig" as display %}
+<article {{ attributes.addClass(classes) }}>
+    {{ title_prefix }}
+    <h1>
+        {{ node.getTitle() }}
+    </h1>
+    {{ title_suffix }}
+    <div {{ content_attributes.addClass('node__content') }}>
+        <div class="body">
+            {{ node.body.value | raw }}
+        </div>
+        <div class="og">
+            Groupe:{{ content.og_audience }}
+        </div>
+        {%  if node.field_status_chat.value == 0 %}
+        <div class="chat-irc">
+            {{ content.field_chatroom }}
+        </div>
+        {% else %}
+        <div class="chat-irc archive">
+            {{ display_og_chat_archive(node.id()) }}
+        </div>
+        {% endif %}
+
+    </div>
+</article>

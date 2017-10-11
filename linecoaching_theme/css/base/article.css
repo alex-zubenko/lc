@@ -1,0 +1,26 @@
+article.node.taxonomy-article .multi-item-carousel .carousel-inner > .item {
+  transition: 500ms ease-in-out left;
+}
+article.node.taxonomy-article .multi-item-carousel .carousel-inner .active.left {
+  left: -33%;
+}
+article.node.taxonomy-article .multi-item-carousel .carousel-inner .active.right {
+  left: 33%;
+}
+article.node.taxonomy-article .multi-item-carousel .carousel-inner .next {
+  left: 33%;
+}
+article.node.taxonomy-article .multi-item-carousel .carousel-inner .prev {
+  left: -33%;
+}
+@media all and (transform-3d), (-webkit-transform-3d) {
+  article.node.taxonomy-article .multi-item-carousel .carousel-inner > .item {
+    transition: 500ms ease-in-out all;
+    backface-visibility: visible;
+    transform: none!important;
+  }
+}
+article.node.taxonomy-article .multi-item-carousel .carouse-control.left,
+article.node.taxonomy-article .multi-item-carousel .carouse-control.right {
+  background-image: none;
+}

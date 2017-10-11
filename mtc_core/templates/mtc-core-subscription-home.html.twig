@@ -1,0 +1,11 @@
+{%
+  set classes = [
+    'user',
+    'subscription'
+  ]
+%}
+{% import "themes/custom/linecoaching_theme/templates/macro/user-macro.html.twig" as display %}
+{{display.display_user_account_tabs(3, user)}}
+<article{{ attributes.addClass(classes) }}>
+    {{ content | raw }}
+</article>

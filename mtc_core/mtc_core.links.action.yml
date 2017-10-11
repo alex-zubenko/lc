@@ -1,0 +1,5 @@
+entity.user_profile_entity.add_form:
+  route_name: entity.lc_user_profile_entity.add_form
+  title: 'Add Lc User profile entity'
+  appears_on:
+    - entity.lc_user_profile_entity.collection

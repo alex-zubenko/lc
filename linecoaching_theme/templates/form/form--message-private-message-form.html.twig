@@ -1,0 +1,34 @@
+{#
+/**
+ * @file
+ * Theme override for a 'form' element.
+ *
+ * Available variables
+ * - attributes: A list of HTML attributes for the wrapper element.
+ * - children: The child elements of the form.
+ *
+ * @see template_preprocess_form()
+ */
+#}
+
+<h1>{{ element.title }}</h1>
+{{ element.message_profile.field_message_private_to_user_label }}
+<div class="private-message-title">
+   Pour écrire un message à "votre coach" :
+   <a href="{{ path('mtc_core.lc_messaging_private_add', {'user': 68}) }}">
+                      cliquez ici
+    </a>
+</div>
+<form{{ attributes }}>
+{{ element.form_build_id }}
+{{ element.form_token }}
+{{ element.form_id }}
+{% if element['#add_destinator'] == true %}
+    <label>Destinataire(s)</label>
+{% endif %}
+{{ element.message_profile.field_message_private_to_user }}
+{{ element.message_profile.field_message_private_subject }}
+{{ element.message_profile.field_message_private_body}}
+{{ element.actions }}
+</form>
+<a  title="Répondre" href="{{ path('mtc_core.user.receivedMessages', {'user': user.id()}) }}"class="btn btn-info" id="private-message" role="button">Revenir à mes messages</a>

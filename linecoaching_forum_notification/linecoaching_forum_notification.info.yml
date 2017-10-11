@@ -1,0 +1,7 @@
+name: linecoaching forum notification
+type: module
+description: Custom Linecoaching module for site
+version: '8.x-1.x'
+core: 8.x
+package: Custom
+

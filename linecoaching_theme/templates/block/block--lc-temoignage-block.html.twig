@@ -1,0 +1,35 @@
+{#
+/**
+ * @file Home page temoignage slider
+ * Default theme implementation to display a block hp tempo *
+ * Available variables:
+ * - title: The title of this group of rows. May be empty.
+ * - item_list: A list of the view's row items.
+ *
+ *
+ */
+#}
+
+<div class="flexslider">
+    <ul class="slides">
+    {% if title %}
+        <h3>{{ title }}</h3>
+   {% endif %}
+    {% for node in content.item_list %}
+      {%
+        set row_classes = [
+          default_row_class ? 'views-row',
+        ]
+      %}
+      <li>
+          <img src="{{ file_url(node.field_image.entity.fileuri)}}" alt="Slider Banner" />
+          <div class="flex-caption">
+            <h2> {{ node.getTitle() }} </h2>
+            <p class="flex-description"> {{node.field_declic.value |truncate(100)  }}</p>
+            <a href=' . theme_get_setting('slide_url_' . $i, 'multipurpose_business_theme') . ' class="more-link">Read more</a>
+          </div>
+      </li>
+    {% endfor %}
+    </ul>
+  </div>
+{% endif %}

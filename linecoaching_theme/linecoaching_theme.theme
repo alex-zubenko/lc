@@ -1,0 +1,373 @@
+<?php
+use Drupal\taxonomy\Entity\Term;
+use Drupal\linecoaching\Utils\TaxonomyUtility;
+
+/**
+ * @file
+ * Functions to support theming in the linecoaching theme.
+ */
+
+/**
+ * Implements hook_preprocess_page() for block templates.
+ */
+function linecoaching_theme_preprocess_page(&$variables)
+{
+    // / case of root-taxonomy/first-taxonomy : le mag,remove sidebar second
+    $term = \Drupal::request()->attributes->get('taxonomy_term');
+    $node = \Drupal::routeMatch()->getParameter('node');
+    $route = \Drupal::request()->attributes->get('_route');
+    if ($term) {
+        $depth = \Drupal::service('mtc_core.taxonomy_manager')->getTermDepth($term);
+        if ($depth == 0 && $term->getVocabularyId() == 'theme') {
+            // le mag
+            unset($variables['page']['sidebar_second']);
+            $variables['contentlayout'] = 'col-md-9 ';
+        }
+    }
+    // full page for blog post
+    if ((isset($node) && $node->getType() == 'blog_post') || $route == 'view.blog.blog_all') {
+        unset($variables['page']['sidebar_first']);
+        $variables['contentlayout'] = 'col-md-9';
+    }
+    // page chat remove first colonne
+    if ((isset($node) && $node->getType() == 'chat')) {
+        unset($variables['page']['sidebar_first']);
+        $variables['contentlayout'] = 'col-md-9';
+    }
+    if ((isset($route) && $route == 'view.chat_historique.page_1')) {
+        unset($variables['page']['sidebar_first']);
+        unset($variables['page']['sidebar_second']);
+        $variables['contentlayout'] = 'col-md-9';
+    }
+    // home client accueil
+    if (in_array($route, [
+        'mtc_core.subscriber.home.program',
+        'message_private.messages',
+        'message_private.messages.sent'
+    ])) {
+        $sideBar = $variables['page']['sidebar_second'];
+        $variables['page']['sidebar_second'] = [];
+        $variables['page']['sidebar_second']['lcpageaccueilclientrightsidebarblock'] = $sideBar['lcpageaccueilclientrightsidebarblock'] ?? [];
+        $variables['page']['sidebar_second']['#theme_wrappers'] = $sideBar['#theme_wrappers'];
+        $variables['page']['sidebar_second']['#region'] = $sideBar['#region'];
+    }
+    // tunnel payment
+    if (in_array($route, []))
+    // ~ 'mtc_core.ws.tunnel.offers',
+    // ~ 'mtc_core.ws.tunnel.payment',
+    // ~ 'mtc_core.ws.tunnel.account',
+    // ~ 'mtc_core.ws.tunnel.thanks'
+    {
+        unset($variables['page']['sidebar_second']);
+        // print cga
+        if (\Drupal::request()->query->get('step') == 'cga') {
+            unset($variables['page']['sidebar_first']);
+            $variables['contentlayout'] = 'col-md-12';
+        } else {
+            $variables['contentlayout'] = 'col-md-9';
+        }
+    }
+    // Generate the path to the logo image.
+    if (theme_get_setting('logo.path')) {
+        $variables['logopath'] = file_url_transform_relative(file_create_url(theme_get_setting('logo.path')));
+    }
+    // remove univers blocks
+    if ((isset($term) && $term->getVocabularyId() == 'forums') || (isset($node) && ! in_array($node->getType(), [
+        'dossier',
+        'dossier_recette',
+        'blog_expert',
+        'diaporama',
+        'interview'
+    ]))) {
+        unset($variables['page']['sidebar_first']['univers']);
+    }
+    if (empty($term) && empty($node)) {
+        unset($variables['page']['sidebar_first']['univers']);
+    }
+
+    // 403 ,forbiden access
+    if ($route == 'system.403') {
+        // check if user is connected
+        if (\Drupal::currentUser()->isAnonymous()) {
+            $form = Drupal::formBuilder()->getForm(Drupal\fancy_login\Form\FancyLoginLoginForm::class);
+            unset($form['subscription']);
+            unset($form['free_subscription']);
+            $render = Drupal::service('renderer');
+            $variables['forbidden']['login_form'] = $render->renderPlain($form);
+            $variables['forbidden']['is_anonymous'] = true;
+        } else {
+            $variables['forbidden']['is_anonymous'] = false;
+        }
+    }
+    // bilan link
+    $variables['bilan_site'] = theme_get_setting('bilan_site');
+    if ($route == 'mtc_core.lc_search_controller') {
+        $variables['search_query'] = \Drupal::request()->query->get('query');
+    }
+
+  if (isset($node) && $node->getType() == 'landing' && $node->hasField('field_new_template') && $node->field_new_template->value) {
+    $variables['site_logo'] = file_url_transform_relative(file_create_url(theme_get_setting('logo.url')));
+    if ($node->hasField('field_logo_partner')) {
+      /** @var \Drupal\file\Entity\File $file */
+      $file = $node->field_logo_partner->entity;
+      if (!empty($file)) {
+        $variables['logo_partner'] = file_create_url($file->getFileUri());
+      }
+    }
+    if ($node->hasField('field_price_left')) {
+      $variables['price_left'] = $node->field_price_left->value;
+    }
+    if ($node->hasField('field_price_right_small')) {
+      $variables['price_right_small'] = $node->field_price_right_small->value;
+    }
+    if ($node->hasField('field_price_right')) {
+      $variables['price_right'] = $node->field_price_right->value;
+    }
+    if ($node->hasField('field_price_title')) {
+      $variables['price_title'] = $node->field_price_title->value;
+    }
+    if ($node->hasField('field_price_button')) {
+      /** @var \Drupal\Core\Field\FieldItemList $f */
+      $url = $node->get('field_price_button')->getValue();
+      if (!empty($url)) {
+        $variables['price_title_button'] = $url[0]['title'];
+        $variables['price_url_button'] = $url[0]['uri'];
+      }
+    }
+  }
+
+  /** @var \Drupal\node\Entity\Node $node */
+  $node = \Drupal::routeMatch()->getParameter('node');
+  if (\Drupal::service('path.matcher')->isFrontPage() || (!empty($node) && $node->getType() == 'landing')) {
+    $variables['#attached']['library'][] = 'linecoaching_theme/player-vzaar';
+  }
+}
+
+/**
+ * Implements hook_preprocess_HOOK() for maintenance-page.html.twig.
+ */
+function linecoaching_theme_preprocess_maintenance_page(&$variables)
+{}
+
+/**
+ * Implements hook_preprocess_HOOK() for node.html.twig.
+ */
+function linecoaching_theme_preprocess_node(&$variables)
+{
+    // add extra info for articles
+    $node = $variables['node'];
+    $node_type = $node->getType();
+    if (in_array($node_type, [
+        'dossier',
+        'dossier_recette',
+        'blog_expert',
+        'diaporama',
+        'interview'
+    ])) {
+        $nid = $node->nid->value;
+        $tagTheme = $node->hasField('field_theme') ? $node->get('field_theme')->getValue() : NULL;
+        $tagDossier = $node->hasField('field_tag_dossier') ? $node->get('field_tag_dossier')->getValue() : NULL;
+        $tagTheme = TaxonomyUtility::taxonomyNodeFieldToTerm($tagTheme);
+        $tagDossier = TaxonomyUtility::taxonomyNodeFieldToTerm($tagDossier);
+        $sameThemeArticles = [];
+        $relatedThemeArticles = [];
+        $diaporamaArticles = [];
+        // same theme articles
+        if ($tagTheme) {
+            // most recent article related to term(dans le meme rubrique)
+            $sameThemeArticles = \Drupal::service('mtc_core.taxonomy_manager')->getArticlesOfTerm($tagTheme, 4, 0, [
+                $nid
+            ]);
+            // related to tag transverse (article liée)
+            $relatedThemeArticles = \Drupal::service('mtc_core.taxonomy_manager')->getRandomArticlesTransverse($tagTheme, 6, 0);
+        }
+        // case diaporama
+        if ($node_type == 'diaporama' && $tagTheme) {
+            $diaporamaArticles = \Drupal::service('mtc_core.taxonomy_manager')->getRandomArticlesOfTerm(6, 0, [
+                $nid
+            ], [
+                'diaporama'
+            ]);
+        }
+        $variables['sameThemeArticles'] = $sameThemeArticles;
+        $variables['relatedThemeArticles'] = $relatedThemeArticles;
+        $variables['diaporamaThemeArticles'] = $diaporamaArticles;
+        $variables['currentTerm'] = $tagTheme;
+        $variables['tagDossier'] = $tagDossier;
+    }
+}
+
+/**
+ * Implements function linecoaching_theme_suggestions
+ */
+function linecoaching_theme_theme_suggestions_form_alter(array &$suggestions, array $variables)
+{
+    $original_theme_hook = $variables['theme_hook_original'];
+    $suggestions[] = $original_theme_hook . '__' . str_replace('-', '_', $variables['element']['#id']);
+    if (is_array($variables['element']['#theme'])) {
+        foreach ($variables['element']['#theme'] as $theme) {
+            $suggestions[] = $original_theme_hook . '__' . $theme;
+        }
+    }
+    return $suggestions;
+}
+
+/**
+ * Implements function linecoaching_theme_suggestions
+ */
+function linecoaching_theme_theme_suggestions_block_alter(array &$suggestions, array $variables)
+{
+    $block = $variables['elements'];
+    $blockType = $block['#configuration']['provider'];
+
+    if ($blockType == "block_content" && isset($block['content']['#block_content'])) {
+        $bundle = $block['content']['#block_content']->bundle();
+        $suggestions[] = 'block__' . $bundle;
+    }
+}
+
+/**
+ * Implements function linecoaching_theme_suggestions
+ */
+function linecoaching_theme_theme_suggestions_alter(array &$suggestions, array $variables, $hook)
+{
+    if ($hook == 'user') {
+        $elements = $variables['elements'];
+        $suggestions[] = 'user__' . $elements['#view_mode'];
+    }
+}
+
+/**
+ * Implements hook_preprocess_HOOK() for taxonomy term templates.
+ */
+function linecoaching_theme_preprocess_taxonomy_term(&$variables)
+{
+    $term = $variables['term'];
+    $variables['abc_regime_tid'] = theme_get_setting('abc_regime_tid');
+    $variables['diaporama_tid'] = theme_get_setting('diaporama_tid');
+    $variables['video_tid'] = theme_get_setting('video_tid');
+    $variables['content'] = \Drupal::service('mtc_core.taxonomy_manager')->getContent($term);
+}
+
+function linecoaching_theme_suggestions_responsive_image_formatter_alter(array &$suggestions, array $variables)
+{
+    $entity = $variables['item']->getEntity();
+    $field_name = $variables['item']->getParent()->getName();
+    $suggestions[] = 'responsive_image_formatter__' . $entity->getEntityTypeId() . '__' . $entity->bundle() . '__' . $field_name;
+}
+
+
+function linecoaching_theme_preprocess_menu_local_action(&$variables)
+{
+    $term = \Drupal::request()->attributes->get('taxonomy_term');
+    if (isset($term) && $term->getVocabularyId() == 'forums') {
+        unset($variables['link']);
+    }
+}
+
+function linecoaching_theme_preprocess_menu__account(&$variables)
+{
+    $lcConfig = \Drupal::service('mtc_core.config')->get('site');
+    $variables['max_user_id'] = $lcConfig['max_uid_old_subscribers'];
+
+}
+/**
+ * Alters named suggestions for all theme hooks
+ */
+function linecoaching_theme_theme_suggestions_page_alter(array &$suggestions, array $variables)
+{
+    // Add content type suggestions.
+    /** @var \Drupal\node\Entity\Node $node */
+    if ($node = \Drupal::request()->attributes->get('node')) {
+      array_splice($suggestions, 1, 0, 'page__node__' . $node->getType());
+      if($node->getType() == 'landing' && $node->hasField('field_new_template') && $node->field_new_template->value) {
+        $suggestions[] = 'page__node__landing_new';
+      }
+    }
+    $http_error_suggestions = [
+        'system.403' => 'page__system__403',
+        'system.404' => 'page__system__404',
+    ];
+    $route_name = \Drupal::routeMatch()->getRouteName();
+    if (isset($http_error_suggestions[$route_name])) {
+        $suggestions[] = $http_error_suggestions[$route_name];
+    }
+}
+
+/**
+ * Implements template_preprocess_views_view_unformatted().
+ */
+function linecoaching_theme_preprocess_views_view(&$variables) {
+    /** @var \Drupal\views\ViewExecutable $view */
+    $view = $variables['view'];
+    if ($view->id() == 'blog' && $view->current_display == 'blog_all') {
+        $variables['title'] = $view->getTitle();
+    }
+}
+
+/**
+ * Implements hook_css_alter().
+ */
+function linecoaching_theme_css_alter(&$css, \Drupal\Core\Asset\AttachedAssetsInterface $assets) {
+    unset($css[drupal_get_path('theme', 'multipurpose_business_theme') . '/css/custom-style.css']);
+}
+
+/**
+ * Implements template_preprocess_status_messages().
+ */
+function linecoaching_theme_preprocess_status_messages(&$var) {
+  if (!empty($var['message_list']['error'])) {
+    foreach ($var['message_list']['error'] as $error) {
+      if (strpos($error, '/forum/users-followers')) {
+        unset($var['message_list']);
+      }
+    }
+  }
+}
+
+/**
+ * Implements hook_preprocess_html().
+ */
+function linecoaching_theme_preprocess_html(&$variables) {
+  $node = \Drupal::routeMatch()->getParameter('node');
+  /** @var \Drupal\node\Entity\Node $node */
+  if (!empty($node) && $node->getType() == 'landing' && $node->hasField('field_new_template') && $node->field_new_template->value) {
+    $variables['attributes']['class'][] = 'new-landing';
+
+    if ($node->hasField('field_logo_partner')) {
+      $file = $node->field_logo_partner->entity;
+      if(!empty($file)) {
+        $variables['attributes']['class'][] = 'has-partner';
+      }
+    }
+  }
+  if (!empty($node) && $node->getType() == 'landing' && $node->hasField('field_lpage_mobile') && $node->field_lpage_mobile->value) {
+    $variables['attributes']['class'][] = 'landing-mobile';
+  }
+}
+
+/*
+ * Alter attachments (typically assets) to a page before it is rendered.
+ */
+function linecoaching_theme_page_attachments_alter(array &$attachments) {
+  if (\Drupal::request()->get('page')) {
+    foreach ($attachments['#attached']['html_head'] as $id => $meta) {
+      if (!empty($meta[1]) && $meta[1] == 'canonical_url') {
+        unset($attachments['#attached']['html_head'][$id]);
+      }
+    }
+    foreach ($attachments['#attached']['html_head_link'] as $id => $meta) {
+      if (!empty($meta[0]['rel']) && $meta[0]['rel'] == 'canonical') {
+        unset($attachments['#attached']['html_head_link'][$id]);
+      }
+    }
+  }
+}
+
+function linecoaching_theme_preprocess_message__private_message(&$variables) {
+  /** @var \Drupal\message\Entity\Message $message */
+  $message = $variables['message'];
+  if (!empty($message)) {
+    $variables['created_tme'] = date('d-m-Y H:i', $message->getCreatedTime());
+  }
+}

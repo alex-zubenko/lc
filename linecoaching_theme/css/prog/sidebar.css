@@ -1,0 +1,488 @@
+.sidebar:last-child .col-md-3{z-index: 0;}
+
+/** SIDEBAR GAUCHE **/
+.panel-3col-33-stacked .panel-col,
+.panel-3col-33-stacked .panel-col-last,
+.panel-3col-33-stacked .panel-col-first {
+  float: left;
+}
+.panel-3col-33-stacked .panel-col-first {
+  width:  250px;
+}
+/* liens de navigation */
+.liensNavigation,
+.liensNavigation .espace_perso,
+.liensNavigation .espace_perso a,
+.liensNavigation .parcours_alimentaire,
+.liensNavigation .parcours_alimentaire a,
+.liensNavigation .parcours_forme,
+.liensNavigation .parcours_forme a {
+  float: left;
+}
+.liensNavigation .espace_perso,
+.liensNavigation .parcours_alimentaire,
+.liensNavigation .parcours_forme {
+  background-image: url(../../images/prog-images/btn_user1.png);
+  background-repeat: repeat-x;
+  background-position: 0 0;
+  border: 1px solid #BBB;
+  border-radius: 12px 12px 12px 12px;
+  box-shadow: 0 0 4px #DDD;
+  height: 40px;
+  margin-top: 10px;
+  text-align: left;
+  width: 100%;
+}
+.liensNavigation .espace_perso a,
+.liensNavigation .parcours_alimentaire a,
+.liensNavigation .parcours_forme a {
+  background-image: url(../../images/prog-images/btn_user_goto.png);
+  background-repeat: no-repeat;
+  color: #6A6A6A;
+  font-size: 15px;
+  font-weight: 700;
+  line-height: 40px;
+  padding: 0 0 0 40px;
+}
+.liensNavigation .parcours_alimentaire a,
+.liensNavigation .parcours_forme a {
+  line-height: 14px;
+  padding-bottom: 4px;
+  padding-top:  5px;
+}
+/* navigation espace perso */
+.liensNavigation .espace_perso {
+  margin-top: 0;
+}
+.liensNavigation .espace_perso a {
+  background-position: 2px 2px;
+  text-transform:  uppercase;
+}
+/* navigation parcours alimentaire */
+.liensNavigation .parcours_alimentaire a {
+  background-position:  2px -45px;
+}
+/* navigation parcours forme */
+.liensNavigation .parcours_forme a {
+  background-position:  2px -92px;
+}
+/* bloc applications */
+.titreApplication {
+  background: url(../../images/prog-images/btn_user1.png) repeat-x scroll 0 0 transparent;
+  border: 1px solid #BBB;
+  border-radius: 12px 12px 12px 12px;
+  box-shadow: 0 0 4px #DDD;
+  cursor: pointer;
+  float: left;
+  height: 40px;
+  margin-top: 10px;
+  text-align: left;
+  width: 248px;
+}
+.titreApplication span.spanTitreApp {
+  background-image: url(../../images/prog-images/btn_user_arrow.png);
+  background-repeat: no-repeat;
+  background-position: 211px 15px;
+  color: #6A6A6A;
+  float: left;
+  font-size: 16px;
+  font-weight: 700;
+  line-height: 40px;
+  padding: 0 0 0 20px;
+  text-transform: none;
+  width: 228px;
+}
+.titreApplication span.spanTitreApp.up {
+  background-position: 211px -25px !important;
+}
+.iconeApplication {
+  border-radius: 0 0 10px 10px;
+  border-color: #BBB;
+  border-style: solid;
+  border-width: 0 1px 1px;
+  box-shadow: 0 3px 5px #DDD;
+  float: left;
+  margin-top: -9px;
+  padding: 10px 3px 10px 2px;
+  width: auto;
+}
+.iconeApplication table {
+  float: left;
+  margin-top: 5px;
+  width: 241px;
+}
+.iconeApplication td.imgApplication {
+  float: left;
+  height: 93px;
+  width: 80px;
+}
+.imgApplication .journal,
+.imgApplication .defis,
+.imgApplication .compte,
+.imgApplication .communaute,
+.imgApplication .message,
+.imgApplication .aide,
+.imgApplication .bilan,
+.imgApplication .sport,
+.imgApplication .ca {
+  background: url(../../images/prog-images/icone_applications.png) 0 0 no-repeat;
+  color: #525252;
+  float: left;
+  font-size: 11px;
+  height: 23px;
+  line-height: 12px;
+  padding: 67px 0 0;
+  text-align: center;
+  text-decoration: none;
+  width: 80px;
+}
+.imgApplication a.journal:hover,
+.imgApplication a.defis:hover,
+.imgApplication a.compte:hover,
+.imgApplication a.communaute:hover,
+.imgApplication a.message:hover,
+.imgApplication a.aide:hover,
+.imgApplication a.bilan:hover,
+.imgApplication a.sport:hover,
+.imgApplication a.ca :hover {
+  color: #000;
+}
+.imgApplication .journal {
+  background-position: 8px 0;
+}
+.imgApplication .defis {
+  background-position: 8px -90px;
+}
+.imgApplication .compte {
+  background-position: 8px -180px;
+}
+.imgApplication .communaute {
+  background-position: 8px -270px;
+}
+.imgApplication .message {
+  background-position: 8px -360px;
+}
+.imgApplication .aide {
+  background-position: 8px -450px;
+}
+.imgApplication .bilan {
+  background-position: 8px -540px;
+}
+.imgApplication .sport {
+  background-position: 8px -630px;
+}
+.imgApplication .ca {
+  background-position: 8px -720px;
+}
+.imgApplication .journal:hover {
+  background-position: -105px 0;
+}
+.imgApplication .defis:hover {
+  background-position: -105px -90px;
+}
+.imgApplication .compte:hover {
+  background-position: -105px -180px;
+}
+.imgApplication .communaute:hover {
+  background-position: -105px -270px;
+}
+.imgApplication .message:hover {
+  background-position: -105px -360px;
+}
+.imgApplication .aide:hover {
+  background-position: -105px -450px;
+}
+.imgApplication .bilan:hover {
+  background-position: -105px -540px;
+}
+.imgApplication .sport:hover {
+  background-position: -105px -630px;
+}
+.imgApplication .ca:hover {
+  background-position: -105px -720px;
+}
+.mtcContactCoach {
+  color: #FF6C00;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+/* bloc outils */
+.explicationOutils {
+  color: #484848;
+  font-size: 12px;
+  width: 240px;
+  line-height: 13px;
+  margin: 10px 0 5px;
+  text-align: center;
+}
+
+.iconeOutils table {
+  float: left;
+  margin: 5px 0 0;
+}
+
+.titreOutils {
+  background: url(../../images/prog-images/btn_user1.png) repeat-x scroll 0 0 transparent;
+  border: 1px solid #BBB;
+  border-radius: 12px 12px 12px 12px;
+  box-shadow: 0 0 4px #DDD;
+  cursor: pointer;
+  float: left;
+  height: 40px;
+  margin-top: 10px;
+  text-align: left;
+  width: 248px;
+}
+.titreOutils span.spanTitreOutils {
+  background-image: url(../../images/prog-images/btn_user_arrow.png);
+  background-repeat: no-repeat;
+  background-position: 211px 15px;
+  color: #6A6A6A;
+  float: left;
+  font-size: 16px;
+  font-weight: 700;
+  line-height: 40px;
+  padding: 0 0 0 20px;
+  text-transform: none;
+  width: 228px;
+}
+.titreOutils span.up {
+  background-position: 211px -25px;
+}
+.iconeOutils {
+  border-radius: 0 0 10px 10px;
+  border-color: #BBB;
+  border-style: solid;
+  border-width: 0 1px 1px;
+  box-shadow: 0 3px 5px #DDD;
+  float: left;
+  margin-top: -9px;
+  padding: 10px 3px;
+  width: 248px;
+}
+.outils_menu_0,
+.outils_menu_1 {
+  height: 85px;
+  width: 83px;
+}
+.outils_menu_0 a,
+.outils_menu_1 a {
+  background: url(../../images/prog-images/icone_outils.png) 0 0 no-repeat;
+  color: #525252 !important;
+  float: left;
+  font-size: 11px;
+  height: 30px;
+  line-height: 12px;
+  padding: 57px 0 0;
+  position: relative;
+  text-align: center;
+  text-decoration: none;
+  width: 80px;
+}
+.outils_menu_0 a:hover,
+.outils_menu_1 a:hover {
+  color: #000000 !important;
+}
+.iconeOutils table td a.toolCarnet {
+  background-position: 15px 0px;
+}
+.iconeOutils table td a.toolComportement {
+  background-position: 15px -90px;
+}
+.iconeOutils table td a.toolEmotion {
+  background-position: 15px -180px;
+}
+.iconeOutils table td a.toolConscience {
+  background-position: 15px -270px;
+}
+.iconeOutils table td a.toolForme {
+  background-position: 15px -360px;
+}
+.iconeOutils table td a.toolCourbe {
+  background-position: 15px -450px;
+}
+.iconeOutils table td a.toolMotivation {
+  background-position: 15px -540px;
+}
+.iconeOutils table td a.toolLexique {
+  background-position: 15px -630px;
+}
+.iconeOutils table td a.toolCarnet:hover {
+  background-position: -65px 0px;
+}
+.iconeOutils table td a.toolComportement:hover {
+  background-position: -65px -90px;
+}
+.iconeOutils table td a.toolEmotion:hover {
+  background-position: -65px -180px;
+}
+.iconeOutils table td a.toolConscience:hover {
+  background-position: -65px -270px;
+}
+.iconeOutils table td a.toolForme:hover {
+  background-position: -65px -360px;
+}
+.iconeOutils table td a.toolCourbe:hover {
+  background-position: -65px -450px;
+}
+.iconeOutils table td a.toolMotivation:hover {
+  background-position: -65px -540px;
+}
+.iconeOutils table td a.toolLexique:hover {
+  background-position: -65px -630px;
+}
+
+.iconeOutils table td a img {
+  border: none;
+  position: absolute;
+  right: 0;
+  top: -10px;
+}
+
+.lienOutil {
+  float: left;
+  text-align: center;
+  width: 100%;
+}
+.lienOutil a {
+  color: #484848 !important;
+  font: italic bold 11px georgia;
+}
+.titreOutil,
+.titreOutil a {
+  font-size: 13px;
+  font-weight: 700;
+  text-transform: uppercase;
+  width: 496px;
+}
+.titreOutils_favoris {
+  background: url(../../images/prog-images/btn_user1.png) repeat-x scroll 0 0 transparent;
+  border: 1px solid #BBB;
+  border-radius: 12px 12px 12px 12px;
+  box-shadow: 0 0 4px #DDD;
+  height: 40px;
+  float: left;
+  margin-top: 10px;
+  text-align: left;
+  width: 248px;
+}
+.titreOutils_favoris span {
+  color: #6A6A6A;
+  float: left;
+  font-size: 16px;
+  font-weight: 700;
+  line-height: 40px;
+  padding: 0 0 0 20px;
+  text-transform: none;
+  width:  228px;
+}
+/* bloc outils favoris */
+.iconeOutils_favoris {
+  border-radius: 0 0 10px 10px;
+  border-color: #BBB;
+  border-style: solid;
+  border-width: 0 1px 1px;
+  box-shadow: 0 1px 5px #DDD;
+  float: left;
+  margin-top: -9px;
+  padding: 19px 10px 5px 10px;
+  width: 248px;
+  margin-bottom: 15px;
+}
+}
+.iconeOutils_favoris > .iconeOutils_favoris {
+    border: 0 !important;
+    box-shadow: none !important;
+    width: 100% !important;
+}
+
+
+.iconeOutils_favoris td.icone_image_out_fav {
+  height: 55px;
+}
+
+.iconeOutils_favoris .outil_fav,
+.iconeOutils_favoris .outil_fav_over {
+  float: left;
+  padding: 2px 5px 5px;
+  width: 230px;
+}
+.iconeOutils_favoris .outil_fav a {
+  background-image: url(../../images/prog-images/icone_outils.png);
+  background-repeat: no-repeat;
+  float: left;
+  height: 55px;
+  padding: 0 0 0 60px;
+  text-decoration: none;
+  width: 170px;
+}
+.iconeOutils_favoris .outil_fav a span {
+  background-color: #fafafa;
+  color: #525252;
+  display: table-cell;
+  font-size: 11px;
+  height: 55px;
+  line-height: 14px;
+  vertical-align: middle;
+  width: 170px;
+}
+.iconeOutils_favoris .outil_fav a:hover span {
+  color: #000;
+  text-decoration: none;
+}
+.iconeOutils_favoris .outil_fav td.cnt a {
+  background-position: 0 0;
+}
+.iconeOutils_favoris .outil_fav td.ca a {
+  background-position: 0 -90px;
+}
+.iconeOutils_favoris .outil_fav td.emo a {
+  background-position: 0 -180px;
+}
+.iconeOutils_favoris .outil_fav td.pc a {
+  background-position: 0 -271px;
+}
+.iconeOutils_favoris .outil_fav td.for a {
+  background-position: 0 -361px;
+}
+.iconeOutils_favoris .outil_fav td.mot a {
+  background-position: 0 -540px;
+}
+.iconeOutils_favoris .outil_fav td.cou a {
+  background-position: 0 -450px;
+}
+.iconeOutils_favoris .outil_fav td.cnt a:hover {
+  background-position: -80px 0;
+}
+.iconeOutils_favoris .outil_fav td.ca a:hover {
+  background-position: -80px -90px;
+}
+.iconeOutils_favoris .outil_fav td.emo a:hover {
+  background-position: -80px -180px;
+}
+.iconeOutils_favoris .outil_fav td.pc a:hover {
+  background-position: -80px -271px;
+}
+.iconeOutils_favoris .outil_fav td.for a:hover {
+  background-position: -80px -361px;
+}
+.iconeOutils_favoris .outil_fav td.mot a:hover {
+  background-position: -80px -540px;
+}
+.iconeOutils_favoris .outil_fav td.cou a:hover {
+  background-position: -80px -450px;
+}
+
+.textAucunOutilFavo span {
+  color: #1f6ad7;
+  display: block;
+  font-size: 13px;
+  margin-top: 5px;
+  text-align:  center;
+}
+@media (min-width: 767px){
+ .region-content .lc-prog-application{
+    display:none;
+  }
+}

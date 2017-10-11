@@ -1,0 +1,110 @@
+{#
+/**
+ * @file
+ * Theme override to display a node dossier.
+ */
+#}
+{%
+  set classes = [
+    'node',
+    'node--type-' ~ node.bundle|clean_class,
+    node.isPromoted() ? 'node--promoted',
+    node.isSticky() ? 'node--sticky',
+    not node.isPublished() ? 'node--unpublished',
+    view_mode ? 'node--view-mode-' ~ view_mode|clean_class,
+   'taxonomy-article'
+  ]
+%}
+{% set preparationList = content.field_preparation['#items'] | field_collection_items %}
+{% import "themes/custom/linecoaching_theme/templates/macro/node-taxonomy-macro.html.twig" as display %}
+<article{{ attributes.addClass(classes) }}>
+   {{ title_prefix }}
+   <h1>{{ node.getTitle() }}</h1>
+   {{ title_suffix}}
+   {{ display.display_header_tags(node) }}
+   {{ display.widgets(content.field_rating, node.id(), node.field_tag_transverse_format, author_name) }}
+  <div{{ content_attributes.addClass('node__content') }}>
+     <div class="image" style="background-image:url({{ file_url(node.field_photo.entity.fileuri) }})"></div>
+     <div class="prep_carac">
+       <span class="prepspec num_person fa fa-user"><b>Nombre de personnes</b></span><span>{{ node.field_nb_personnes.value|raw}}</span>
+       <span class="prepspec preparation_time fa fa-clock-o"><b>Temps de préparation</b></span><span>{{ node.field_temp_preparation.value|raw|preg_replace('minutes','mn')}}</span>
+       <span class="prepspec cooking_time fa fa-fire"><b>Temps de cuisson</b></span><span>{{ node.field_temp_cuisson.value|raw|preg_replace('minutes','mn')}}</span>
+        <span class="prepspec level"><b>Coût</b>
+           {% for i in 0 .. article.field_cout.value %}
+                <i class="level fa fa-eur"></i>
+           {% endfor %}
+        </span>
+       {% set niveau = node.field_niveau.value %}
+       <span class="prepspec niveau fa fa-cutlery"><b>Niveau</b></span><span>
+           {% if niveau == 0 or niveau == 1 %}
+               Facile
+           {% elseif niveau == 2 %}
+              Intermédiaire
+           {% elseif niveau == 3 %}
+              Difficile
+           {% else %}
+             Facile
+           {% endif %}
+       </span>
+
+     </div>
+     <div class="chapeau">
+        {{ node.field_chapeau.value|raw}}
+    </div>
+    <h4>Ingrédients</h4>
+     <div class="ingredients">
+           {%  for item in content.field_ingredients['#items'] %}
+                   <span class="recipeIngredient">{{item.value}}</span>
+           {%  endfor %}
+      </div>
+      <h4>Préparation</h4>
+      <div class="preparation">
+           {% if preparationList is not empty %}
+                {% for preparation in preparationList %}
+                   <div class="prep-step step-{{loop.index}}">{{preparation.text|raw}}</div>
+                {% endfor %}
+           {% else %}
+                {{ node.body.value|raw }}
+           {% endif %}
+      </div>
+    </div>
+</article>
+{{ display.widgets(content.field_rating, node.id(), node.field_tag_transverse_format, author_name) }}
+{% set articlesLiee = node.field_article_liee|get_target_nodes %}
+{{ display.same_series_articles(articlesLiee) }}
+{{ display.show_linked_articles(relatedThemeArticles) }}
+{{ display.show_same_theme(sameThemeArticles, currentTerm) }}
+<section class="comments">
+    {{ content.comment}}
+ </section>
+ {# google rich snippet #}
+ <script type="application/ld+json">
+{
+  "@context": "http://schema.org/",
+  "@type": "Recipe",
+  "name": "{{ node.getTitle() }}",
+  "image": "{{ file_url(node.field_photo.entity.fileuri) }}",
+  "author": {
+    "@type": "Person",
+    "name": "Linecoaching"
+  },
+  "datePublished": "{{ node.changed.value|date("Y-m-d")}}",
+  "description": "{{node.chapeau.value|strip_tags_allow_entity|raw}}",
+  "prepTime": "{{ node.field_temp_preparation.value|raw}}",
+  "recipeYield": "{{ node.field_nb_personnes.value|raw}} servings",
+  "recipeIngredient": [
+     {% for item in content.field_ingredients['#items'] %}
+          "{{item.value|strip_tags_allow_entity|raw}}"{% if not loop.last %},{% endif %}
+     {% endfor %}
+  ],
+  "recipeInstructions":
+     {% if preparationList is defined %}
+            "{% for preparation in preparationList %}
+               {{preparation.text|strip_tags_allow_entity|raw}}
+             {% endfor %}
+            "
+       {% else %}
+            "{{ node.body.value|strip_tags_allow_entity|raw}}"
+       {% endif %}
+}
+</script>

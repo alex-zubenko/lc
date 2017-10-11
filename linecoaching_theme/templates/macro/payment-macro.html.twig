@@ -1,0 +1,102 @@
+{% macro payment_conversion(paydata, config, test) %}
+    {% set paydata = paydata | default(false) %}
+    {% set test    = test    | default(true) %}
+<!-- Google Code for Abonnements Conversion Page - mode test ? {{ test == false ? 0 : 1 }} -->
+<script type="text/javascript">
+/* <![CDATA[ */
+var google_conversion_id = {{config.gconv.id}};
+var google_conversion_language = "en";
+var google_conversion_format = "3";
+var google_conversion_color = "ffffff";
+var google_conversion_label = "{{config.gconv.label}}";
+var google_conversion_value = {{paydata.price}};
+var google_conversion_currency = "EUR";
+var google_remarketing_only = false;
+/* ]]> */
+</script>
+{% if test == false %}
+<script type="text/javascript" src="//www.googleadservices.com/pagead/conversion.js"></script>
+<noscript>
+    <div style="display:inline;">
+        <img height="1" width="1" style="border-style:none;" alt="" src="//www.googleadservices.com/pagead/conversion/{{config.gconv.id}}/?value={{paydata.price}}&amp;currency_code=EUR&amp;label={{config.gconv.label}}&amp;guid=ON&amp;script=0"/>
+    </div>
+</noscript>
+
+{# mstag not found, still active ?
+<!-- BING -->
+<script type="text/javascript"> if (!window.mstag) mstag = {loadTag : function(){},time : (new Date()).getTime()};</script>
+<script type="text/javascript" id="mstag_tops" src="//flex.msn.com/mstag/site/{{config.bing.site}}/mstag.js"></script>
+<script type="text/javascript">mstag.loadTag("analytics", {dedup:"1",domainId:"{{config.bing.domain}}",type:"1",revenue:"{{paydata.price}}",actionid:"{{config.bing.action}}"})</script>
+<noscript>
+    <iframe src="//flex.msn.com/mstag/tag/{{config.bing.site}}/analytics.html?dedup=1&domainId={{config.bing.domain}}&type=1&revenue={{paydata.price}}&actionid={{config.bing.action}}" frameborder="0" scrolling="no" width="1" height="1" style="visibility:hidden;display:none"></iframe>
+</noscript>
+#}
+{% else %}
+<script type="text/javascript">
+    console.log('TAGS google conversion');
+    console.log({{config.gconv | json_encode | raw}});
+    console.log('TAGS bing');
+    console.log({{config.bing | json_encode | raw}});
+    // alert("GOOGLE CONVERSION (NOT PROD) : \n"+google_conversion_id+"\n"+google_conversion_label+"\n"+google_conversion_value+"\n");
+</script>
+{% endif %}
+{% endmacro %}
+
+{% macro payment_analytics(paydata, config, test) %}
+    {% set paydata = paydata | default(false) %}
+    {% set test    = test    | default(true) %}
+{#
+ADDTRANS
+    transaction ID - required
+    affiliation or store name
+    total - Shown as "Revenue" in the transactions report. Doesn't include Tax and Shipping.
+    tax
+    shipping
+    city
+    state or province
+    country
+ADDITEM
+    ID de la transaction pour associer un élement à une transaction [NECESSAIRE]
+    Réference élementaire de l'article (SKU - Stock-keeping unit) [OBLIGATOIRE]
+    Nom du produit [NECESSAIRE - pour associer une vente à un produit]
+    Catégorie ou variante du produit [FACULTATIF]
+    Prix unitaire (total pour la formule) = addTrans (cf lsa) [OBLIGATOIRE]
+    Quantité [OBLIGATOIRE]
+#}
+<script type="text/javascript">
+    var _gaq = _gaq || [];
+    _gaq.push(["_setAccount", "{{config.ga.account}}"]);
+    _gaq.push(["_trackPageview"]);
+    _gaq.push(["_addTrans",
+        "{{paydata.reference}}",
+        "{{paydata.programLabel}}",
+        "{{paydata.price - paydata.vat}}",
+        "{{paydata.vat}}",
+        "0.00",
+        "",
+        "",
+        ""
+        ]);
+    _gaq.push(["_addItem",
+        "{{paydata.reference}}",
+        "{{paydata.product_code}}",
+        "{{paydata.product_name}}",
+        "{{paydata.product_category}}",
+        "{{paydata.price}}",
+        "1"
+        ]);
+    _gaq.push(['_trackTrans']);
+    {% if test == false %}
+    (function() {
+        var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+        ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+        var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+    })();
+    {% else %}
+        console.log('TAGS google analytics');
+        console.log({{config.ga | json_encode | raw}});
+        // alert("GOOGLE ANALYTICS (NOT PROD):\n"+_gaq);
+    {% endif %}
+</script>
+
+{% endmacro %}

@@ -1,0 +1,43 @@
+{#
+/**
+ * @file
+ * Theme override to display a node dossier.
+ */
+#}
+{%
+  set classes = [
+    'node',
+    'node--type-' ~ node.bundle|clean_class,
+    node.isPromoted() ? 'node--promoted',
+    node.isSticky() ? 'node--sticky',
+    not node.isPublished() ? 'node--unpublished',
+    view_mode ? 'node--view-mode-' ~ view_mode|clean_class,
+   'taxonomy-article'
+  ]
+%}
+{% import "themes/custom/linecoaching_theme/templates/macro/node-taxonomy-macro.html.twig" as display %}
+<article{{ attributes.addClass(classes) }}>
+   {{ title_prefix }}
+   <h1>{{ node.getTitle() }}</h1>
+   {{ title_suffix}}
+   {{ display.widgets(content.field_rating, node.id(), '', author_name) }}
+   <div{{ content_attributes.addClass('node__content') }}>
+     <div class="chapeau">
+        {{ node.field_chapeau.value|raw}}
+    </div>
+    <div class="image" style="background-image:url({{ file_url(node.field_image.entity.fileuri) }})"></div>
+    {% if node.field_sommaire.value %}
+      <div id="summary">
+         <span class="summary-title">Sommaire</span>
+         <div class="summary-text"></div>
+      </div>
+    {% endif %}
+    <div class="body">
+        {{ node.body.value|raw}}
+    </div>
+  </div>
+</article>
+{{ display.widgets(content.field_rating, node.id(), '', author_name) }}
+ <section class="comments">
+    {{ content.comment}}
+ </section>

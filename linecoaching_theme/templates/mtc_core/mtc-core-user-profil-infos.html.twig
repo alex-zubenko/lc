@@ -1,0 +1,77 @@
+{%
+  set classes = [
+    'user',
+    'user-profile',
+    'user-full',
+    'mon-profile'
+  ]
+%}
+{% import "themes/custom/linecoaching_theme/templates/macro/user-macro.html.twig" as display %}
+{{display.display_user_account_tabs(1, user)}}
+{% set data = profil['#lc_user_profile_entity'] %}
+<article {{ attributes.addClass(classes) }}>
+    <div class="panel panel-default">
+       <div class="panel-heading">
+           <h2 class="panel-title pseudo">{{ pseudo| raw }}</h2>
+           {% if default_user_profile_image is defined %}
+            <img src="{{ default_user_profile_image }}"  alt="avatar" />
+           {% endif %}
+           <div class="user-badge">
+           {#{% for badge in user_badge %}#}
+              {#<img src="{{ badge.image_path }}" title="{{ badge.alt }}" alt="{{ badge.alt }}" />#}
+           {#{% endfor %}#}
+           {% if rangs %}
+             <img src="{{ rangs.uri }}" title="{{ rangs.name }}" alt="{{ rangs.name }}" />
+           {% endif %}
+           {% if qual %}
+             <img src="{{ qual.uri }}" title="{{ qual.name }}" alt="{{ qual.name }}" />
+           {% endif %}
+          </div>
+         <h2 class="panel-title ville">Ville : {{ data.ville.value | raw }} </h2>
+         <h2 class="panel-title inscription">Inscription : {{ user_created | date("d/m/Y") }} </h2>
+         {% if statut %}
+          <h2 class="panel-title inscription">Status : {{ statut }} </h2>
+         {% endif %}
+       </div>
+    </div>
+    <div class="edit">
+    {% if profil is not empty %}
+      <a href="{{ path('entity.lc_user_profile_entity.edit_form', {'lc_user_profile_entity': user.id}) }}?destination=/user/mon-profil" title="Edit">Modifier</a>
+    {% else %}
+          <a href="{{ path('entity.lc_user_profile_entity.add_form') }}?destination=/user/mon-profil" title="Edit">Modifier</a>
+    {% endif %}
+    </div>
+    <div class="panel panel-default">
+       <div class="panel-heading">
+          <h3 class="panel-title">Ma présentation et mes motivations</h3>
+       </div>
+       <div class="panel-body">
+        {{ data.profile_experience.value | raw }}
+       </div>
+    </div>
+     <div class="panel panel-default">
+       <div class="panel-heading">
+          <h3 class="panel-title">Mon histoire</h3>
+       </div>
+       <div class="panel-body">
+        {{ data.profile_mon_histoire.value | raw }}
+       </div>
+    </div>
+     <div class="panel panel-default">
+       <div class="panel-heading">
+          <h3 class="panel-title">Mes conseils à partager</h3>
+       </div>
+       <div class="panel-body">
+        {{ data.profile_conseils.value | raw }}
+       </div>
+    </div>
+     <div class="panel panel-default">
+       <div class="panel-heading">
+          <h3 class="panel-title">Mes centres d'intérêt</h3>
+       </div>
+       <div class="panel-body">
+        {{ data.profile_interet.value | raw }}
+       </div>
+    </div>
+</article>
+

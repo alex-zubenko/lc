@@ -1,0 +1,21 @@
+ {% if content.field_lien[0]['#url'] is defined %}
+    <a href="{{ content.field_lien[0]['#url'].toString()}}" title="{{ label }}">
+ {% endif %}
+<div class="pricing_item">
+   {{ title_suffix }}
+    {% if content.field_image['#object'] is not empty %}
+        <div class="price-image">
+            {{ content.field_image }}
+        </div>
+    {% endif %}
+   <div class="pricing_body">
+            {{ content.body }}
+        <ul class="pricing_list">
+            {{ content.field_price_description }}
+        </ul>
+        <a class="pricing_picto"></a>
+   </div>
+</div>
+{% if content.field_lien[0]['#url'] is defined %}
+    </a>
+{% endif %}

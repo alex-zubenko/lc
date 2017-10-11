@@ -1,0 +1,38 @@
+{#
+/**
+ * @file
+ * Default theme implementation for flag links.
+ *
+ * Available variables:
+ * - attributes: HTML attributes for the link element.
+ * - title: The flag link title.
+ * - action: 'flag' or 'unflag'
+ * - flag: The flag object.
+ * - flaggable: The flaggable entity.
+ */
+#}
+{% spaceless %}
+{# Attach the flag CSS library.#}
+{{ attach_library('flag/flag.link') }}
+{# Depending on the flag action, set the appropriate action class. #}
+{% if action == 'unflag' %}
+    {% set action_class = 'action-unflag' %}
+{% else %}
+    {% set action_class = 'action-flag' %}
+{% endif %}
+
+{# Set the remaining Flag CSS classes. #}
+{% set classes = [
+'flag',
+'flag-' ~ flag.id(),
+'flag-' ~ flag.id() ~ '-' ~ flaggable.id(),
+action_class
+] %}
+{% if logged_in %}
+{% set attributes = attributes.addClass(classes) %}
+{% else %}
+{% set login_url = '/user/register' %}
+{% set attributes = attributes.setAttribute('href', login_url).setAttribute('class', classes) %}
+{% endif %}
+<ul class="links inline"><li><a{{ attributes }}><span class="">{{ title }}</span></a></li></ul>
+{% endspaceless %}

@@ -1,0 +1,50 @@
+ <h1>Chat de groupe</h1>
+ <span>En rejoignant un groupe de chat, vous allez pouvoir échanger en direct sur des thématiques spécifiques avec les coachs ainsi que les experts, Jean-Philippe Zermati et Gérard Apfeldorfer. Vous avez également accès aux historiques de chats du groupe concerné.
+</span>
+{% if memberList | length > 0 %}
+    <h3>Mes Groupes</h3>
+    <table class="table table-hover table-striped">
+      <thead>
+        <tr>
+          <th>Groupe</th>
+          <th>Responsable</th>
+          <th>Quitter</th>
+        </tr>
+      </thead>
+      <tbody>
+      {% for member in memberList %}
+        <tr>
+          <td><a title="{{ member.group_title }}" href="{{ path('entity.node.canonical', {'node': member.group_nid}) }}">
+                {{ member.group_title }}</a></td>
+          <td>Votre coach</td>
+          <td><a title="Quitter" href="{{ path('mtc_core.og_group_chat_group_subscription', {'type': 'unsubscribe', 'nid':member.group_nid}) }}">
+                Quitter</a></td>
+        </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+{% endif %}
+
+{% if unMemberList | length > 0 %}
+    <h3>Groupes auxquels vous pouvez adhérer</h3>
+    <table class="table table-striped">
+      <thead>
+        <tr>
+          <th>Groupe</th>
+          <th>Responsable</th>
+          <th>Quitter</th>
+        </tr>
+      </thead>
+      <tbody>
+      {%for unmember in  unMemberList %}
+        <tr>
+          <td>{{ unmember.group_title }}</td>
+          <td>Votre coach</td>
+          <td><a title="Rejoindre" href="{{ path('mtc_core.og_group_chat_group_subscription', {'type': 'subscribe', 'nid':unmember.group_nid}) }}">
+               Rejoindre</a></td>
+        </tr>
+     {% endfor %}
+
+      </tbody>
+    </table>
+{% endif %}

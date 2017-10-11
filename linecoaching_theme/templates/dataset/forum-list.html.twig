@@ -1,0 +1,123 @@
+{#
+/**
+ * @file
+ * Theme override to display a list of forums and containers.
+ *
+ * Available variables:
+ * - forums: A collection of forums and containers to display. It is keyed to
+ *   the numeric IDs of all child forums and containers. Each forum in forums
+ *   contains:
+ *   - is_container: A flag indicating if the forum can contain other
+ *     forums. Otherwise, the forum can only contain topics.
+ *   - depth: How deep the forum is in the current hierarchy.
+ *   - zebra: 'even' or 'odd', used for row class.
+ *   - icon_class: 'default' or 'new', used for forum icon class.
+ *   - icon_title: Text alternative for the forum icon.
+ *   - name: The name of the forum.
+ *   - link: The URL to link to this forum.
+ *   - description: The description field for the forum, containing:
+ *     - value: The descriptive text for the forum.
+ *   - new_topics: A flag indicating if the forum contains unread posts.
+ *   - new_url: A URL to the forum's unread posts.
+ *   - new_text: Text for the above URL, which tells how many new posts.
+ *   - old_topics: A count of posts that have already been read.
+ *   - num_posts: The total number of posts in the forum.
+ *   - last_reply: Text representing the last time a forum was posted or
+ *     commented in.
+ * - forum_id: Forum ID for the current forum. Parent to all items within the
+ *   forums array.
+ *
+ * @see template_preprocess_forum_list()
+ */
+#}
+{% import "themes/custom/linecoaching_theme/templates/macro/taxonomy-macro.html.twig" as display %}
+{% import "themes/custom/linecoaching_theme/templates/macro/david-macro.html.twig" as extra %}
+{{ display.forum_header(logged_in) }}
+{% if logged_in %}
+<div class="action-links"><a href="/node/add/forum?forum_id=0" class="button button-action" data-drupal-link-query="{'forum_id':0}" data-drupal-link-system-path="node/add/forum">Créer un nouveau sujet de discussion</a></div>
+{% endif %}
+
+<article class="forum-container">
+  {% for child_id, forum in forums %}
+       {% set parent_visibility = forum|get_forum_visibility %}
+     {% if forum.depth == 0 and  loop.first  %}
+     <section class="forum-section">
+           <h2 class="forum-section-title">{{ forum.label }}</h2>
+           {% if parent_visibility %}
+
+           {% else %}
+           <div class="forum-not-allowed">Forum réservé aux abonnés</div>
+           {% endif %}
+           <div class="forum-section-header">
+              <h3 class="col-sm-3">Salons</h3>
+              <h3 class="col-sm-3">Sujets</h3>
+              <h3 class="col-sm-3" >Messages</h3>
+              <h3 class="col-sm-3" >Dernier message</h3>
+            </div>
+     {% endif %}
+     {% if forum.depth == 0 and not loop.first  %}
+     </section>
+      <section class="forum-section">
+           <h2 class="forum-section-title">{{ forum.label | capitalize()}} </h2>
+           {% if parent_visibility %}
+
+           {% else %}
+           <div class="forum-not-allowed">Forum réservé aux abonnés</div>
+           {% endif %}
+           <div class="forum-section-header">
+              <h3 class="col-sm-3">Salons</h3>
+              <h3 class="col-sm-3">Sujets</h3>
+              <h3 class="col-sm-3">Messages</h3>
+              <h3 class="col-sm-3">Dernier message</h3>
+            </div>
+     {% endif %}
+     {% if forum.depth == 1 %}
+             {% set visibility = forum|get_forum_visibility %}
+        {% if visibility %}
+          <div class="forum-section child">
+        {% else %}
+            <div class="forum-section child not-allowed">
+        {% endif %}
+             <div class="col-sm-3 salon">
+                  {% if visibility %}
+                  {% else %}
+                  <div  class="fs_icon fa fa-ban" title="{{ forum.icon_title }}">
+                    <span class="visually-hidden">{{ forum.icon_title }}</span>
+                  </div>
+                  {% endif %}
+                  <h3 class="forum-child-section-title">
+                  {% if visibility %}
+                     <a href="{{ path('entity.taxonomy_term.canonical', {'taxonomy_term': forum.id() }) }}" title ="{{ forum.label }}">{{ forum.label }}</a>
+                  {% else %}
+                      <a nohref class="mtc-login" data-target="#MtcLoginModal" data-backdrop="true" data-toggle="modal" data-date="{{ 'now' | date('YmdHis') }}">{{ forum.label }}</a>
+<!--
+                      <a href="{{ url('user.login') }}" title ="{{ forum.label }}" data-drupal-link-system-path="user/login">{{ forum.label }}</a>
+-->
+                  {% endif %}
+                  </h3>
+                  {% if forum.description.value %}
+                    <div class="descrption">{{ forum.description.value }}</div>
+                  {% endif %}
+              </div>
+              <div class="col-sm-3 forum-num-topics">
+                     {{ forum.num_topics }}
+                     {% if forum.new_topics == true %}
+                         <a href="{{ forum.new_url }}">{{ forum.new_text }}</a>
+                     {% endif %}
+              </div>
+              <div class="col-sm-3 forum-num-posts">
+                  {{ forum.num_posts }}
+                  {% if forum.new_forum_com_messages %}
+                      <a href="{{ forum.url_com }}">{{ forum.new_forum_com_messages }} nouvelle contribution</a>
+                  {% endif %}
+              </div>
+              <div class="col-sm-3 forum-last-reply"><p>{{ forum.last_body_comment }}</p>{{ forum.last_reply }}</div>
+         </div>
+     {% endif %}
+     {% if forum.depth == 0 and loop.last %} </section>{% endif %}
+  {% endfor %}
+</article>
+
+{% if logged_in  %}
+<div class="action-links"><a href="/node/add/forum?forum_id=0" class="button button-action" data-drupal-link-query="{'forum_id':0}" data-drupal-link-system-path="node/add/forum">Créer un nouveau sujet de discussion</a></div>
+{% endif %}

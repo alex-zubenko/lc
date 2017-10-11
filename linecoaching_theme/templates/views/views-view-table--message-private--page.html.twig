@@ -1,0 +1,115 @@
+{#
+/**
+ * @file
+ * Default theme implementation for displaying a view as a table.
+ *
+ * Available variables:
+ * - attributes: Remaining HTML attributes for the element.
+ *   - class: HTML classes that can be used to style contextually through CSS.
+ * - title : The title of this group of rows.
+ * - header: The table header columns.
+ *   - attributes: Remaining HTML attributes for the element.
+ *   - content: HTML classes to apply to each header cell, indexed by
+ *   the header's key.
+ *   - default_classes: A flag indicating whether default classes should be
+ *     used.
+ * - caption_needed: Is the caption tag needed.
+ * - caption: The caption for this table.
+ * - accessibility_description: Extended description for the table details.
+ * - accessibility_summary: Summary for the table details.
+ * - rows: Table row items. Rows are keyed by row number.
+ *   - attributes: HTML classes to apply to each row.
+ *   - columns: Row column items. Columns are keyed by column number.
+ *     - attributes: HTML classes to apply to each column.
+ *     - content: The column content.
+ *   - default_classes: A flag indicating whether default classes should be
+ *     used.
+ * - responsive: A flag indicating whether table is responsive.
+ * - sticky: A flag indicating whether table header is sticky.
+ *
+ * @see template_preprocess_views_view_table()
+ *
+ * @ingroup themeable
+ */
+#}
+
+{%
+  set classes = [
+    'cols-' ~ header|length,
+    responsive ? 'responsive-enabled',
+    'table table-hover table-striped'
+  ]
+%}
+<div class="table-responsive">
+    <table{{ attributes.addClass(classes) }}>
+      {% if caption_needed %}
+        <caption>
+        {% if caption %}
+          {{ caption }}
+        {% else %}
+          {{ title }}
+        {% endif %}
+        {% if (summary is not empty) or (description is not empty) %}
+          <details>
+            {% if summary is not empty %}
+              <summary>{{ summary }}</summary>
+            {% endif %}
+            {% if description is not empty %}
+              {{ description }}
+            {% endif %}
+          </details>
+        {% endif %}
+        </caption>
+      {% endif %}
+      {% if header %}
+        <thead>
+        <tr>
+           <th id="view-field-message-private-subject-table-column" class="views-field views-field-field-message-private-subject" scope="col">Sujet</th>
+           {%  if  view.current_display  == 'page_1' %}
+              <th id="view-uid-table-column" class="views-field views-field-uid" scope="col">Expéditeur</th>
+           {% else %}
+               <th id="view-uid-table-column" class="views-field views-field-uid" scope="col">Destinataire</th>
+           {% endif %}
+           <th id="view-created-table-column" class="views-field views-field-created" scope="col">Dernière mise à jour</th>
+        </tr>
+        </thead>
+      {% endif %}
+      <tbody>
+        {% for row in rows %}
+          <tr{{ row.attributes }}>
+            {% for key, column in row.columns %}
+              {% if column.default_classes %}
+                {%
+                  set column_classes = [
+                    'views-field'
+                  ]
+                %}
+                {% for field in column.fields %}
+                  {% set column_classes = column_classes|merge(['views-field-' ~ field]) %}
+                {% endfor %}
+              {% endif %}
+              <td{{ column.attributes.addClass(column_classes) }}>
+                {%- if column.wrapper_element -%}
+                  <{{ column.wrapper_element }}>
+                  {% for content in column.content %}
+                    {{ content.separator }}{{ content.field_output }}
+                  {% endfor %}
+                  </{{ column.wrapper_element }}>
+                {%- else -%}
+                  {% for content in column.content %}
+                    {{- content.separator }}{{ content.field_output -}}
+                  {% endfor %}
+                {%- endif %}
+              </td>
+            {% endfor %}
+          </tr>
+        {% endfor %}
+        <tr>
+            <td><a href="{{ path('mtc_core.user.receivedMessages', {'user': user.id()} )}}" class="btn btn-primary btn-lg active" role="button" aria-pressed="true">Messages reçus</a></td>
+            <td><a href="{{ path('message_private.messages.sent', {'user': user.id()}) }}"  class="btn btn-primary btn-lg active" role="button" aria-pressed="true">Messages envoyés</a></td>
+            <td><a href="{{ path('message_ui.add_page')}}" class="btn btn-primary btn-lg active" role="button" aria-pressed="true">Écrire un message</a></td>
+        </tr>
+      </tbody>
+    </table>
+</div>
+

@@ -1,0 +1,21 @@
+
+# User profile entity menu items definition
+entity.lc_user_profile_entity.collection:
+  title: 'User Lc profile entity list'
+  route_name: entity.lc_user_profile_entity.collection
+  description: 'List User profile entity entities'
+  parent: system.admin_structure
+  weight: 100
+
+lc_user_profile_entity.admin.structure.settings:
+  title: User Lc profile entity settings
+  description: 'Configure Lc User profile entity entities'
+  route_name: lc_user_profile_entity.settings
+  parent: system.admin_structure
+
+mtc_core_chat_nasteo.admin.structure.settings:
+  title: 'Chat Nasteo'
+  description: 'Configurer le chat nasteo'
+  parent: system.admin_structure
+  route_name: mtc_core.chat_nasteo_settings
+  weight: 100

@@ -1,0 +1,22 @@
+# User profile entity routing definition
+lc_user_profile_entity.settings_tab:
+  route_name: lc_user_profile_entity.settings
+  base_route: lc_user_profile_entity.settings
+  title: 'Settings'
+
+entity.lc_user_profile_entity.canonical:
+  route_name: entity.lc_user_profile_entity.canonical
+  base_route: entity.lc_user_profile_entity.canonical
+  title: 'View'
+
+entity.lc_user_profile_entity.edit_form:
+  route_name: entity.lc_user_profile_entity.edit_form
+  base_route: entity.lc_user_profile_entity.canonical
+  title: 'Edit'
+
+entity.lc_user_profile_entity.delete_form:
+  route_name:  entity.lc_user_profile_entity.delete_form
+  base_route:  entity.lc_user_profile_entity.canonical
+  title: Delete
+  weight: 10
+

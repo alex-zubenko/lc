@@ -1,0 +1,98 @@
+<?php
+
+/**
+ * @file
+ * Contains linecoaching.module..
+ */
+use Drupal\user\Entity\User;
+
+
+/**
+ * Implements hook_cron().
+ */
+function linecoaching_forum_notification_cron() {
+  /** @var \Drupal\mailsystem\MailsystemManager $mailManager */
+  $mailManager = \Drupal::service('plugin.manager.mail');
+  $now = new \Drupal\Core\Datetime\DrupalDateTime();
+  if ($now->format('U') >= \Drupal::state()->get('vr_lab_cron_next_execution', 0)) {
+    $db = \Drupal::database();
+    /** @var \Drupal\Core\Utility\Token $token_service */
+    $token_service = \Drupal::token();
+
+    $query = $db->select('lc_forum_notification', 'fn');
+    $query->fields('fn', ['uid']);
+    $query->condition('fn.status', 1);
+    $total = $query->execute()->fetchCol();
+    $users = User::loadMultiple($total);
+
+    $config = \Drupal::configFactory()
+      ->get('linecoaching_forum_notification.settings');
+    $subject_template = $config->get('subject_template');
+    $message_template = $config->get('message_template');
+    $from_template = $config->get('from_template');
+
+    if (!empty($users)) {
+      /** @var \Drupal\user\Entity\User $user */
+      foreach ($users as $user) {
+        $to = $user->getEmail();
+        $params['from'] = $token_service->replace($from_template, ['user' => $user]);
+        $params['subject'] = $token_service->replace($subject_template, ['user' => $user]);
+        $params['message'] = $token_service->replace($message_template, ['user' => $user]);
+        $langcode = \Drupal::currentUser()->getPreferredLangcode();
+        $result = $mailManager->mail('linecoaching', 'sending_private_email_notification', $to, $langcode, $params, NULL, TRUE);
+
+        $query = $db->update('lc_forum_notification')
+          ->fields(['status' => 0,])
+          ->condition('uid', $user->id())
+          ->execute();
+      }
+    }
+    $date = new \Drupal\Core\Datetime\DrupalDateTime();
+    $date = new \Drupal\Core\Datetime\DrupalDateTime($date->format('Y-m-d'));
+    $date->modify('+1 day 21 hours');
+    \Drupal::state()->set('vr_lab_cron_next_execution', $date->format('U'));
+  }
+}
+
+/**
+ * Implements function hook_entity_insert().
+ */
+function linecoaching_forum_notification_entity_insert(\Drupal\Core\Entity\EntityInterface $entity) {
+  if ($entity instanceof \Drupal\comment\Entity\Comment && $entity->bundle() == 'comment_forum') {
+    /** @var \Drupal\comment\Entity\Comment $comment */
+    $comment = $entity;
+    $node = $comment->getCommentedEntity();
+    $db = \Drupal::database();
+
+    $query = $db->select('flagging', 'fl');
+    $query->fields('fl', ['uid']);
+    $query->condition('fl.entity_id', $node->id());
+    $total = $query->execute()->fetchCol();
+    foreach ($total as $user) {
+      if ($user != \Drupal::currentUser()->id()) {
+        $query = \Drupal::database()->insert('lc_forum_notification');
+        $query->fields(['uid', 'nid', 'status']);
+        $query->values([$user, $node->id(), 1]);
+        $query->execute();
+      }
+    }
+  }
+}
+
+/**
+ * Implements hook_theme_suggestions_alter().
+ */
+function linecoaching_forum_notification_theme_suggestions_alter(array &$suggestions, array $variables, $hook) {
+
+  if ($hook = 'table' && $variables['theme_hook_original'] == 'table__forum_topic_list' && \Drupal::routeMatch()->getRouteName()=="mtc_core.lc_forum_controller_users_followers") {
+    $suggestions[] = 'table__forum_topic_list__followers';
+  }
+}
+
+/**
+ * Implements hook_preprocess().
+ */
+function linecoaching_forum_notification_preprocess_table__forum_topic_list__followers(&$var) {
+  $profileForm = \Drupal::formBuilder()->getForm('Drupal\linecoaching_forum_notification\Form\LcForumPostFlagUnfollow');
+  $var['unfollow'] = $profileForm;
+}

@@ -1,0 +1,20 @@
+<html xmlns="http://www.w3.org/1999/xhtml">
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+        <title>Proposition d'entretiens Linecoaching</title>
+    </head>
+    <body>
+    Bonjour coach,
+    <br/><br/>
+    <b>{{ data.login }}</b> propose les créneaux suivant pour un entretien : <br/><br/>
+    {% if data.rdv1 %} - le {{ data.rdv1 | date('d/m/Y') }} à {{ data.rdv1 | date('H:i:s') }}<br/>{% endif %}
+    {% if data.rdv2 %} - le {{ data.rdv2 | date('d/m/Y') }} à {{ data.rdv2 | date('H:i:s') }}<br/>{% endif %}
+    {% if data.rdv3 %} - le {{ data.rdv3 | date('d/m/Y') }} à {{ data.rdv3 | date('H:i:s') }}<br/>{% endif %}
+
+    <br/><b>état d'avancement du parcours : </b><br/><br/>
+    <b>activité  :</b> {{ data.activity is defined  ? data.activity  : '' }}<br/>
+    <b>date      :</b> {{ data.last_date is defined ? data.last_date | date('d/m/Y H:i:s'): '' }}<br/>
+    <b>étape     :</b> {{ data.step is defined      ? data.step      : '' }}<br/>
+    {% if data.link %}<a href="https://www.linecoaching.com{{ data.link }}">https://www.linecoaching.com{{ data.link }}</a>{% endif %}
+    </body>
+</html>

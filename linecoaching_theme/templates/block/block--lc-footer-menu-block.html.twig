@@ -1,0 +1,79 @@
+{#
+/**
+ * @file
+ * Theme override to display a book tree.
+ *
+ * Returns HTML for a wrapper for a book sub-tree.
+ *
+ * Available variables:
+ * - items: A nested list of  items. Each book item contains:
+ *   - attributes: HTML attributes for the book item.
+ *   - below: The  item child items.
+ *   - title: The  link title.
+ *   - url: The  link URL, instance of \Drupal\Core\Url.
+ *   - is_expanded: TRUE if the link has visible children within the current
+ *     tree.
+ *   - is_collapsed: TRUE if the link has children within the current  tree
+ *     that are not currently visible.
+ *   - in_active_trail: TRUE if the link is in the active trail.
+ */
+#}
+{% import _self as theme_tree %}
+<nav  class="footer-main-menu-navigation" role="navigation" aria-labelledby="footer-main-menu-navigation">
+        <div class="social-media sm-desktop">
+          {% if content.facebook_url %}
+            <a href="{{content.facebook_url}}"  class="facebook" target="_blank" ><i class="fa fa-facebook"></i></a>
+          {% endif %}
+          {% if content.twitter_url %}
+            <a href="{{ content.twitter_url }}" class="twitter" target="_blank" ><i class="fa fa-twitter"></i></a>
+          {% endif %}
+        </div>
+       {{ content.newsletter_footer }}
+        <div class="logo-site">
+            <div class="brand logo">
+                <a href="{{ '/' | relative_to_absolute }} " title="Accueil" rel="home" class="site-branding__logo">
+                <img src="{{'/themes/custom/linecoaching_theme/images/LOGO-W@2x.png' | relative_to_absolute }}" alt="Accueil">
+                </a>
+              <span class="nl-form-label">Recevez toutes les news et les promos en exclusivité</span>
+            </div>
+        </div>
+        {{ theme_tree.theme_navigation(content.items, [], 0) }}
+        <div class="social-media sm-mobile">
+          {% if content.facebook_url %}
+            <a href="{{content.facebook_url}}"  class="facebook" target="_blank" ><i class="fa fa-facebook"></i></a>
+          {% endif %}
+          {% if content.twitter_url %}
+            <a href="{{ content.twitter_url }}" class="twitter" target="_blank" ><i class="fa fa-twitter"></i></a>
+          {% endif %}
+        </div>
+
+</nav>
+
+{% macro theme_navigation(items, attributes, menu_level) %}
+        {% import _self as theme_tree %}
+        {% if items %}
+          {% if menu_level == 0 %}
+            <ul{{ attributes.addClass('menu') }}>
+          {% else %}
+            <ul class="menu">
+          {% endif %}
+          {% for item in items%}
+            {%
+              set classes = [
+                'footer-menu-item', 'menu-item--expanded', 'level-'~menu_level ,  item.title | clean_id
+
+                ]
+            %}
+            <li{{ item.attributes.addClass(classes) }}>
+              {% if not item.attributes.hasClass('sabonner') %}
+                <a href="{{item.url.toString() | relative_to_absolute }}"  title="{{ item.title }}">{{ item.title }}</a>
+                  <span class="open-close level-{{menu_level}}"></span>
+                {% if item.below is not null %}
+                  {{ theme_tree.theme_navigation(item.below, item.attributes, menu_level + 1) }}
+                {% endif %}
+              {% endif %}
+            </li>
+          {% endfor %}
+          </ul>
+        {% endif %}
+      {% endmacro %}

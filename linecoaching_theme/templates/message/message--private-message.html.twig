@@ -1,0 +1,47 @@
+{#
+/**
+ * @file
+ * Default theme implementation for message entities.
+ *
+ * Available variables:
+ * - $content: An array of comment items. Use render($content) to print them all, or
+ *   print a subset such as render($content['field_example']). Use
+ *   hide($content['field_example']) to temporarily suppress the printing of a
+ *   given element.
+ * - $title: The (sanitized) entity label.
+ * - $url: Direct url of the current entity if specified.
+ * - $page: Flag for the full page state.
+ * - $classes: String of classes that can be used to style contextually through
+ *   CSS. It can be manipulated through the variable $classes_array from
+ *   preprocess functions. By default the following classes are available, where
+ *   the parts enclosed by {} are replaced by the appropriate values:
+ *   - entity-{ENTITY_TYPE}
+ *   - {ENTITY_TYPE}-{BUNDLE}
+ *
+ * Other variables:
+ * - $classes_array: Array of html class attribute values. It is flattened
+ *   into a string within the variable $classes.
+ *
+ * @see template_preprocess()
+ * @see template_preprocess_message()
+ * @see template_process()
+ */
+#}
+
+<div class="private-message-wrapper top">
+  <div class="private-message-subject">{{ message.field_message_private_subject.value }}</div>
+  <div class="private-message-reply">
+    <a  title="Revenir à mes messages" class="custom-button" href="{{ path('message_private.messages', {'user': user.id()}) }}">Revenir à mes messages</a>
+    {% if message.getOwnerId() != user.id() %}
+      <a class="custom-button revert FR use-ajax" title="Répondre" href="{{ path('lc.ajax_load_private_message_form_reply', {'user' : message.getOwnerId(), 'message' : message.id()})}}?subject={{ message.field_message_private_subject.value | raw }}">Répondre</a>
+    {% endif %}
+  </div>
+  <div class="private-message-from">
+    <div class="pm-author-name clearfix"><span>À : </span>{{ author_name }}</div>
+    <div class="pm-date clearfix"><span>Envoyé : </span>{{ created_tme }}</div>
+  </div>
+  <div class="private-message-body">
+    {{ message.field_message_private_body.value | raw }}
+  </div>
+</div>
+<div id="reply_form_private_message"></div>

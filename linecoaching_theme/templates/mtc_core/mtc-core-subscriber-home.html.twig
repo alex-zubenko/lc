@@ -1,0 +1,270 @@
+{{ attach_library('linecoaching_theme/prog-d6-home-client-styling') }}
+{#to redo once prog is migrated #}
+<section class="accueil-header">
+    <h1>Mon linecoaching minceur</h1>
+    <h2>Votre programme de la journée !</h2>
+    <div class="body">Bienvenue dans votre espace personnel! Cette
+        page est la vôtre. Elle récapitule toutes les données essentielles de
+        votre avancée dans le programme. Vous y trouverez un accès rapide aux
+        activités du programme en cours et à vos activités « forme », vos
+        applications, vos outils, vos défis en cours, les événements à
+        venir... et plein d'autres choses encore!.</div>
+</section>
+
+<article class="home-client-svt">
+    {% if svtdata.svtAlimentaire.body is defined %}
+    {% set data = svtdata.svtAlimentaire.body  %}
+    <div class="panel-pane pane-node" id="ca_progress">
+        <div class="pane-content">
+            <div
+                class="globalModuleInfo moduleInfo{{ svtdata.svtAlimentaire.moduleAliasName }} ">
+                <div class="titreMod">
+                    <h2>MON PARCOURS COMPORTEMENT ALIMENTAIRE</h2>
+                </div>
+                <div class="Mod">
+                    <span class="sstitreMod">Ma progression </span>
+                    <div class="jauge"
+                        title="J\'ai réalisé {{ data.module.progress }} de mon parcours">
+                        <span class="jaugeMod"> <span class="progress"
+                            style="width:{{ data.module.progress | trim}}%"></span>
+                        </span>
+                    </div>
+                    <div class="sommaire">
+                        <div class="page ca" title="Sommaire">
+                            <a href="/prog/comportement-alimentaire/comportement/index">&#9658;<span>Sommaire
+                                    Mon Parcours Alimentaire</span></a>
+                        </div>
+                        {% if data.module.progress == 0.0 %}
+                        <a class="bt_start_ca commencer" href="{{ data.continue }}"><span>commencer
+                                mon parcours alimentaire</span></a>'
+                        {% else %}
+                        <a class="bt_continue_ca" href="{{ data.continue }}"><span>continuer
+                                mon parcours alimentaire</span></a>
+                        {% endif %}
+                        <div class="progress_bg">&nbsp;</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="separator"></div>
+    {% endif %}
+    {% if svtdata.svtForm.body is defined %}
+    {% set data = svtdata.svtForm.body  %}
+    <div class="panel-pane pane-node" id="for_progress">
+        <div class="globalModuleInfo  moduleInfo{{ svtdata.svtForm.moduleAliasName }} ">
+            <div class="titreMod">
+                <h2>J'ENTRETIENS MA FORME</h2>
+            </div>
+            <div class="Mod">
+                <span class="sstitreMod">Ma progression </span>
+                <div class="jauge"
+                    title="J\'ai réalisé {{ data.module.progress }}% de mon parcours">
+                    <span class="jaugeMod"> <span class="progress"
+                        style="width:{{ data.module.progress | trim}}%"></span>
+                    </span>
+                </div>
+                <div class="sommaire">
+                    <div class="page for" title="Sommaire">
+                        <a href="/prog/comportement-alimentaire/sport/index">&#9658;<span>Sommaire
+                                Mon Parcours Forme</span></a>
+                    </div>
+                    {% if data.module.progress == 0.0 %}
+                          <a class="bt_start_for commencer" href="{{ data.continue }}"><span>commencer</span></a>
+                     {% else %}
+                          <a class="bt_continue_for" href="{{ data.continue }}"><span>continuer</span></a>
+                     {% endif %}
+                            <div class="progress_bg">&nbsp;</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="separator"></div>
+    {% endif %}
+    {# current ongoing defis #}
+    {% if svtdata.svtStartedDefis is defined %}
+     <div class="panel-pane pane-defis-new-home-client" id="defis_available">
+         <div class="pane-content">
+            <div class="titreDefis">
+                <h2>Mes défis</h2>
+            </div>
+            {% if svtdata.svtStartedDefis|length  > 0 %}
+                    {% for key, data in svtdata.svtStartedDefis %}
+                    <div class="defis-new">
+                        <a href="/prog/comportement-alimentaire/mes-defis"
+                            class="blocDefisLink pac-defi-{{ data.node.field_widget_defi_theme_value }}">
+                            <span
+                            class="defi-new-icone icone-defi-{{ data.node.field_widget_defi_theme_value | lower }}">
+                                <span class="fondPoint"
+                                style="background-color:{{ data.node.prog_name.bg_color_point }}">
+                                    {{ data.node.field_widget_defi_pts_value }} points
+                            </span>
+                        </span> <span class="defi-new-content"> <span class="defi-new-title">
+                                    <span class="defi-new-duration"> Jusqu'au {{ data.defis.date }}
+                                </span> <span
+                                    style="color:{{ data.node.prog_name.bg_color_point }}; text-transform: uppercase;">{{ data.node.prog_name.name | upper }}</span>
+                                    | {{ data.defis.nbjours }} jours | Niveau
+                                    {% for i in 0..data.node.field_widget_defi_note_value %}
+                                    <img alt="difficulte"
+                                    src="/themes/custom/linecoaching_theme/images/prog-images/etoileNiveau.png">
+                                    {% endfor %}
+                            </span> <span class="defi-new-text"> {{ data.node.field_widget_defi_title_value }}</span>
+                        </span>
+                        </a>
+                    </div>
+                    {% endfor %}
+
+            {% else %}
+            <table>
+                <tbody>
+                    <tr>
+                        <td class="pasDefis" colspan="6">Vous n'avez pas encore de
+                            défis en cours</td>
+                    </tr>
+                </tbody>
+            </table>
+            {% endif %}
+
+        </div>
+    </div>
+    <div class="separator"></div>
+
+    {% endif %}
+    {% if svtdata.svtNewDefis is defined %}
+    {# Bloc de titre #}
+    <div class="panel-pane pane-defis-carrousel-home-client">
+
+    <div class="sstitreDefis">
+      <h2>Choisissez vos prochains d&eacute;fis</h2>
+    </div>
+
+     {# Bloc contenu du carrousel #}
+    <div id="defi-carrousel">
+
+       {# Fleche gauche #}
+
+      <div class="prevTabs" rel="1">
+        <span class="prev"></span>
+      </div>
+
+      {# Bloc contenant les défis #}
+
+      <div class="scroll_tabs">
+        <ul class="tabs">
+            {% for key, data in svtdata.svtNewDefis %}
+          <li>
+            <div id="defi_{{ key }}" class="defi defi_carrousel">
+              <div class="icone">
+                <span class="icone-defi-{{ data.node.field_widget_defi_theme_value |lower }}"></span>
+              </div>
+              <div class="level">Niveau</div>
+              <div class="stars">
+                <div class="defi_sprite_etoiles" style="width:{{ 12 * data.node.field_widget_defi_note_value }}px"></div>
+              </div>
+            </div>
+          </li>
+        {% endfor %}
+        </ul>
+      </div>
+
+       {# Fleche droite #}
+
+      <div class="nextTabs" rel="6">
+        <span class="flash next"></span>
+      </div>
+    </div>
+      {# Création de la popin pour chaque défi du carrousel #}
+      {% for key, data in svtdata.svtNewDefis %}
+      <div id="popin_{{key}}" class="popin popincarrousel" style="display:none;">
+        <div class="opac">
+          <div class="general">
+            <div class="closed_button"><img src="/themes/custom/linecoaching_theme/images/prog-images/close.png" alt="Fermer" class="img-close"/></div>
+            <div class="titre"><span class="title_label">DESCRIPTION DU DEFI</span></div>
+            <div class="rendez-vous">
+              <div class="defi-title" id="title-{{ data.node.field_widget_defi_theme_value }}">{{ data.node.field_widget_defi_title_value }}</div>
+                <div class="intitule">
+                  <div class="inside_label">
+                    <div class="icone">
+                      <span class="icone-defi-{{ data.node.field_widget_defi_theme_value | lower }}"></span>
+                      <div class="fondPoint" style="background-color:{{ data.node.prog_name.bg_color_point }}"> {{ data.node.field_widget_defi_pts_value | raw }} points</div>
+                    </div>
+                    <table class="contenu">
+                      <tr>
+                        <td class="left">
+                          <span class="description">{{ data.node.prog_name.name }} | {{ data.defis.nbjours }} jours | Niveau
+                          <span class="defi_sprite_etoiles" style="width:{{ 12 * data.node.field_widget_defi_note_value }}px"></span></span>
+                        </td>
+                        <td class="right">{{ data.defis.date |raw }}</td>
+                      </tr>
+                      <tr>
+                        <td colspan="2">
+                          <div class="defi-body">{{ data.node.body | raw }}</div>
+                        </td>
+                      </tr>
+                    </table>
+                  </div>
+                </div>
+              </div>
+            <div class="bouton">
+              <img onmouseover="src='/themes/custom/linecoaching_theme/images/prog-images/defis_cancel_hover.png'"
+                   onmouseout="src='/themes/custom/linecoaching_theme/images/prog-images/defis_cancel.png'"
+                   class="img-cancel"
+                   src="/themes/custom/linecoaching_theme/images/prog-images/defis_cancel.png"
+                   alt="Annuler"/>
+              <img onmouseover="src='/themes/custom/linecoaching_theme/images/prog-images/defis_add_hover.png'"
+                   onmouseout="src='/themes/custom/linecoaching_theme/images/prog-images/defis_add.png'"
+                   class="img-valide"
+                   src="/themes/custom/linecoaching_theme/images/prog-images/defis_add.png"
+                   alt="Continuer"/>
+            </div>
+            </div>
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+    <div class="separator"></div>
+    {% endif %}
+</article>
+
+<article class="blog-post-form">
+    <h2>Mon blog</h2>
+    {{ blogform }}
+    <div class="separator"></div>
+</article>
+{% if lastblog is defined %}
+<article class="last-blog">
+
+  <div class="panel-pane pane-views pane-dernier-post-de-blog">
+       <div class="pane-content">
+          <div class="view view-dernier-post-de-blog view-id-dernier_post_de_blog view-display-id-default view-dom-id-1">
+             <div class="view-content">
+                <div class="views-row views-row-1 views-row-odd views-row-first views-row-last">
+                   <div class="globalBlog">
+                      <div class="dateBlog">Le {{ lastblog.getChangedTime()| date("m/d/Y") }}, vous avez écrit :</div>
+                      <div class="corpsBlog">
+                         <div class="titleBillet">{{ lastblog.getTitle() }}</div>
+                         <div class="humeur"><span class="cadre-humeur-du-jour">Humeur</span>
+                         {% if lastblog.blogHumourImage is defined %}
+                             <img src="{{ lastblog.blogHumourImage }}" />
+                         {% endif %}
+                         </div>
+                         <div class="texteBlog">
+                            {{ lastblog.body.value | strip_tags_allow_entity|truncate(500, true, true)|raw }}
+                         </div>
+
+                      </div>
+                   </div>
+                </div>
+             </div>
+             <div class="view-footer">
+                <a href="/blog/{{ user.id }}">Accéder à mon blog</a>
+             </div>
+          </div>
+       </div>
+    </div>
+</article>
+
+{% endif %}
+
+
+

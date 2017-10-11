@@ -1,0 +1,44 @@
+<form id="search-member-form">
+    <div class="search-box members">
+        <div class="input-group">
+          <input id="search-member-forum" type="text" class="form-control" placeholder="Recherche par speudo ou ville">
+          <span class="input-group-btn">
+            <button class="btn btn-default glyphicon glyphicon-search" type="submit"></button>
+          </span>
+      </div>
+    </div>
+</form>
+{% for member in content %}
+<article class="col-md-4 col-sm-2 forum-member">
+    <div class="row">
+    <a href="{{ path('entity.user.canonical', {'user': member.uid}) }}">
+        <div class="article-image col-sm-4"
+            {% if member.file_uri is not empty %} style="background-image:url({{ file_url(member.file_uri) }})"
+            {% else %} style="background-image:url(/sites/default/files/avatar_selection/anonyme.jpg)" {% endif %}>
+        </div>
+   </a>
+   <div class="col-sm-8">
+       {%if member.online == true  %}
+           <div class="online"></div>
+       {% else %}
+           <div class="offline"></div>
+       {% endif %}
+       <a href="{{ path('entity.user.canonical', {'user': member.uid}) }}"><h4 class="title">{{ member.user_name }}</h4><br /></a>
+         {% if member.roles is not empty %}
+                 <div class="member-roles role">
+                     {{ member.roles }}
+                 </div>
+         {% endif %}
+         <div class="member-information">
+                 <p class="created">Inscription:{{ member.created }} </p>
+         </div>
+        <p class="city">{{ member.city }} </p>
+   </div>
+   <div class="col-sm-12">
+       <div class="icons-member-page">
+            <a href="/messages/new/{{ member.uid }}" title="Envoyer un message privé"><i class="fa fa-envelope-o" aria-hidden="true"></i></a>
+            <a href="#"><i class="fa fa-user-plus" aria-hidden="true"></i></a>
+       </div>
+    </div>
+ </article>
+{% endfor %}

@@ -1,0 +1,23 @@
+{# /** * @file * Macro for user * */ #}
+{# /** * @file * @var activetab index of active tab
+          @var user current  user
+* Macro for page taxonomonie theme */
+#}
+{% macro display_user_account_tabs(activeTab, user) %}
+    {% set tabs =
+            {
+                1:{'route':path('mtc_core.subscription.profile'),'title':'Mon Profil'},
+                2:{'route':path('mtc_core.user.account.infos'),'title':'Mon compte'},
+                3:{'route':path('mtc_core.subscription.home'),'title':'Mon abonnement'}
+            }
+         %}
+    <ul class="nav nav-pills nav-justified">
+        {% for tab in tabs %}
+        <li role="presentation"
+            class="user-tab nav-item {% if loop.index == activeTab %} active{% endif %}">
+            <a href="{{tab.route}}" class="nav-link" title="{{ tab.title }}">
+            {{ tab.title }}</a>
+            </li>
+        {% endfor %}
+    </ul>
+{% endmacro %}

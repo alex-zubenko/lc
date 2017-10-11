@@ -1,0 +1,41 @@
+{#
+/**
+ * @file
+ * Default theme implementation to display a block hp tempo *
+ * Available variables:
+ * - title: The title of this group of rows. May be empty.
+ * - item_list: A list of the view's row items.
+ *
+ *
+ */
+#}
+<section class="recent-posts">
+   {{ title_prefix }}
+   {{ title_suffix }}
+   <div class="intro_forum">
+   {{ content.introduction.value|raw }}
+   </div>
+   <h2> {{ label }}</h2>
+   <div class="list-recent-posts">
+     {% for comment in content.comments %}
+      <article class="post">
+         <div class="image">
+           {% if comment.uri is not empty %}
+              {{ comment.uri|responsive_image('narrow') }}
+           {% else %}
+                <img src="/sites/default/files/avatar_selection/anonyme.jpg" alt=">{{ comment.name }}" title=">{{ comment.name }}">
+            {% endif %}
+         </div>
+         <h3 class="title"><a title="{{ comment.subject }}"  href="{{ path('entity.node.canonical', {'node': comment.entity_id}) }}#comment-{{ comment.cid }}">
+                            {{ comment.subject }}</a></h3>
+         <h4 class="pseudo">{{ comment.name }}</h3>
+         {# kint(comment, 1) #}
+         {% if comment.tid %}
+         <p> Dans le forum
+              <a title="{{ comment.taxonomy_name }}" href="{{ path('entity.taxonomy_term.canonical', {'taxonomy_term': comment.tid}) }}">{{ comment.taxonomy_name }}</a>
+         </p>
+         {% endif %}
+      </article>
+     {% endfor %}
+   </div>
+</section>

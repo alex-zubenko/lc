@@ -1,0 +1,56 @@
+.encadre-promo{
+    background:  #ddd;
+
+}
+.encadre-connexe, .encadre-redac, .encadre-promo, blockquote.n_encart{
+    padding: 8px;
+    margin: 10px;
+    background: #eee;
+    border-radius: 8px;
+    border: 1px solid #ddd;
+    box-shadow: 0 1px 1px #fff inset, 0 -1px 0px #ccc inset;
+}
+.encadre-connexe  h3, .encadre-connexe p {
+    box-shadow: 0 1px 1px #ddd inset;
+    border: 1px solid #cccccc;
+    border-radius: 5px;
+    background: #fff;
+}
+
+
+.encadre-redac .image-encadre-redac, .encadre-redac  .encadre-redac-cta,
+.encadre-connexe  h3, .encadre-connexe p,
+.encadre-redac  h3, .encadre-redac p, .encadre-promo p {
+    box-shadow: 0 1px 1px #ddd inset;
+    border: 1px solid #cccccc;
+    border-radius: 5px;
+    background: #fff;
+}
+.encadre-redac  h3, .encadre-connexe h3 {
+    margin: 0 0 8px;
+    padding: 5px 8px;
+}
+.encadre-promo p a{
+    padding: 5px 8px;
+    border: 1px solid #cccccc;
+
+}
+.encadre-redac p, .encadre-promo p{
+    padding: 0 8px;
+}
+
+.two-col .col-md-6{
+    box-shadow: 0 1px 1px #ddd inset;
+    border: 1px solid #cccccc;
+    border-radius: 5px;
+    background: #fff;
+    min-height: 5em;
+}
+.three-col{
+    padding: 8px;
+    margin: 10px auto;
+    background: #eee;
+    border-radius: 8px;
+    border: 1px solid #ddd;
+    box-shadow: 0 1px 1px #fff inset, 0 -1px 0px #ccc inset;
+}

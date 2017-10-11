@@ -1,0 +1,50 @@
+{#
+/**
+ * @file
+ * Theme override to display a node dossier.
+ */
+#}
+
+{%
+  set classes = [
+    'node',
+    'node--type-' ~ node.bundle|clean_class,
+    node.isPromoted() ? 'node--promoted',
+    node.isSticky() ? 'node--sticky',
+    not node.isPublished() ? 'node--unpublished',
+    view_mode ? 'node--view-mode-' ~ view_mode|clean_class,
+   'taxonomy-article'
+  ]
+%}
+{% import "themes/custom/linecoaching_theme/templates/macro/node-taxonomy-macro.html.twig" as display %}
+<article{{ attributes.addClass(classes) }}>
+   {{ title_prefix }}
+   <h1>{{ node.getTitle() }}</h1>
+   {{ title_suffix}}
+   {{ display.display_header_tags(node) }}
+   {{ display.widgets(content.field_rating, node.id(), node.field_tag_transverse_format, author_name) }}
+  <div{{ content_attributes.addClass('node__content') }}>
+     <div class="image" style="background-image:url({{ file_url(node.field_photo.entity.fileuri) }})"></div>
+     <div class="chapeau">
+        {{ node.field_chapeau.value|raw}}
+    </div>
+    {% if node.field_sommaire.value %}
+      <div id="summary">
+         <span class="summary-title">Sommaire</span>
+         <div class="summary-text"></div>
+      </div>
+    {% endif %}
+    <div class="body">
+        {{ node.body.value|raw}}
+    </div>
+  </div>
+</article>
+
+{{ display.widgets(content.field_rating, node.id(), node.field_tag_transverse_format, author_name) }}
+{% set articlesLiee = node.field_article_liee|get_target_nodes %}
+{{ display.same_series_articles(articlesLiee) }}
+{{ display.show_linked_articles(relatedThemeArticles) }}
+{{ display.show_same_theme(sameThemeArticles, currentTerm) }}
+<section class="comments">
+    {{ content.comment}}
+</section>

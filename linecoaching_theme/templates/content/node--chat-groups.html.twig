@@ -1,0 +1,31 @@
+{#
+/**
+ * @file
+ * Theme override to display a node dossier.
+ */
+#}
+{%
+  set classes = [
+    'node',
+    'node--type-' ~ node.bundle|clean_class,
+    node.isPromoted() ? 'node--promoted',
+    node.isSticky() ? 'node--sticky',
+    not node.isPublished() ? 'node--unpublished',
+    view_mode ? 'node--view-mode-' ~ view_mode|clean_class,
+   'taxonomy-article'
+  ]
+%}
+{% import "themes/custom/linecoaching_theme/templates/macro/node-taxonomy-macro.html.twig" as display %}
+<article{{ attributes.addClass(classes) }}>
+   {{ title_prefix }}
+   <h1>{{ node.getTitle() }}</h1>
+   {{ title_suffix}}
+   <div{{ content_attributes.addClass('node__content') }}>
+    <div class="body">
+        {{ node.body.value | raw }}
+    </div>
+  </div>
+  <section class="disussion-list" >
+     {{ display_og_chatrooms(node.id()) }}
+  </section>
+</article>

@@ -1,0 +1,28 @@
+{%
+  set classes = [
+    'block',
+    'block-' ~ configuration.provider|clean_class,
+    'block-' ~ plugin_id|clean_class,
+    'bannerHomepage',
+    'flexslider',
+    'hp-nav',
+    label ? 'has-title',
+    content['body']['#bundle'] ? 'bundle-' ~ content['body']['#bundle'],
+  ]
+%}
+<section{{ attributes.addClass(classes) }} style="background-image:url({{ file_url(content.field_image.0['#item'].entity.uri.value) }})">
+    <div id="accueil" class="anchor"></div>
+    <ul class="slides">
+       <li style="background-image:url({{ file_url(content.field_image.0['#item'].entity.uri.value) }})">
+          <div class="flex-caption">
+            <div class="flex-description"> {{ content.body[0]['#text'] |raw }} </div>
+            {{ title_suffix }}
+            <a class="use-ajax homepage-video-block" data-dialog-options='{"dialogClass":"homepage-video"}' data-dialog-type="modal" href="{{ path('mtc_core.homepage.video.popup') }}">Voir la vidéo</a>
+          </div>
+        </li>
+    </ul>
+    <div class="bilan-gratuit-hp">
+     {{ display_bilan_gratuit() }}
+    </div>
+ </section>
+ <a class="anchor-arrow" href="#les-benefices"><span class="glyphicon glyphicon-arrow-down"></span></a>

@@ -1,0 +1,2128 @@
+<?php
+
+/**
+ * @file
+ * Contains mtc_core.module..
+ */
+use Drupal\Core\Routing\RouteMatchInterface;
+use Drupal\image\Entity\ImageStyle;
+use Drupal\Core\Access\AccessResult;
+use Drupal\mtc_core\Utils\Theme;
+use Drupal\Core\Form\FormStateInterface;
+use Drupal\user\Entity\User;
+use Drupal\message\Entity\Message;
+use Drupal\Core\Render\Markup;
+use Drupal\mtc_core\Entity\LcUserProfileEntity;
+use Drupal\Core\Link;
+
+/**
+ * Implements hook_help().
+ */
+function mtc_core_help($route_name, RouteMatchInterface $route_match) {
+  switch ($route_name) {
+    // Main module help for the mtc_core module.
+    case 'help.page.mtc_core':
+      $output = '';
+      $output .= '<h3>' . t('About') . '</h3>';
+      $output .= '<p>' . t('MTC Core Custom Module') . '</p>';
+      return $output;
+
+    default:
+  }
+}
+
+/**
+ * Implementation of hook_form_alter()
+ */
+function mtc_core_form_alter(&$form, \Drupal\Core\Form\FormStateInterface $form_state, $form_id) {
+  if ($form_id == 'user_pass') {
+    $form['actions']['submit']['#submit'][] = 'mtc_core_send_reset_password_email';
+  }
+  if ($form_id == 'user_form' && \Drupal::routeMatch()
+      ->getParameter('lc_user_profile_entity')
+  ) {
+    $form['actions']['submit']['#submit'][] = '_mtc_core_user_submit_profile';
+  }
+  if ($form_id == 'user_form' && \Drupal::routeMatch()
+      ->getParameter('entity_type_id') == 'lc_user_profile_entity'
+  ) {
+    $form['actions']['submit']['#submit'][] = '_linecoaching_user_submit_profile';
+  }
+  if ($form_id == 'mtc_core_message_bulk_operation') {
+    $form['all_massages']['#title'] = "<span></span>";
+  }
+  /**
+   * user login box form
+   */
+  if ($form_id == 'user_form') {
+    $form['actions']['submit']['#submit'][] = 'mtc_core_user_form_form_submit';
+  }
+
+  // modifiy comment form
+  if (in_array($form_id, [
+    'comment_comment_form',
+    'comment_comment_forum_form',
+  ])) {
+    $user = Drupal::currentUser();
+    if ($user->isAuthenticated()) {
+      $form['pseudo'] = [
+        '#prefix' => '<div class="comment-user-pseudo">',
+        '#markup' => ucfirst($user->getAccountName()),
+        '#suffix' => '</div>',
+      ];
+    }
+    $form['comment_body']['widget'][0]['#title'] = 'Message';
+    $form['author']['name']['#title'] = 'Pseudo';
+    $form['actions']['submit']['#value'] = 'Publier';
+    unset($form['subject']);
+    unset($form['actions']['preview']);
+  }
+  // modify private message form
+  if ($form_id == 'message_private_message_form') {
+    $form['created']['#type'] = 'hidden';
+    $form['owner']['#type'] = 'hidden';
+    $form['uid']['#type'] = 'hidden';
+    $form['advanced']['#type'] = 'hidden';
+    $form['field_message_private_body']['widget'][0]['#type'] = 'text_format';
+    $form['field_message_private_body']['widget'][0]['#base_type'] = 'textarea';
+
+    $route_name = \Drupal::routeMatch()->getRouteName();
+    if ($route_name == 'mtc_core.lc_messaging_private_add') {
+      $form['title'] = t('Write a message to the coach');
+    }
+    else {
+      $form['title'] = t('Write a message');
+    }
+
+    $form['message_profile']['field_message_private_to_user'] = $form['field_message_private_to_user'];
+    $form['message_profile']['field_message_private_subject'] = $form['field_message_private_subject'];
+    $form['message_profile']['field_message_private_body'] = $form['field_message_private_body'];
+    $form['#validate'][] = 'mtc_core_message_private_message_form_validate';
+    unset($form['field_message_private_body']);
+    unset($form['field_message_private_to_user']);
+    unset($form['field_message_private_subject']);
+  }
+  // Modify form chat values
+  if (substr($form_id, 0, 25) == 'chatroom_irc_buttons_form') {
+    $cid = substr($form_id, 26);
+    $form['chatroom_message_entry_box_' . $cid]['#title'] = '';
+    $form['chatroom_message_entry_submit_' . $cid]['#value'] = 'Envoyer';
+    $form['#attached'] = ['drupalSettings' => ['chatroom_id' => $cid]];
+    $form['chatroom_message_entry_box_' . $cid]['#type'] = 'text_format';
+  }
+  // user register
+  if ($form_id == 'user_register_form') {
+    $profile = \Drupal\mtc_core\Entity\LcUserProfileEntity::create([
+      'title' => '',
+    ]);
+    $profileForm = \Drupal::service('entity.form_builder')->getForm($profile);
+    $form['account']['surname'] = $profileForm['surname'];
+
+    $form_state->setTemporaryValue('user_profile', $profile);
+
+    $form['account']['confirmation_mail'] = [
+      '#type' => 'email',
+      '#title' => 'Confirmer votre Adresse de courriel',
+      '#required' => TRUE,
+      '#weight' => -10,
+    ];
+    $form['member_info'] = [
+      '#type' => 'markup',
+      '#markup' => 'En devenant membre Linecoaching, vous accédez gratuitement aux forums, aux dossiers et à la
+                          newsletter pour bénéficier de tous nos conseils et des échanges avec la communauté.',
+      '#prefix' => '<div class="member-info panel panel-default"><div class="panel-body">',
+      '#suffix' => '</div></div>',
+      '#weight' => -11,
+    ];
+    $form['cga'] = [
+      '#type' => 'checkbox',
+      '#title' => 'J\'accepte les <a target="_blank" href="/conditions-generales-dutilisation">conditions générales d\'utilisation</a>',
+      '#description' => "Conditions génerales d'utilisation",
+    ];
+    $form['user_picture']['#access'] = FALSE;
+    // remove contact
+    unset($form['contact']);
+    $form['account']['name']['#title'] = "Pseudo";
+    $form['account']['mail']['#weight'] = -11;
+    $form['actions']['submit']['#value'] = "Je m'inscris gratuitement";
+    $form['#validate'][] = 'mtc_core_user_register_form_validate';
+    $form['actions']['submit']['#submit'][] = 'mtc_core_user_register_form_submit';
+  }
+  if (($form_id == 'node_blog_post_edit_form' || $form_id == 'node_blog_post_form') && isset($form['field_mon_hum'])) {
+    $form['actions']['submit']['#value'] = t('Publish');
+    $form['actions']['publish']['#value'] = t('Publish');
+    unset($form['actions']['unpublish']);
+
+    // load images
+    foreach ($form['field_mon_hum']['widget']['#options'] as $tid => $option) {
+      if (!is_int($tid)) {
+        continue;
+      }
+      $term = \Drupal\taxonomy\Entity\Term::load($tid);
+      $image = $term->get('field_image')->getValue();
+      $fid = isset($image[0]['target_id']) ? $image[0]['target_id'] : NULL;
+      if (!$fid) {
+        continue;
+      }
+      $file = \Drupal\file\Entity\File::load($fid);
+      $imageHumourUri = ImageStyle::load('thumbnail')
+        ->buildUrl($file->getFileUri());
+      $renderedImage = '<span>' . $option . '<img alt="' . $option . '" src="' . $imageHumourUri . '"/></span>';
+      $form['field_mon_hum']['widget']['#options'][$tid] = $renderedImage;
+    }
+  }
+  if ($form_id == 'node_blog_post_edit_form' && \Drupal::routeMatch()
+      ->getRouteName() == 'view.blog.blog_user_all'
+  ) {
+    $form['actions']['publish']['#submit'][] = '_mtc_core_set_redirecrt_to_bloglist';
+  }
+  if ($form_id == 'message_private_message_form') {
+    $route_name = \Drupal::routeMatch()->getRouteName();
+    $routes = [
+      'message_ui.add',
+      'mtc_core.lc_messaging_private_add',
+      'mtc_core.user.privateMessageConversation'
+    ];
+    if (in_array($route_name, $routes)) {
+      $form['#add_destinator'] = TRUE;
+    }
+    $form['actions']['save']['#value'] = t('Envoyer');
+    $form['actions']['save']['#submit'][] = '_mtc_core_set_redirecrt_to_messages_received';
+  }
+  if ($form_id == 'node_blog_post_delete_form') {
+    $form['#attached']['library'][] = 'linecoaching_theme/modal-actions';
+  }
+
+  if ($form_id == 'message_private_system_settings') {
+    $config = \Drupal::configFactory()->get('mtc_core.settings');
+    $subject_template = $config->get('subject_template');
+    $message_template = $config->get('message_template');
+
+    $form['subject_template'] = [
+      '#type' => 'textarea',
+      '#title' => t('Subject'),
+      '#default_value' => $subject_template,
+      '#required' => TRUE,
+    ];
+    $form['message_template'] = [
+      '#type' => 'textarea',
+      '#default_value' => $message_template,
+      '#title' => t('Message'),
+      '#required' => TRUE,
+    ];
+    $form['token_tree'] = [
+      '#theme' => 'token_tree_link',
+      '#token_types' => ['message', 'user'],
+    ];
+    $form['#submit'][] = '_mtc_core_set_template_parameter_for_email';
+  }
+  if ($form_id == 'subscription_newsletter_form') {
+    $form['submit']['#value'] = 'S\'inscrire';
+    $form['email-address-newsletter']['#attributes']['placeholder'] = 'Votre adresse e-mail';
+  }
+}
+
+/**
+ * Custom submit for message setting
+ *
+ * @see mtc_core_form_alter
+ */
+function _mtc_core_set_template_parameter_for_email($form, \Drupal\Core\Form\FormStateInterface $form_state) {
+  $message_template = $form_state->getValue('message_template');
+  $subject_template = $form_state->getValue('subject_template');
+  \Drupal::configFactory()->getEditable('mtc_core.settings')
+    ->set('subject_template', $subject_template)
+    ->set('message_template', $message_template)
+    ->save();
+}
+
+/**
+ * Custom submit
+ *
+ * @see mtc_core_form_alter
+ */
+function _mtc_core_set_redirecrt_to_bloglist($form, \Drupal\Core\Form\FormStateInterface $form_state) {
+  $form_state->setRedirect('view.blog.blog_user_all', [
+    'arg_0' => \Drupal::currentUser()->id(),
+  ]);
+}
+
+/**
+ * Custom submit
+ *
+ * @see mtc_core_form_alter
+ */
+function _mtc_core_set_redirecrt_to_messages_received($form, \Drupal\Core\Form\FormStateInterface $form_state) {
+  user_cookie_save([
+    'new_message_sent' => TRUE
+  ]);
+  $form_state->setRedirect('message_private.messages', [
+    'user' => \Drupal::currentUser()->id(),
+  ]);
+}
+
+/**
+ * Implements hook_preprocess_field().
+ */
+function mtc_core_preprocess_field(&$variables) {
+  if (isset($variables['element']['#field_type']) && $variables['element']['#field_type'] == 'comment') {
+    $entity = $variables['element']['#object'];
+    $cids = \Drupal::entityQuery('comment')
+      ->condition('entity_id', $entity->id())
+      ->condition('entity_type', 'node')
+      ->sort('created', 'DESC')
+      ->range(0, 5)
+      ->execute();
+    $variables['comments_count'] = count($cids);
+  }
+}
+
+/**
+ * Prepares variables for comment templates.
+ *
+ * Default template: comment.html.twig.
+ *
+ * @param array $variables
+ *            An associative array containing:
+ *            - elements: An associative array containing the comment and
+ *   entity objects. Array keys: #comment, #commented_entity.
+ */
+function mtc_core_preprocess_comment(&$variables) {
+  /** @var \Drupal\comment\CommentInterface $comment */
+  $comment = $variables['elements']['#comment'];
+  $variables['comment'] = $comment;
+  $ownerId = $comment->getOwnerId();
+  $account = $comment->getOwner();
+  $lastTimeAccess = $account->getLastAccessedTime();
+  $variables['title'] = strip_tags($variables['title']);
+  $variables['signature'] = '';
+
+  // load profile
+  $profil = \Drupal::entityTypeManager()
+    ->getStorage('lc_user_profile_entity')
+    ->loadByProperties([
+      'user_id' => $ownerId,
+    ]);
+  $profil = isset($profil) ? array_shift($profil) : NULL;
+  if ($profil) {
+    $variables['signature'] = $profil->getSigntaure();
+  }
+  // check if person is actively connected, with delay of 900 seconds
+  $variables['is_online'] = (REQUEST_TIME - 900) < $lastTimeAccess ? TRUE : FALSE;
+  // /get user badges
+  if ($comment->getFieldName() == 'comment_forum') {
+    $userBadges = $account->get('field_user_badges')->getValue();
+    $badges = array();
+    if (!empty($userBadges)) {
+      foreach ($userBadges as $userBadge) {
+        $db = \Drupal::database();
+        $query = $db->select('badge', 'b');
+        $query->fields('b');
+        $query->addField('fm', 'uri', 'uri', 'weight');
+        $query->leftJoin('file_managed', 'fm', 'fm.fid = b.image__target_id');
+        $query->condition('b.id', $userBadge['target_id']);
+        $result = $query->execute()->fetch();
+        $badges[$result->weight] = $result;
+      }
+    }
+    if (count($badges) > 0) {
+      if ($max_badge = max($badges)) {
+        $variables['badges'] = array(
+          $max_badge,
+        );
+      }
+    }
+
+    // Moved from linecoaching_david module. -->
+    $flag_count = \Drupal::service('flag.count')->getEntityFlagCounts($comment);
+    foreach ($flag_count as $flag_machine_name => $total) {
+      $variables[$flag_machine_name . '_counter'] = $total;
+    }
+    $comment_user = $comment->getOwner();
+
+    $user_picture_for_mobile = false;
+    if ($comment_user->get('user_picture')->entity) {
+      $user_picture_for_mobile = new \stdclass();
+      $user_picture_for_mobile->uri = $comment_user->get('user_picture')->entity->url();
+      $user_picture_for_mobile->name = $comment_user->label();
+    }
+    $variables['user_picture_for_mobile'] = $user_picture_for_mobile;
+
+    $user_flag_count = _get_all_flags_for_user($comment_user);
+    $flag_badge = new StdClass();
+    $flag_badge->name = 'A lire (' . $user_flag_count . ')';
+    $flag_badge->uri = '/themes/custom/linecoaching_theme/images/rangs/qual0.png';
+
+    if ($user_flag_count > 5) {
+      $flag_badge->name = 'Remercié (' . $user_flag_count . ')';
+      $flag_badge->uri = '/themes/custom/linecoaching_theme/images/rangs/qual1.png';
+    }
+    if ($user_flag_count > 10) {
+      $flag_badge->name = 'Félicité (' . $user_flag_count . ')';
+      $flag_badge->uri = '/themes/custom/linecoaching_theme/images/rangs/qual2.png';
+    }
+    if ($user_flag_count > 15) {
+      $flag_badge->name = 'En or (' . $user_flag_count . ')';
+      $flag_badge->uri = '/themes/custom/linecoaching_theme/images/rangs/qual3.png';
+    }
+
+    $variables['all_flags_for_comment_user'] = $flag_badge;
+
+    $user_comment_count = _get_all_comments_for_user($comment_user);
+    $comment_badge = new StdClass();
+    $comment_badge->name = 'Novice (' . $user_comment_count . ')';
+    $comment_badge->uri = '/themes/custom/linecoaching_theme/images/rangs/part0.png';
+    if ($user_comment_count > 29) {
+      $comment_badge->name = 'Très actif (' . $user_comment_count . ')';
+      $comment_badge->uri = '/themes/custom/linecoaching_theme/images/rangs/part3.png';
+    } else
+      if ($user_comment_count > 14) {
+        $comment_badge->name = 'Actif (' . $user_comment_count . ')';
+        $comment_badge->uri = '/themes/custom/linecoaching_theme/images/rangs/part2.png';
+      } else
+        if ($user_comment_count > 4) {
+          $comment_badge->name = 'Fidèle (' . $user_comment_count . ')';
+          $comment_badge->uri = '/themes/custom/linecoaching_theme/images/rangs/part1.png';
+        }
+    $variables['all_comments_user'] = $comment_badge;
+
+    $variables['current_uri'] = \Drupal::request()->getRequestUri();
+    // --> Moved from linecoaching_david module.
+  }
+}
+
+/**
+ * Implements hook_preprocess_node().
+ */
+function mtc_core_preprocess_node(&$variables) {
+  $node = $variables['elements']['#node'];
+  // add information for node blogs
+  $variables['custom_access'] = TRUE;
+  if ($node->getType() == 'blog_post') {
+    if (!$node->access('view')) {
+      $variables['custom_access'] = FALSE;
+    }
+
+    $route_name = Drupal::routeMatch()->getRouteName();
+    $current_user = Drupal::currentUser()->getAccount();
+    $account = $node->getOwner();
+    $variables['my_blog'] = FALSE;
+    if ($route_name == 'view.blog.blog_user_all') {
+      $route_param = Drupal::routeMatch()->getParameter('arg_0');
+      if ($route_param == $current_user->id()) {
+        $variables['my_blog'] = TRUE;
+      }
+    }
+    $isOnline = (REQUEST_TIME - 900) < $account->getLastAccessedTime() ? TRUE : FALSE;
+    $roles = $account->getRoles();
+    // @todo roles;inscrit,coaché..
+    // @todo ,humeur
+    $variables['user_data'] = [
+      'is_online' => $isOnline,
+      'uid' => $account->id(),
+    ];
+
+    $variables['link_edit'] = [
+      '#type' => 'link',
+      '#title' => t('Edit'),
+      '#url' => $node->toUrl('edit-form'),
+      '#access' => $node->access('update'),
+      '#options' => [
+        'query' => \Drupal::destination()->getAsArray(),
+      ],
+    ];
+    $variables['link_delete'] = [
+      '#type' => 'link',
+      '#title' => t('Delete'),
+      '#url' => $node->toUrl('delete-form'),
+      '#access' => $node->access('delete'),
+      '#attributes' => [
+        'class' => [
+          'use-ajax',
+          'test-test'
+        ],
+        'data-dialog-type' => 'modal',
+        'data-dialog-options' => json_encode([
+          'autoResize' => TRUE
+        ])
+      ],
+      '#options' => [
+        'query' => \Drupal::destination()->getAsArray(),
+      ],
+    ];
+    $variables['owner_name'] = $account->getUsername();
+  }
+
+  // Moved from "Linecoaching_david" module -->
+  /**
+   * Prepares variables for comment templates.
+   *
+   * Default template: comment.html.twig.
+   *
+   * Variables array keys: #comment, #commented_entity.
+   */
+  /** @var \Drupal\comment\CommentInterface $comment */
+  if ($node->getType() == 'forum') {
+    $forum_user = $node->getOwner();
+
+    $user_picture_for_mobile = false;
+    if ($forum_user->get('user_picture')->entity) {
+      $user_picture_for_mobile = new \stdclass();
+      $user_picture_for_mobile->uri = $forum_user->get('user_picture')->entity->url();
+      $user_picture_for_mobile->name = $forum_user->label();
+    }
+    $variables['user_picture_for_mobile'] = $user_picture_for_mobile;
+
+    $variables['created'] = date("D d/m/Y - H:i", $node->getCreatedTime());
+    $user_flag_count = _get_all_flags_for_user($forum_user);
+    $flag_badge = new StdClass();
+    $flag_badge->name = 'A lire (' . $user_flag_count . ')';
+    $flag_badge->uri = '/themes/custom/linecoaching_theme/images/rangs/qual0.png';
+    if ($user_flag_count > 5) {
+      $flag_badge->name = 'Remercié (' . $user_flag_count . ')';
+      $flag_badge->uri = '/themes/custom/linecoaching_theme/images/rangs/qual1.png';
+    }
+    if ($user_flag_count > 10) {
+      $flag_badge->name = 'Félicité (' . $user_flag_count . ')';
+      $flag_badge->uri = '/themes/custom/linecoaching_theme/images/rangs/qual2.png';
+    }
+    if ($user_flag_count > 15) {
+      $flag_badge->name = 'En or (' . $user_flag_count . ')';
+      $flag_badge->uri = '/themes/custom/linecoaching_theme/images/rangs/qual3.png';
+    }
+    $variables['all_flags_for_comment_user'] = $flag_badge;
+
+    $user_comment_count = _get_all_comments_for_user($forum_user);
+    $comment_badge = new StdClass();
+    $comment_badge->name = 'Novice (' . $user_comment_count . ')';
+    $comment_badge->uri = '/themes/custom/linecoaching_theme/images/rangs/part0.png';
+    if ($user_comment_count > 29) {
+      $comment_badge->name = 'Très actif (' . $user_comment_count . ')';
+      $comment_badge->uri = '/themes/custom/linecoaching_theme/images/rangs/part3.png';
+    } else
+      if ($user_comment_count > 14) {
+        $comment_badge->name = 'Actif (' . $user_comment_count . ')';
+        $comment_badge->uri = '/themes/custom/linecoaching_theme/images/rangs/part2.png';
+      } else
+        if ($user_comment_count > 4) {
+          $comment_badge->name = 'Fidèle (' . $user_comment_count . ')';
+          $comment_badge->uri = '/themes/custom/linecoaching_theme/images/rangs/part1.png';
+        }
+    $variables['all_comments_user'] = $comment_badge;
+  }
+  // --> Moved from "Linecoaching_david" module
+}
+
+/**
+ * Content type node permission access
+ *
+ * @param \Drupal\node\NodeInterface $node
+ * @param unknown $op
+ * @param \Drupal\Core\Session\AccountInterface $account
+ * @return unknown
+ */
+function mtc_core_node_access(\Drupal\node\NodeInterface $node, $op, \Drupal\Core\Session\AccountInterface $account) {
+  $type = $node->bundle();
+  switch ($op) {
+    case 'view':
+
+      if ($account->isAnonymous() && in_array($type, [
+          'blog_post',
+          'chat',
+          'presse',
+          'showcase',
+          'chat_nasteo',
+        ])
+      ) {
+        return AccessResult::forbidden();
+      }
+      if ($account->isAuthenticated() && in_array($type, [
+          'presse',
+          'showcase',
+          'chat_nasteo',
+        ]) && !in_array($account->getRoles(), [
+          'administrator',
+        ])
+      ) {
+        return AccessResult::forbidden();
+      }
+      if ($type == 'blog_post' && $node->get('field_private')->value && $account->id() != $node->getOwnerId()) {
+        return AccessResult::forbidden();
+      }
+
+    // No opinion
+    default:
+      return AccessResult::neutral();
+  }
+}
+
+/**
+ * handle notifications of messages on there creation *
+ */
+function mtc_core_entity_insert($entity) {
+  // push to firebase
+  try {
+    \Drupal::service('mtc_core.firebase_manager')->pushFireBaseContent($entity);
+  } catch (\Exception $e) {
+    $message = $e->getMessage();
+    \Drupal::logger('mtc_core')->error($message);
+  }
+  if ($entity instanceof \Drupal\Core\Entity\EntityInterface && $entity->getEntityTypeId() == 'message') {
+    $recipientUid = $entity->get('field_message_private_to_user')->getValue();
+    $recipientUid = $recipientUid[0]['target_id'];
+    $lcConfig = \Drupal::service('mtc_core.config')->get('site');
+
+    $isCoach = ($recipientUid == $lcConfig['uid_coach']) ? 1 : 0;
+    $conn = \Drupal::database();
+    $conn->insert('mc_message_read')
+      ->fields([
+        'mid' => $entity->id(),
+        'is_new' => 1,
+        'coach' => $isCoach,
+      ])
+      ->execute();
+  }
+}
+
+/**
+ *
+ * @param Drupal\Core\Entity\EntityInterface $entity
+ */
+function mtc_core_entity_delete(Drupal\Core\Entity\EntityInterface $entity) {
+  // delete chatroom of chats
+  if ($entity instanceof \Drupal\node\Entity\Node && $entity->getType() == 'chat') {
+    $chatRoom = $entity->get('field_chatroom');
+    if (isset($chatRoom)) {
+      $cid = $chatRoom->getValue();
+      $cid = $cid[0]['target_id'];
+      $chatRoom = \Drupal\chatroom\Entity\ChatRoom::load($cid);
+      $chatRoom->delete();
+    }
+  }
+}
+
+/**
+ * Update entity values on creation or update
+ *
+ * @param Drupal\Core\Entity\EntityInterface $entity
+ */
+function mtc_core_entity_presave(Drupal\Core\Entity\EntityInterface $entity) {
+  $currentUser = \Drupal::currentUser();
+  // create chatroom subentity type
+  if ($entity instanceof \Drupal\node\Entity\Node && $entity->getType() == 'chat' && empty($entity->original)) {
+    $title = $entity->getTitle();
+    $roles = [
+      'administrator',
+      'chat_manager',
+      'chat_moderator',
+      'forum_moderator',
+      'votre_coach',
+      'utilisateur_abonne',
+    ];
+    $chatRoom = \Drupal\chatroom\Entity\ChatRoom::create([
+      'title' => $title,
+      'uid' => $currentUser->id(),
+      'post_roles' => $roles,
+      'view_roles' => $roles,
+    ]);
+    $chatRoom->save();
+    $entity->set('field_chatroom', [
+      'target_id' => $chatRoom->id(),
+    ]);
+  }
+}
+
+/**
+ * handle notifications for user logout firebase *
+ */
+function mtc_core_user_logout($account) {
+  // push to firebase
+  try {
+    \Drupal::service('mtc_core.svt_manager')->clean();
+    \Drupal::service('mtc_core.firebase_manager')
+      ->pushFireBaseUserLogout($account);
+  } catch (\Exception $e) {
+    $message = $e->getMessage();
+    \Drupal::logger('mtc_core')->error($message);
+  }
+}
+
+/**
+ * Implements hook_preprocess_hook().
+ * Add more information to chatroom user
+ */
+function mtc_core_preprocess_chatroom_message(&$vars) {
+  $chatroom_message = $vars['chatroom_message'];
+  $vars['cmid'] = $chatroom_message->cmid->value;
+
+  // @TODO: allow for date format settings on the chatroom.
+  $vars['timestamp'] = chatroom_get_message_time_string($vars['chatroom_message']->created->value);
+
+  // Determine the name of the message author.
+  if ($chatroom_message->uid->entity) {
+    $chat_user = $chatroom_message->uid->entity;
+  }
+  else {
+    $chat_user = new \Drupal\Core\Session\AnonymousUserSession();
+  }
+
+  // For anonymous, use the name specified by the visitor.
+  if (!$chat_user->getUsername() && !empty($chatroom_message->anon_name->value)) {
+    $chat_user->name = $chatroom_message->anon_name->value;
+  }
+
+  $vars['username'] = $chat_user->getDisplayName();
+  $vars['message'] = $chatroom_message->text->value;
+  // load user
+  $user = \Drupal\user\Entity\User::load($chat_user->id());
+  // default image
+  $vars['profile_image'] = file_url_transform_relative(file_create_url('public://avatar_selection/anonyme.jpg'));
+  if ($user->get('user_picture')->entity) {
+    $vars['profile_image'] = $user->get('user_picture')->entity->url();
+  }
+  $vars['is_coach'] = $user->hasRole('votre_coach');
+}
+
+/**
+ * Implements hook_preprocess_hook().
+ * Add more information to chatroom user
+ */
+function mtc_core_preprocess_chatroom_user(&$vars) {
+  $account = $vars['account'];
+  $vars['name'] = $account->getDisplayName();
+  $vars['uid'] = $account->id();
+  // load user
+  $user = \Drupal\user\Entity\User::load($vars['uid']);
+  // default image
+  $vars['profile_image'] = file_url_transform_relative(file_create_url('public://avatar_selection/anonyme.jpg'));
+  if ($user->get('user_picture')->entity) {
+    $vars['profile_image'] = $user->get('user_picture')->entity->url();
+  }
+
+  $vars['is_coach'] = $user->hasRole('votre_coach');
+}
+
+/**
+ * Redirect user login form
+ *
+ * @param array $form
+ * @param FormStateInterface $form_state
+ */
+function mtc_core_user_login_block_form_submit(array $form, FormStateInterface $form_state) {
+  $form_state->setRedirect('<front>');
+}
+
+/**
+ * Redirect after password reset
+ *
+ * @param array $form
+ * @param FormStateInterface $form_state
+ */
+function mtc_core_user_form_form_submit(array $form, FormStateInterface $form_state) {
+  $resetToken = \Drupal::request()->get('pass-reset-token');
+  if ($resetToken) {
+    $form_state->setRedirect('<front>');
+  }
+}
+
+/*
+ * Function that themes
+ * templates in controller
+ */
+function mtc_core_theme($existing, $type, $theme, $path) {
+  $content = $confirmation = $wsstep = $numFound = $query = $step = $cga = $user = $data = $svtdata = $isSubscriber = NULL;
+  $blogform = $lastblog = $user_created = $profil = $passwordForm = $profileForm = $memberList = $unMemberList = NULL;
+  $user_image = $pseudo = $default_user_profile_image = $user_badge = $iframe = $resetPasswordForm = NULL;
+  $node = $messages = $response = $updatePasswordForm = $emailForm = $offers = $loginForm = NULL;
+
+  return [
+    'mtc_core_forum_members_ajax' => Theme::tpl(compact('content')),
+    'mtc_core_my_friend_list' => Theme::tpl(compact('content')),
+    'mtc_core_sent_private_messages' => Theme::tpl(compact('messages')),
+    'mtc_core_search_result' => Theme::tpl(compact('content', 'query', 'numFound')),
+    'mtc_core_private_messages' => Theme::tpl(compact('messages')),
+    'mtc_core_private_message_conversation' => Theme::tpl(compact('data')),
+    'mtc_core_og_chat_group' => Theme::tpl(compact('memberList', 'unMemberList')),
+    'mtc_core_user_account_infos' => Theme::tpl(compact('content', 'passwordForm', 'profileForm', 'response')),
+    'mtc_core_ws_payment_tunnel' => Theme::tpl(compact('wsstep', 'step', 'cga', 'isSubscriber')),
+    'mtc_core_finish_password_reset' => Theme::tpl(compact('passwordForm', 'response')),
+    'mtc_core_annex_offers' => Theme::tpl(compact('offers')),
+    'mtc_core_user_login' => Theme::tpl(compact('loginForm')),
+    'mtc_core_chat_nasteo' => Theme::tpl(compact('iframe', 'content')),
+    'mtc_core_right_sidebar_block' => Theme::tpl(compact('content')),
+    'mtc_core_unsubscribe_confirmation' => Theme::tpl(compact('confirmation')),
+    // prog homepage
+    'mtc_core_subscriber_home' => Theme::tpl(compact('content', 'user', 'svtdata', 'blogform', 'lastblog')),
+    // subscription homepage
+    'mtc_core_subscription_home' => Theme::tpl(compact('content')),
+    // profile infos
+    'mtc_core_user_profil_infos' => Theme::tpl(compact('profil', 'user_created', 'user_image', 'pseudo', 'default_user_profile_image', 'user_badge')),
+    // > emails
+    // @note : keys are used either by tpl and config.mail.subjects
+    'mtc_core_subscription_order_confirm' => Theme::tpl(compact('data'), 'email'),
+    'mtc_core_talk_proposal' => Theme::tpl(compact('data'), 'email'),
+    'mtc_core_reset_password' => Theme::tpl(compact('data'), 'email')
+    // <
+  ];
+}
+
+/**
+ * Implements preprocess_mtc_core_user_profil_infos().
+ */
+function mtc_core_preprocess_mtc_core_user_profil_infos(&$variables) {
+  /** @var \Drupal\Core\Session\AccountProxy $user */
+  $user = $variables['user'];
+
+  $user = $user->getAccount();
+  $variables['user_created'] = $user->created;
+
+  $user_flag_count = _get_all_flags_for_user($user);
+  $flag_badge = new StdClass();
+  $flag_badge->name = 'A lire (' . $user_flag_count . ')';
+  $flag_badge->uri = '/themes/custom/linecoaching_theme/images/rangs/qual0.png';
+
+  if ($user_flag_count > 5) {
+    $flag_badge->name = 'Remercié (' . $user_flag_count . ')';
+    $flag_badge->uri = '/themes/custom/linecoaching_theme/images/rangs/qual1.png';
+  }
+  if ($user_flag_count > 10) {
+    $flag_badge->name = 'Félicité (' . $user_flag_count . ')';
+    $flag_badge->uri = '/themes/custom/linecoaching_theme/images/rangs/qual2.png';
+  }
+  if ($user_flag_count > 15) {
+    $flag_badge->name = 'En or (' . $user_flag_count . ')';
+    $flag_badge->uri = '/themes/custom/linecoaching_theme/images/rangs/qual3.png';
+  }
+
+  $variables['qual'] = $flag_badge;
+
+  $user_comment_count = _get_all_comments_for_user($user);
+  $comment_badge = new StdClass();
+  $comment_badge->name = 'Novice (' . $user_comment_count . ')';
+  $comment_badge->uri = '/themes/custom/linecoaching_theme/images/rangs/part0.png';
+  if ($user_comment_count > 29) {
+    $comment_badge->name = 'Très actif (' . $user_comment_count . ')';
+    $comment_badge->uri = '/themes/custom/linecoaching_theme/images/rangs/part3.png';
+  }
+  else {
+    if ($user_comment_count > 14) {
+      $comment_badge->name = 'Actif (' . $user_comment_count . ')';
+      $comment_badge->uri = '/themes/custom/linecoaching_theme/images/rangs/part2.png';
+    }
+    else {
+      if ($user_comment_count > 4) {
+        $comment_badge->name = 'Fidèle (' . $user_comment_count . ')';
+        $comment_badge->uri = '/themes/custom/linecoaching_theme/images/rangs/part1.png';
+      }
+    }
+  }
+
+  $variables['rangs'] = $comment_badge;
+
+
+  $user = User::load($user->id());
+
+  $statut = _mtc_core_roles_validation($user->getRoles());
+  $variables['statut'] = $statut;
+
+}
+
+/**
+ * Prepares variables for pager templates.
+ *
+ * Default template: pager.html.twig.
+ *
+ * Menu callbacks that display paged query results should use #type => pager
+ * to retrieve a pager control so that users can view other results. Format a
+ * list of nearby pages with additional query results.
+ *
+ * @param array $variables
+ *            An associative array containing:
+ *            - pager: A render element containing:
+ *            - #tags: An array of labels for the controls in the pager.
+ *            - #element: An optional integer to distinguish between multiple
+ *   pagers on one page.
+ *            - #parameters: An associative array of query string parameters to
+ *   append to the pager links.
+ *            - #route_parameters: An associative array of the route
+ *   parameters.
+ *            - #quantity: The number of pages in the list.
+ */
+function mtc_core_preprocess_pager(&$variables) {
+  $element = $variables['pager']['#element'];
+  $parameters = $variables['pager']['#parameters'];
+  $quantity = $variables['pager']['#quantity'];
+  $extraPages = 5; // number of extra pages to display
+  $route_name = $variables['pager']['#route_name'];
+  $route_parameters = isset($variables['pager']['#route_parameters']) ? $variables['pager']['#route_parameters'] : [];
+  $current_path = \Drupal::service('path.current')->getPath();
+  $current_path = \Drupal::service('path.alias_manager')
+    ->getAliasByPath($current_path);
+
+  $items = [];
+  $pageCounter = 0;
+
+  global $pager_page_array, $pager_total;
+
+  // Nothing to do if there is only one page.
+  if ($pager_total[$element] <= 1) {
+    return;
+  }
+  $tags = $variables['pager']['#tags'];
+
+  // Calculate various markers within this pager piece:
+  // Middle is used to "center" pages around the current page.
+  $pager_middle = ceil($quantity / 2);
+  // current is the page we are currently paged to.
+  $pager_current = $pager_page_array[$element] + 1;
+  // first is the first page listed by this pager piece (re quantity).
+  $pager_first = $pager_current - $pager_middle + 1;
+  // last is the last page listed by this pager piece (re quantity).
+  $pager_last = $pager_current + $quantity - $pager_middle;
+  // max is the maximum page number.
+  $pager_max = $pager_total[$element];
+  // End of marker calculations.
+
+  // Prepare for generation loop.
+  $i = $pager_first;
+  if ($pager_last > $pager_max) {
+    // Adjust "center" if at end of query.
+    $i = $i + ($pager_max - $pager_last);
+    $pager_last = $pager_max;
+  }
+  if ($i <= 0) {
+    // Adjust "center" if at start of query.
+    $pager_last = $pager_last + (1 - $i);
+    $i = 1;
+  }
+  // End of generation loop preparation.
+  // Create the "first" and "previous" links if we are not on the first page.
+  if ($pager_page_array[$element] > 0 && $pager_first >= 2 && $element > 0) {
+    $items['first'] = array();
+    $options = array(
+      'query' => pager_query_add_page($parameters, $element, 0),
+    );
+    $items['first']['href'] = \Drupal::url($route_name, $route_parameters, $options);
+    if (isset($tags[0])) {
+      $items['first']['text'] = $tags[0];
+    }
+  }
+
+  if ($i != $pager_max) {
+    // Add an ellipsis if there are further previous pages.
+    if ($i > 1) {
+      $variables['ellipses']['previous'] = TRUE;
+    }
+    // Now generate the actual remainder pager piece.
+    // add extra links accessible
+    if ($pager_last > $quantity) {
+      $step = 10;
+      for ($j = 10; $j < $pager_first; $j += $step) {
+        $options = [
+          'query' => pager_query_add_page($parameters, $element, $j - 1),
+        ];
+        $items['pages'][$j]['href'] = \Drupal::url($route_name, $route_parameters, $options);
+        if ($j == 0) {
+          $items['pages'][$j]['href'] = \Drupal::url($route_name, $route_parameters, []);
+        }
+        $options = ($j - 1 == 0) ? [] : $options;
+        if ($j == $pager_current) {
+          $variables['current'] = $j;
+        }
+        $pageCounter++;
+      }
+    }
+    // Now generate the actual pager piece.
+    for (; $i <= $pager_last && $i <= $pager_max; $i++) {
+      $options = [
+        'query' => pager_query_add_page($parameters, $element, $i - 1),
+      ];
+      $items['pages'][$i]['href'] = \Drupal::url($route_name, $route_parameters, $options);
+
+      if ($i == $pager_current) {
+        $variables['current'] = $i;
+      }
+    }
+    // add extra pages
+    $step = 10;
+    for ($j = $pager_last + 1; $j < $pager_max; $j += $step) {
+      $options = [
+        'query' => pager_query_add_page($parameters, $element, $j - 1),
+      ];
+      $items['pages'][$j]['href'] = \Drupal::url($route_name, $route_parameters, $options);
+      if ($j - 1 == 0) {
+        $items['pages'][$j]['href'] = $current_path;
+      }
+      if ($j == $pager_current) {
+        $variables['current'] = $j;
+      }
+      $pageCounter++;
+      if ($pageCounter >= $extraPages) {
+        break;
+      }
+    }
+    // Add an ellipsis if there are further next pages.
+    if ($i < $pager_max + 1) {
+      $variables['ellipses']['next'] = TRUE;
+    }
+  }
+
+  // Create the "last" links if we are not on the last page.
+  if ($pager_page_array[$element] < ($pager_max - 1) && (($pager_first + $quantity) < $pager_max)) {
+    $items['last'] = array();
+    $options = array(
+      'query' => pager_query_add_page($parameters, $element, $pager_max - 1),
+    );
+    $items['last']['href'] = \Drupal::url($route_name, $route_parameters, $options);
+    if (isset($tags[4])) {
+      $items['last']['text'] = $tags[4];
+    }
+  }
+  $variables['items'] = $items;
+  // The rendered link needs to play well with any other query parameter used
+  // on the page, like exposed filters, so for the cacheability all query
+  // parameters matter.
+  $variables['#cache']['contexts'][] = 'url.query_args';
+}
+
+/*
+ * Alter attachments (typically assets) to a page before it is rendered.
+ */
+function mtc_core_page_attachments_alter(array &$attachments) {
+  $currentUser = \Drupal::currentUser();
+  $serviceMetaTag = \Drupal::service('mtc_core.metatag_manager');
+  // add pagination links
+  $attachments['#attached'] = $serviceMetaTag->addPaginationMeta($attachments['#attached']);
+  // remove/alter unwanted meta tags head
+  $attachments['#attached'] = $serviceMetaTag->alterGeneralHeadMeta($attachments['#attached']);
+  // remove unwanted links
+  $attachments['#attached'] = $serviceMetaTag->alterGeneralHeadLinks($attachments['#attached']);
+
+  $theme = \Drupal::theme()->getActiveTheme()->getName();
+  // add backoffice css
+  if ($theme == "seven") {
+    $attachments['#attached']['library'][] = 'linecoaching_theme/admin-backoffice';
+  }
+  // add js attachements for connected users
+  if ($currentUser->isAnonymous()) {
+    $attachments['#attached']['library'][] = 'linecoaching_theme/js-connected-all-pages';
+  }
+}
+
+/**
+ * Modify view builders
+ *
+ * @param array $build
+ * @param Drupal\Core\Entity\EntityInterface $entity
+ * @param \Drupal\Core\Entity\Display\EntityViewDisplayInterface $display
+ */
+function mtc_core_entity_view_alter(array &$build, Drupal\Core\Entity\EntityInterface $entity, \Drupal\Core\Entity\Display\EntityViewDisplayInterface $display) {
+  $route_name = Drupal::routeMatch()->getRouteName();
+  if ($entity->getEntityType()->id() == 'node' && isset($build['#attached'])) {
+    // modify seo forum links
+    $serviceMetaTag = \Drupal::service('mtc_core.metatag_manager');
+    // remove meta name canonical for forum
+    $build['#attached'] = $serviceMetaTag->alterForumHeadMeta($entity, $build['#attached']);
+    // remove unwanted links
+    $build['#attached'] = $serviceMetaTag->alterGeneralHeadLinks($build['#attached']);
+  }
+  // if mesasge is read,set new false
+  if ($entity->getEntityType()->id() == 'message') {
+
+    $tou = $entity->get('field_message_private_to_user')->referencedEntities();
+    $read_status = FALSE;
+    if (!empty($tou)) {
+      foreach ($tou as $user) {
+        if (Drupal::currentUser()->id() == $user->id()) {
+          $read_status = TRUE;
+          break;
+        }
+      }
+    }
+    if (!empty($tou) && $read_status) {
+      $mid = $entity->get('mid')->getValue();
+      $mid = $mid[0]['value'];
+      // set read
+      db_merge('mc_message_read')->key([
+        'mid' => $mid,
+      ])->fields([
+        'is_new' => 0,
+      ])->execute();
+    }
+  }
+  if ($route_name == 'mtc_core.user.privateMessageConversation') {
+    $mid = Drupal::routeMatch()->getParameter('mid');
+    if (!empty($mid)) {
+      $entity = Message::load($mid);
+      $tou = $entity->get('field_message_private_to_user')
+        ->referencedEntities();
+      $read_status = FALSE;
+      if (!empty($tou)) {
+        foreach ($tou as $user) {
+          if (Drupal::currentUser()->id() == $user->id()) {
+            $read_status = TRUE;
+            break;
+          }
+        }
+      }
+      if (!empty($tou) && $read_status) {
+        $mid = $entity->get('mid')->getValue();
+        $mid = $mid[0]['value'];
+        // set read
+        db_merge('mc_message_read')->key([
+          'mid' => $mid,
+        ])->fields([
+          'is_new' => 0,
+        ])->execute();
+      }
+    }
+  }
+}
+
+/**
+ * Modify views construction
+ *
+ * @param array $build
+ * @param \Drupal\Core\Entity\EntityInterface $entity
+ * @param \Drupal\Core\Entity\Display\EntityViewDisplayInterface $display
+ * @param unknown $view_mode
+ */
+function mtc_core_entity_view(array &$build, \Drupal\Core\Entity\EntityInterface $entity, \Drupal\Core\Entity\Display\EntityViewDisplayInterface $display, $view_mode) {
+  // remove cache for node nasteo
+  if ($entity->bundle() == 'chat_nasteo' && $view_mode == 'full') {
+    $build['#cache']['max-age'] = 0;
+    \Drupal::service('page_cache_kill_switch')->trigger();
+  }
+}
+
+/**
+ * Implements hook_module_implements_alter().
+ */
+function mtc_core_module_implements_alter(&$implementations, $hook) {
+  if ($hook === 'page_attachments_alter') {
+    $group = $implementations['mtc_core'];
+    unset($implementations['mtc_core']);
+    $implementations['mtc_core'] = $group;
+  }
+}
+
+/**
+ * Validate the register form extra values
+ *
+ * @param array $form
+ * @param FormStateInterface $form_state
+ */
+function mtc_core_user_register_form_validate(array $form, FormStateInterface $form_state) {
+  $userInputValues = $form_state->getUserInput();
+  $surname = isset($userInputValues['surname']['value']) ? $userInputValues['surname']['value'] : NULL;
+  $cga = $userInputValues['cga'];
+  // check emails correpond
+  if ($userInputValues['mail'] !== $userInputValues['confirmation_mail']) {
+    $form_state->setErrorByName('mail', "L'Adresse de courriel ne correspond pas");
+  }
+  if (!in_array($userInputValues['sexe'], [
+    0,
+    1,
+  ])
+  ) {
+    $form_state->setErrorByName('sexe', "Merci de remplir ce valeur");
+  }
+  if (!is_string($surname) && !empty($surname)) {
+    $form_state->setErrorByName('surname', "Merci d'utiliser des chaines de caractères");
+  }
+  if ($cga != 1 || empty($cga)) {
+    $form_state->setErrorByName('cga', "Veuillez valider les Conditions Générales d'abonnement");
+  }
+}
+
+/**
+ * Validate the private message form extra values
+ *
+ * @param array $form
+ * @param FormStateInterface $form_state
+ */
+function mtc_core_message_private_message_form_validate(array $form, FormStateInterface $form_state) {
+  $userInputValues = $form_state->getUserInput();
+  $subject = $userInputValues['field_message_private_subject'][0]['value'] ?? NULL;
+  if (empty($subject)) {
+    $form_state->setErrorByName('field_message_private_subject', "Merci de remplir le sujet");
+  }
+}
+
+/**
+ * Create profile of new registered user before redirection
+ *
+ * @param array $form
+ * @param FormStateInterface $form_state
+ */
+function mtc_core_user_register_form_submit(array $form, FormStateInterface $form_state) {
+  $userInputValues = $form_state->getUserInput();
+  $profile = $form_state->getTemporaryValue('user_profile');
+  $profile = $profile ?? \Drupal\mtc_core\Entity\LcUserProfileEntity::create([
+      'title' => '',
+    ]);
+  $user = \Drupal::currentUser();
+  $inputSurname = isset($userInputValues['surname'][0]['value']) ? $userInputValues['surname'][0]['value'] : NULL;
+  $selectAvatarFid = $userInputValues['user_picture'];
+
+  if (!empty($inputSurname) && is_string($inputSurname)) {
+    $profile->set('surname', $inputSurname);
+  }
+  if (NULL !== $selectAvatarFid && is_int($selectAvatarFid)) {
+    $user->user_picture->setValue([
+      "target_id" => $selectAvatarFid,
+    ]);
+    $user->save();
+  }
+  $form_state->setRedirect('user.register');
+
+  // @todo,check when saving user id
+  // $profile->set('user_id', $user->id());
+  // $profile->save();
+}
+
+function mtc_core_menu_local_tasks_alter(&$data, $route_name) {
+  if (in_array($route_name, [
+    'user.register',
+    'user.login',
+    'user.pass',
+  ])) {
+    foreach ($data['tabs'][0] as $href => $tab_data) {
+      if (in_array($href, [
+        'user.register',
+        'user.pass',
+        'user.login',
+      ])) {
+        unset($data['tabs'][0][$href]);
+      }
+    }
+  }
+  if ($route_name == 'entity.user.canonical') {
+    unset($data['tabs']);
+  }
+  if (in_array($route_name, [
+    'message_private.messages',
+    'message_private.messages.sent',
+    'entity.lc_user_profile_entity.edit_form',
+  ])) {
+    unset($data['tabs'][0]);
+    unset($data['tabs'][1]);
+  }
+}
+
+/**
+ * Function that modifies block
+ *
+ * @param array $build
+ * @param \Drupal\Core\Block\BlockPluginInterface $block
+ */
+function mtc_core_block_build_alter(array &$build, \Drupal\Core\Block\BlockPluginInterface $block) {
+  if ($block->getPluginId() == 'system_menu_block:account') {
+    $build['#cache']['max-age'] = 0;
+  }
+}
+
+/**
+ *
+ * @param unknown $message
+ */
+function mtc_core_mail_alter(&$message) {
+  if ($message['id'] == 'contact_page_mail') {
+    $lcConfig = NULL;
+    try {
+      $lcConfig = \Drupal::service('mtc_core.config')->get('site');
+    } catch (\Exception $e) {
+      $message = $e->getMessage();
+      \Drupal::logger('mtc_core')->error($message);
+    }
+    $to = trim(str_replace("[Contactez nous]", "", $message['subject']));
+    if (isset($lcConfig['page_contact_email'][$to])) {
+      $mailInfo = $lcConfig['page_contact_email'][$to];
+      $message['subject'] = $mailInfo['subject'];
+      $message['to'] = $mailInfo['destinataire'];
+    }
+  }
+}
+
+/**
+ * Implements hook_preprocess_views_view().
+ */
+function mtc_core_preprocess_views_view(&$variables) {
+  /** @var \Drupal\views\ViewExecutable $view */
+  $view = $variables['view'];
+  if ($view->id() == 'blog' && $view->current_display == 'blog_user_all') {
+
+    $user = Drupal::currentUser();
+    if ($variables['view']->args[0] == $user->id()) {
+      $variables['my_blog'] = TRUE;
+      $node = \Drupal\node\Entity\Node::create([
+        'type' => 'blog_post',
+      ]);
+      $entity_form = Drupal::entityTypeManager()->getFormObject('node', 'edit');
+      $entity_form->setEntity($node);
+
+      $form = \Drupal::formBuilder()->getForm($entity_form);
+      $form['body']['widget'][0]['format']['#type'] = 'hidden';
+      if (isset($variables['view']->args[0])) {
+        $user = User::load($variables['view']->args[0]);
+        $title = t('Blog de @username', [
+          '@username' => $user->getUsername()
+        ]);
+      }
+      else {
+        $title = t('My blog');
+      }
+      $form['form_title'] = [
+        '#type' => 'html_tag',
+        '#tag' => 'h1',
+        '#value' => $title,
+        '#weight' => -1000,
+      ];
+      $form['form_sub_title'] = [
+        '#type' => 'html_tag',
+        '#tag' => 'h2',
+        '#value' => t('Submit a new ticket'),
+        '#weight' => -999,
+      ];
+      $form['#attributes']['class'][] = 'blog-post-form';
+      $form['#attributes']['class'][] = 'clearfix';
+      $variables['header'][] = $form;
+    }
+    elseif ($variables['view']->args[0] != $user->id()) {
+      $variables['my_blog'] = FALSE;
+      if (isset($variables['view']->args[0])) {
+        $user = User::load($variables['view']->args[0]);
+        $variables['title'] = t('Blog de @username', [
+          '@username' => $user->getUsername()
+        ]);
+      }
+      else {
+        $variables['title'] = t('My blog');
+      }
+    }
+  }
+}
+
+/**
+ * Implements hook_preprocess_forum_list().
+ */
+function mtc_core_preprocess_forum_list(&$variables) {
+
+  $roles = \Drupal::currentUser()->getRoles();
+
+  if (in_array('anonymous', $roles) || in_array('authenticated', $roles) && count($roles) == 1) {
+    $hide_forum_list = [5, 46, 47];
+
+    foreach ($variables['forums'] as $id => $forum) {
+      $parent = \Drupal::entityTypeManager()
+        ->getStorage('taxonomy_term')
+        ->loadParents($forum->id());
+      $parent = array_values($parent);
+      if (!empty($parent) && in_array($parent[0]->id(), $hide_forum_list)) {
+        unset($variables['forums'][$id]);
+      }
+    }
+  }
+
+  foreach ($variables['forums'] as $forum) {
+    $num = $forum->new_topics;
+    $forum->new_text = t('@num nouveau sujet', ['@num' => $num]);
+  }
+
+  /** @var \Drupal\taxonomy\Entity\Term $forum */
+  foreach ($variables['forums'] as $forum) {
+    _mtc_core_get_last_comment_post($forum);
+  }
+}
+
+/**
+ * Helper function for create comment link.
+ *
+ * @see mtc_core_preprocess_forum_list().
+ * @param
+ *            $forum
+ */
+function _mtc_core_get_last_comment_post(&$forum) {
+  if (!empty((array) $forum->last_post)) {
+    $query = \Drupal::entityQuery('comment');
+    $result = $query->condition('entity_type', 'node')
+      ->condition('created', $forum->last_post->created)
+      ->condition('uid', $forum->last_post->uid)
+      ->sort('cid', 'DESC')
+      ->execute();
+    /** @var \Drupal\comment\Entity\Comment $comment */
+    $comment = \Drupal\comment\Entity\Comment::load(reset($result));
+    if ($comment) {
+      $safe_string = trim(html_entity_decode(strip_tags($comment->comment_body->value), ENT_QUOTES));
+      $safe_string = \Drupal\Component\Utility\Unicode::truncate($safe_string, 30, FALSE, TRUE);
+      /** @var Drupal\Core\GeneratedLink $link */
+      $link = $comment->link($safe_string, 'canonical', [
+        'fragment' => $comment->id(),
+      ]);
+      $forum->last_body_comment = $link;
+    }
+    else {
+      $query = Drupal::service('entity.query')->get('node')
+        ->condition('created', $forum->last_post->created)
+        ->condition('uid', $forum->last_post->uid)
+        ->execute();
+      /** @var Drupal\node\Entity\Node $node */
+      $node = \Drupal\node\Entity\Node::load(reset($query));
+      if ($node) {
+        $body = trim(html_entity_decode(strip_tags($node->get('body')->value), ENT_QUOTES));
+        $body = \Drupal\Component\Utility\Unicode::truncate($body, 30, FALSE, TRUE);
+        $link = $node->link($body, 'canonical');
+        $forum->last_body_comment = $link;
+      }
+    }
+  }
+}
+
+/**
+ * Helper function for create comment link.
+ *
+ * @see mtc_core_preprocess_forums().
+ * @param
+ *            $forum
+ *
+ * @return \Drupal\Core\GeneratedLink
+ */
+function _mtc_core_get_last_node_comment_post($forum) {
+  if (!empty((array) $forum->last_comment_timestamp)) {
+    $query = \Drupal::entityQuery('comment');
+    $result = $query->condition('entity_type', 'node')
+      ->condition('created', $forum->last_comment_timestamp)
+      ->condition('uid', $forum->last_comment_uid)
+      ->sort('cid', 'DESC')
+      ->execute();
+    /** @var \Drupal\comment\Entity\Comment $comment */
+    $comment = \Drupal\comment\Entity\Comment::load(reset($result));
+    if ($comment) {
+      $safe_string = trim(html_entity_decode(strip_tags($comment->comment_body->value), ENT_QUOTES));
+      $safe_string = \Drupal\Component\Utility\Unicode::truncate($safe_string, 30, FALSE, TRUE);
+      /** @var Drupal\Core\GeneratedLink $link */
+      $link = $comment->link($safe_string, 'canonical', [
+        'fragment' => $comment->id(),
+      ]);
+      return $link;
+    }
+  }
+}
+
+/**
+ * Implements hook_preprocess_forums().
+ */
+function mtc_core_preprocess_forums(&$variables) {
+  $topics = &drupal_static(__TOPIC__, []);
+  $result = [];
+  foreach ($topics as $topic) {
+    $result[] = _mtc_core_get_last_node_comment_post($topic);
+  }
+  if (!empty($variables['topics']['#rows'])) {
+    foreach ($variables['topics']['#rows'] as $id => $row) {
+      $variables['topics']['#rows'][$id][2]['data'] = [
+        '#markup' => $result[$id] . $variables['topics']['#rows'][$id][2]['data']
+      ];
+    }
+  }
+
+  foreach ($variables['forums']['#forums'] as &$forum) {
+    $r = _mtc_core_forums_get_new_comments($forum->id());
+    $forum->new_forum_com_messages = $r ? ['#markup' => $r] : [];
+    $forum->url_com = '/forum/' . $forum->id() . '#new';
+  }
+}
+
+/**
+ * Implements hook_editor_js_settings_alter().
+ */
+function mtc_core_editor_js_settings_alter(array &$settings) {
+  if (isset($settings['editor']['formats']['basic_html'])) {
+
+    $settings['editor']['formats']['basic_html']['editorSettings']['contentsCss'][] = base_path() . drupal_get_path('theme', 'linecoaching_theme') . '/css/base/main.css';
+    $settings['editor']['formats']['full_html']['editorSettings']['contentsCss'][] = base_path() . drupal_get_path('theme', 'linecoaching_theme') . '/css/base/main.css';
+
+    $settings['editor']['formats']['basic_html']['editorSettings']['contentsCss'][] = base_path() . drupal_get_path('theme', 'linecoaching_theme') . '/css/base/ckeditor.css';
+    $settings['editor']['formats']['full_html']['editorSettings']['contentsCss'][] = base_path() . drupal_get_path('theme', 'linecoaching_theme') . '/css/base/ckeditor.css';
+    $settings['editor']['formats']['basic_html']['editorSettings']['autoGrow_onStartup'] = FALSE;
+    $settings['editor']['formats']['basic_html']['editorSettings']['autoGrow_minHeight'] = 120;
+    $settings['editor']['formats']['basic_html']['editorSettings']['autoGrow_maxHeight'] = 120;
+  }
+}
+
+/**
+ * Implements hook_preprocess_page().
+ */
+function mtc_core_preprocess_page(&$varibales) {
+  $route_name = \Drupal::routeMatch()->getRouteName();
+
+  $routes = [
+    'mtc_core.user.receivedMessages',
+    'message_private.messages',
+  ];
+
+  if (in_array($route_name, $routes)) {
+    $varibales['#attached']['library'][] = 'linecoaching_theme/bootstrap-dialog';
+  }
+}
+
+/**
+ * Implements hook_message_insert().
+ */
+function mtc_core_message_insert(\Drupal\message\MessageInterface $message) {
+  if ($message->bundle() == 'private_message' && !\Drupal::config('message_private.settings')
+      ->get('email_notify')
+  ) {
+    $message = Message::load($message->id());
+    $users = $message->get('field_message_private_to_user')
+      ->referencedEntities();
+    /** @var \Drupal\Core\Mail\MailManager $mailManager */
+    $mailManager = \Drupal::service('plugin.manager.mail');
+    $config = \Drupal::configFactory()->get('mtc_core.settings');
+    $subject_template = $config->get('subject_template');
+    $message_template = $config->get('message_template');
+    $token = \Drupal::service('token');
+
+    if (!empty($users)) {
+      /** @var \Drupal\user\Entity\User $user */
+      foreach ($users as $user) {
+        $user_email = $user->getEmail();
+        $receive_mail = $user->get('field_receive_email')->value;
+
+        $preplaced_subject = $token->replace($subject_template, [
+          'message' => $message,
+          'user' => $user
+        ]);
+        $preplaced_message = $token->replace($message_template, [
+          'message' => $message,
+          'user' => $user
+        ]);
+
+        if (!empty($receive_mail)) {
+          $to = $user_email;
+          $params['subject'] = $preplaced_subject;
+          $params['message'] = $preplaced_message;
+          $langcode = \Drupal::currentUser()->getPreferredLangcode();
+          $result = $mailManager->mail('mtc_core', 'sending_private_email_notification', $to, $langcode, $params, NULL, TRUE);
+        }
+      }
+    }
+  }
+}
+
+/**
+ * Implements hook_mail().
+ */
+function mtc_core_mail($key, &$message, $params) {
+  if ($key == 'sending_private_email_notification') {
+    $message['headers']['Content-Type'] = 'text/html; charset=UTF-8; format=flowed; delsp=yes';
+    $message['headers']['From'] = $params['from'] . ' <' . $message['from'] . '>';
+    $message['subject'] = $params['subject'];
+    $message['body'][] = Markup::create($params['message']);
+  }
+}
+
+/**
+ * Implements hook_preprocess_html().
+ */
+function mtc_core_preprocess_html(&$variables) {
+  $userRoles = \Drupal::currentUser()->getAccount()->getRoles();
+  if (in_array('authenticated', $userRoles) && count($userRoles) == 1) {
+    $variables['attributes']['class'][] = 'free-user';
+  }
+  if (in_array('anonymous', $userRoles) && count($userRoles) == 1) {
+    $variables['attributes']['class'][] = 'public-user';
+  }
+  $routes = [
+    'mtc_core.user.sentMessages',
+    'mtc_core.user.receivedMessages',
+  ];
+  $route_name = Drupal::routeMatch()->getRouteName();
+  if (in_array($route_name, $routes)) {
+    $variables['attributes']['class'][] = 'message-functionality';
+  }
+}
+
+/**
+ * Implements hook_form_BASE_FORM_ID_alter().
+ */
+function mtc_core_form_node_blog_post_delete_form_alter(&$form, \Drupal\Core\Form\FormStateInterface $form_state) {
+  $form['actions']['submit']['#value'] = t('Yes', [], ['context' => 'confirm delete blog']);
+  $form['actions']['cancel']['#title'] = t('No', [], ['context' => 'cancel delete blog']);
+  $form['#title'] = t('Are you sure you want to delete this post?');
+}
+
+/**
+ * Implements hook_preprocess_menu().
+ */
+function mtc_core_preprocess_menu(&$variables) {
+  $g = 0;
+  $userRoles = \Drupal::currentUser()->getAccount()->getRoles();
+  $variables['free_user'] = FALSE;
+  $variables['public_user'] = FALSE;
+  if (in_array('authenticated', $userRoles) && count($userRoles) == 1) {
+    $variables['free_user'] = TRUE;
+  }
+}
+
+/**
+ * Control entity operation access for a specific entity type.
+ */
+function mtc_core_block_access(\Drupal\Core\Entity\EntityInterface $entity, $operation, \Drupal\Core\Session\AccountInterface $account) {
+
+  $user_id = \Drupal::currentUser()->id();
+  $new_menu = $entity->id();
+  $lcConfig = \Drupal::service('mtc_core.config')->get('site');
+  $max_user_id = $lcConfig['max_uid_old_subscribers'];
+
+  if ($new_menu == 'mainnavigation' && $user_id < $max_user_id) {
+    return AccessResult::forbidden();
+  }
+
+  if ($new_menu == 'linecoaching_theme_main_menu' && $user_id >= $max_user_id) {
+    return AccessResult::forbidden();
+  }
+}
+
+/**
+ * Implements hook_preprocess_forum_icon().
+ */
+function mtc_core_preprocess_forum_icon(&$variables) {
+  if ($variables['icon_status'] == 'hot-new') {
+    $variables['icon_status'] = 'default';
+  }
+}
+
+/**
+ * Implements hook_node_links_alter().
+ */
+function mtc_core_node_links_alter(array &$links, \Drupal\node\NodeInterface $entity, array &$context) {
+
+  if ($entity->getType() == 'forum') {
+
+    $query = \Drupal::entityQuery('comment');
+    $result = $query->condition('entity_type', 'node')
+      ->condition('entity_id', $entity->id())
+      ->range(0, 1)
+      ->sort('cid', 'DESC')
+      ->execute();
+
+    if (!empty($result)) {
+      /** @var \Drupal\comment\Entity\Comment $comment */
+      $comment = \Drupal\comment\Entity\Comment::load(reset($result));
+      $url = $comment->toUrl('canonical', ['fragment' => $comment->id()]);
+
+      $links['forum_last_comment'] = [
+        '#attributes' => array('class' => array('links', 'inline')),
+        '#links' => array(
+          'last_comment' => array(
+            'title' => t('See the last post'),
+            'url' => $url,
+          ),
+        ),
+      ];
+    }
+  }
+}
+
+function _mtc_core_forums_get_new_comments($term) {
+  $uid = \Drupal::currentUser()->id();
+
+  $query = db_select('node_field_data', 'n');
+  $query->join('forum', 'f', 'n.vid = f.vid AND f.tid = :tid', array(':tid' => $term));
+  $query->leftJoin('history', 'h', 'n.nid = h.nid AND h.uid = :uid', array(':uid' => $uid));
+  $query->join('comment_field_data', 'c', 'c.entity_id = n.nid AND c.entity_type = :node AND c.created > h.timestamp', [':node' => 'node']);
+  $query->addExpression('COUNT(c.cid)', 'count');
+  $query
+    ->condition('n.status', 1)
+    // @todo This should be actually filtering on the desired node status field
+    //   language and just fall back to the default language.
+    ->condition('n.default_langcode', 1)
+    ->addTag('node_access');
+  $tt = $query . '';
+  $result = $query->execute()->fetchField();
+  return $result;
+}
+
+/**
+ * Implements function hook_entity_create().
+ */
+function mtc_core_entity_create(\Drupal\Core\Entity\EntityInterface $entity) {
+  /** @var \Drupal\flag\Entity\Flagging $entity */
+  if ($entity->bundle() == 'flag_like_forum_comment') {
+    Drupal::entityTypeManager()->getViewBuilder('comment')->resetCache();
+  }
+}
+
+/**
+ * Implements function hook_preprocess_block().
+ */
+function mtc_core_preprocess_block(&$variables) {
+
+  if ($variables['base_plugin_id'] == 'mtc_core_subscription_newsletter_block' && Drupal::routeMatch()
+      ->getParameter('taxonomy_term') && Drupal::routeMatch()
+      ->getParameter('taxonomy_term')
+      ->getVocabularyId() == 'theme'
+  ) {
+
+    /** @var \Drupal\taxonomy\Entity\Term $term */
+    $term = Drupal::routeMatch()->getParameter('taxonomy_term');
+    $vid = $term->getVocabularyId();
+    $parent = \Drupal::entityTypeManager()
+      ->getStorage('taxonomy_term')
+      ->loadParents($term->id());
+    if ($vid == 'theme' && empty($parent)) {
+      $variables['label'] = t('Pour ne rien manquer, abonnez-vous à notre newsletter');
+    }
+  }
+}
+
+function mtc_core_send_reset_password_email(array &$form, FormStateInterface $form_state) {
+  /** @var \Drupal\Core\Session\AccountInterface $account */
+  $account = $form_state->getValue('account');
+  /** @var \Drupal\mtc_core\Service\WsClientService $ws */
+  $ws = \Drupal::service('mtc_core.ws_client');
+  /** @var \Drupal\mtc_core\Manager\MailManager $mailer */
+  $mailer = \Drupal::service('mtc_core.mail_manager');
+  $wsResponse = $ws->getResetPasswordToken($account);
+  if ($wsResponse->done && $wsResponse->data->token) {
+    $sent = $mailer->resetPassword($account, [
+      'token' => $wsResponse->data->token,
+      'user' => $account
+    ]);
+    if ($sent) {
+      drupal_set_message(t('Further instructions have been sent to your email address.'), 'status');
+    }
+    else {
+      drupal_set_message(t('Failed to send email.Please try it later'), 'error');
+    }
+  }
+  else {
+    drupal_set_message($wsResponse->msg, 'error');
+  }
+}
+
+
+function _mtc_core_user_submit_profile(array $form, FormStateInterface $form_state) {
+  /** @var \Drupal\user\ProfileForm $g */
+  $input_data = $form_state->getUserInput();
+  $ent_user = \Drupal::routeMatch()->getParameter('lc_user_profile_entity');
+  if (!$ent_user) {
+    $ent_user = LcUserProfileEntity::create();
+  }
+  $ent_user->set('profile_mon_histoire', $input_data['profile_mon_histoire'][0]['value']);
+  $ent_user->set('profile_experience', $input_data['profile_experience'][0]['value']);
+  $ent_user->set('profile_conseils', $input_data['profile_conseils'][0]['value']);
+  $ent_user->set('profile_interet', $input_data['profile_interet'][0]['value']);
+  $ent_user->set('signature', $input_data['signature'][0]['value']);
+
+  $ent_user->save();
+}
+
+function _mtc_core_roles_validation($user_roles) {
+  $main_role = NULL;
+  $roles = [
+    'chat_moderator',
+    'animatrice_forum_coach_marraines',
+    'marraine',
+    'votre_coach',
+    'parrain',
+  ];
+
+  if ($result = array_intersect($user_roles, $roles)) {
+    if (in_array('parrain', $user_roles)) {
+      $main_role = 'parrain';
+    }
+    if (in_array('votre_coach', $user_roles)) {
+      $main_role = 'votre_coach';
+    }
+    if (in_array('marraine', $user_roles)) {
+      $main_role = 'marraine';
+    }
+    if (in_array('animatrice_forum_coach_marraines', $user_roles)) {
+      $main_role = 'animatrice_forum_coach_marraines';
+    }
+    if (in_array('chat_moderator', $user_roles)) {
+      $main_role = 'chat_moderator';
+    }
+  }
+  else {
+    if (in_array('filtered_inscrit', $user_roles)) {
+      $main_role = 'filtered_inscrit';
+    }
+    if (in_array('filtered_ancien_abonne', $user_roles)) {
+      $main_role = 'filtered_ancien_abonne';
+    }
+    if (in_array('utilisateur_abonne', $user_roles)) {
+      $main_role = 'utilisateur_abonne';
+    }
+  }
+
+  if ($main_role) {
+    $role_obj = \Drupal\user\Entity\Role::load($main_role);
+    $main_role = $role_obj->get('label');
+  }
+
+  return $main_role;
+}
+
+/**
+ * Implements hook_preprocess_breadcrumb().
+ */
+function mtc_core_preprocess_breadcrumb(&$var) {
+  $last = end($var['breadcrumb']);
+  if (empty($last['url'])) {
+    array_pop($var['breadcrumb']);
+  }
+}
+
+/**
+ * Implements hook_preprocess_mtc_core_private_message_conversation().
+ */
+function mtc_core_preprocess_mtc_core_private_message_conversation(&$variables) {
+  $variables['#cache']['contexts'][] = 'url.path';
+}
+
+/**
+ * Implements hook_preprocess_mtc_core_private_messages().
+ */
+function mtc_core_preprocess_mtc_core_private_messages(&$var) {
+  $bulk_form = \Drupal::formBuilder()
+    ->getForm('Drupal\mtc_core\Form\LcUserMessageBulkOperation');
+  $var['bulk'] = $bulk_form;
+}
+
+/**
+ * Implements hook_preprocess_mtc_core_sent_private_messages().
+ */
+function mtc_core_preprocess_mtc_core_sent_private_messages(&$var) {
+  $bulk_form = \Drupal::formBuilder()
+    ->getForm('Drupal\mtc_core\Form\LcUserMessageBulkOperation');
+  $var['bulk'] = $bulk_form;
+}
+
+/**
+ * Implements hook_preprocess_mtc_core_search_result().
+ */
+function mtc_core_preprocess_mtc_core_search_result(&$variables) {
+  $more_word = explode(' ', trim($variables['query'], '""'));
+  $query = strtolower(trim($variables['query'], '""'));
+  $variables['query'] = $query;
+
+  $results = [];
+  foreach ($variables['content']['response']['docs'] as $doc) {
+    $doc['ts_body'] = str_replace("&nbsp;", '', $doc['ts_body']);
+    $doc['ts_body'] = strip_tags(html_entity_decode($doc['ts_body'], ENT_QUOTES, 'UTF-8'));
+    $bresults = $bbad_results = [];
+    $pos = strpos($doc['ts_title'], $query);
+    if ($pos === FALSE) {
+      $doc['ts_title'] = _mtc_core_replace_text($query, $doc['ts_title']);
+      if (count($more_word) > 1) {
+        foreach ($more_word as $word) {
+          $doc['ts_title'] = _mtc_core_replace_text($word, $doc['ts_title']);
+        }
+      }
+      $bad_results[] = $doc;
+
+    }
+    else {
+      $doc['ts_title'] = _mtc_core_replace_text($query, $doc['ts_title']);
+      if (count($more_word) > 1) {
+        foreach ($more_word as $word) {
+          $doc['ts_title'] = _mtc_core_replace_text($word, $doc['ts_title']);
+        }
+      }
+      $results[] = $doc;
+    }
+  }
+
+  $variables['content']['response']['docs'] = array_merge($results, $bresults, $bad_results);
+
+  foreach ($variables['content']['response']['docs'] as &$item) {
+
+    if (strpos($item['ts_title'], '<b>') === FALSE) {
+      $body = $item['ts_body'];
+      if (!strpos($body, $query) === FALSE) {
+        $sens = $query;
+      }
+      else {
+        foreach ($more_word as $word) {
+          if (!strpos($body, $word) === FALSE) {
+            $sens = $word;
+          }
+        }
+      }
+      $s_array = preg_split('#(?<=[a-zàâçéèêëîïôûùüÿñæœ\.\s](\.|\?|\!))\s+(?=[A-ZÀÂÇÉÈÊËÎÏÔÛÙÜŸÑÆŒ])#s', $body, -1, PREG_SPLIT_NO_EMPTY);
+      foreach ($s_array as $res) {
+        if (!strpos($res, $sens) === FALSE) {
+          $s_res = $res;
+        }
+      }
+      $item['sens'] = _mtc_core_replace_text($sens, $s_res);
+    }
+  }
+}
+
+function _mtc_core_replace_text($text, $object) {
+  return str_replace($text, "<b>$text</b>", $object);
+}
+
+/**
+ * Implements hook_preprocess_user__full().
+ */
+function mtc_core_preprocess_user__full(&$variables) {
+  /** @var \Drupal\Core\Session\AccountProxy $user */
+  $user = $variables['user'];
+
+  $variables['user_created'] = $user->created;
+
+  $user_flag_count = _get_all_flags_for_user($user);
+  $flag_badge = new StdClass();
+  $flag_badge->name = 'A lire (' . $user_flag_count . ')';
+  $flag_badge->uri = '/themes/custom/linecoaching_theme/images/rangs/qual0.png';
+
+  if ($user_flag_count > 5) {
+    $flag_badge->name = 'Remercié (' . $user_flag_count . ')';
+    $flag_badge->uri = '/themes/custom/linecoaching_theme/images/rangs/qual1.png';
+  }
+  if ($user_flag_count > 10) {
+    $flag_badge->name = 'Félicité (' . $user_flag_count . ')';
+    $flag_badge->uri = '/themes/custom/linecoaching_theme/images/rangs/qual2.png';
+  }
+  if ($user_flag_count > 15) {
+    $flag_badge->name = 'En or (' . $user_flag_count . ')';
+    $flag_badge->uri = '/themes/custom/linecoaching_theme/images/rangs/qual3.png';
+  }
+
+  $variables['qual'] = $flag_badge;
+
+  $user_comment_count = _get_all_comments_for_user($user);
+  $comment_badge = new StdClass();
+  $comment_badge->name = 'Novice (' . $user_comment_count . ')';
+  $comment_badge->uri = '/themes/custom/linecoaching_theme/images/rangs/part0.png';
+  if ($user_comment_count > 29) {
+    $comment_badge->name = 'Très actif (' . $user_comment_count . ')';
+    $comment_badge->uri = '/themes/custom/linecoaching_theme/images/rangs/part3.png';
+  }
+  else {
+    if ($user_comment_count > 14) {
+      $comment_badge->name = 'Actif (' . $user_comment_count . ')';
+      $comment_badge->uri = '/themes/custom/linecoaching_theme/images/rangs/part2.png';
+    }
+    else {
+      if ($user_comment_count > 4) {
+        $comment_badge->name = 'Fidèle (' . $user_comment_count . ')';
+        $comment_badge->uri = '/themes/custom/linecoaching_theme/images/rangs/part1.png';
+      }
+    }
+  }
+
+  $variables['rangs'] = $comment_badge;
+
+  $variables['#cache']['contexts'][] = 'url.path';
+  $user = User::load($user->id());
+
+  $statut = _mtc_core_roles_validation($user->getRoles());
+  $variables['statut'] = $statut;
+
+  $last_access = $user->get('access')->value;
+  if ((time() - $last_access) <= 60 * 10) {
+    $variables['online'] = TRUE;
+  }
+  else {
+    $variables['online'] = FALSE;
+  }
+}
+
+/**
+ * Implements hook_preprocess_user().
+ */
+function mtc_core_preprocess_user(&$variables) {
+  /** @var \Drupal\Core\Session\AccountProxy $user */
+  $user = $variables['user'];
+  $user = User::load($user->id());
+  $statut = _mtc_core_roles_validation($user->getRoles());
+  $variables['statut'] = $statut;
+
+
+  // Moved from "linecoaching_david" module -->
+  $role_list = array();
+  $roles = $variables['user']->getRoles();
+  if ($roles && \Drupal::currentUser()->isAuthenticated()) {
+    $role_names = user_role_names(TRUE);
+    foreach ($roles as $key => $value) {
+      $role_list[] = $role_names[$value];
+    }
+  }
+  $defaultImageUri = 'public://avatar_selection/anonyme.jpg';
+  if ($variables['user']->get('user_picture')->entity !== null) {
+    $defaultImageUri = $variables['user']->get('user_picture')->entity->getFileUri();
+  }
+  $profil = \Drupal::entityTypeManager()->getStorage('lc_user_profile_entity')->loadByProperties([
+    'user_id' => $variables['user']->id()
+  ]);
+  if ($profil) {
+    // render entity
+    $profil = array_shift($profil);
+    $profil = entity_view($profil, 'full');
+  }
+  $variables['default_user_profile_image'] = ImageStyle::load('thumbnail')->buildUrl($defaultImageUri);
+  $variables['user_roles'] = $role_list;
+  $variables['pseudo'] = $variables['user']->getDisplayName();
+  $variables['profile'] = $profil;
+  $variables['user_badge'] = get_user_badge_images($variables['user']);
+
+  $variables['is_online'] = (REQUEST_TIME - 900) < $variables['user']->getLastAccessedTime() ? true : false;
+  // --> Moved from "linecoaching_david" module
+}
+
+
+
+/**
+ * Linecoaching David
+ */
+
+function _get_all_flags_for_user($user)
+{
+  // static $user_flag_count;
+  $count = 0;
+  // if(!isset($user_flag_count[$user->id()])) {
+  $cids = \Drupal::entityQuery('comment')->condition('uid', $user->id())
+    ->sort('cid', 'DESC')
+    ->execute();
+  $list = array();
+  $list['cids'] = $cids;
+  if ($cids) {
+
+    $query = Drupal::database()->select('flag_counts', 'fc');
+    $result = $query
+      ->fields('fc', ['count'])
+      ->condition('fc.entity_type', 'comment')
+      ->condition('fc.entity_id', $cids, 'IN')
+      ->execute()->fetchAll();
+
+    $count = count($result);
+  }
+
+  return $count;
+}
+
+function _get_all_comments_for_user($user)
+{
+  // static $user_comment_count;
+  $counter = 0;
+  // if(!isset($user_comment_count[$user->id()])) {
+  $cids = \Drupal::entityQuery('comment')->condition('uid', $user->id())
+    ->sort('cid', 'DESC')
+    ->range(0, 30)
+    ->execute();
+  $counter = count($cids);
+  $user_comment_count[$user->id()] = $counter;
+  // }
+  return $counter; // $user_comment_count[$user->id()];
+}
+
+function linecoaching_david_checkVisibility($forum_term, $account_roles = false)
+{
+  if (! $account_roles) {
+    $account_roles = $account = \Drupal::currentUser()->getRoles();
+  }
+  $clean_roles = true;
+  if (count($forum_term->field_forum_visibility) > 0) {
+    if (in_array('administrator', $account_roles)) {
+      return true;
+    }
+    $clean_roles = false;
+    foreach ($forum_term->field_forum_visibility->getIterator() as $key => $value) {
+      if (in_array($value->value, $account_roles)) {
+        $clean_roles = true;
+      }
+    }
+  }
+  return $clean_roles;
+}
+
+/**
+ * Get user badge images
+ */
+// @todo, redo cleanly user badge images with a logic
+function get_user_badge_images($user)
+{
+  // get user badges
+  $badgeBidParticipation = [
+    1,
+    2,
+    3,
+    7
+  ];
+  $badgeBidqualite = [
+    4,
+    8,
+    5,
+    6
+  ];
+  $qualite = [];
+  $paricipation = [];
+  foreach ($user->get('field_user_badges') as $item) {
+    $value = $item->getValue();
+    if ($value) {
+      $id = $value['target_id'];
+      $badge = \Drupal\user_badges\Entity\Badge::load($id);
+      if (! $badge)
+        continue;
+      $id = $badge->id();
+      if (in_array($id, $badgeBidParticipation)) {
+        $image = get_badge_image($badge);
+        $weight = get_badge_weight($badge);
+        $paricipation[$weight] = $image;
+      }
+      $id --;
+      if (in_array($id, $badgeBidqualite)) {
+        $badge = \Drupal\user_badges\Entity\Badge::load($id);
+        $image = get_badge_image($badge);
+        $weight = get_badge_weight($badge);
+        $qualite[$weight] = $image;
+      }
+    }
+  }
+  $qualiteIndex = empty($qualite) ? null : min(array_keys($qualite));
+  $participatonIndex = empty($paricipation) ? null : min(array_keys($paricipation));
+  $res = [];
+  $res[] = isset($qualiteIndex) ? $qualite[$qualiteIndex] : [];
+  $res[] = isset($participatonIndex) ? $paricipation[$participatonIndex] : [];
+  return $res;
+}
+
+/**
+ * Function that get image of a badge
+ *
+ * @param unknown $badge
+ */
+function get_badge_image($badge)
+{
+  $image = $badge->get('image');
+  if (! $image)
+    return $image;
+  $image = $image->getValue();
+  $image = array_shift($image);
+  $file = \Drupal\file\Entity\File::load($image['target_id']);
+  $path = ImageStyle::load('thumbnail')->buildUrl($file->getFileUri());
+  $image['image_path'] = $path;
+  return $image;
+}
+
+/**
+ * Function that get image of a badge
+ *
+ * @param unknown $badge
+ */
+function get_badge_weight($badge)
+{
+  $weight = 0;
+  if (isset($badge->weight) && $badge->weight->getValue()) {
+    $weight = $badge->weight->getValue();
+    $weight = $weight[0]['value'];
+  }
+  return $weight;
+}
+

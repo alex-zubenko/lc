@@ -1,0 +1,6 @@
+name: User me
+description: Simple API endpoint /user_me giving user's essential information like username and roles 
+package: Custom
+type: module
+version: 1.0
+core: 8.x

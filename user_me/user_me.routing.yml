@@ -1,0 +1,7 @@
+user_me.current_user:
+  path: '/user_me'
+  defaults:
+    _controller: '\Drupal\user_me\Controller\UserMeController::content'
+    _title: 'Your profile'
+  requirements:
+    _permission: 'access content'

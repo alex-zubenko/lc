@@ -1,0 +1,7 @@
+<div class="chatroom-message new-message {%if is_coach %} coach {% endif %} " data-cmid="{{ cmid }}">
+  <div class="chatroom-avatar" style="background-image:url({{profile_image}})">
+   </div>
+  <span class="chatroom-message-date">{{ timestamp }}</span>
+  <span class="chatroom-message-username">{{ username | capitalize }}</span>:
+    <span class="chatroom-message-text">{{ message|raw("html") }}</span>
+ </div>

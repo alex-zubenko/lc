@@ -1,0 +1,32 @@
+{%
+  set classes = [
+    'user',
+    'information'
+  ]
+%}
+{% import "themes/custom/linecoaching_theme/templates/macro/user-macro.html.twig" as display %}
+{{display.display_user_account_tabs(2, user)}}
+<article{{ attributes.addClass(classes) }}>
+    {% if response is defined and not response.msg is empty %}
+        <div class="alert alert-{{ response.done ? 'success' : 'danger' }}">{{ response.msg | raw }}</div>
+    {% endif %}
+
+    <div class="mtcws margin-bottom">
+        {{ content | raw }}
+    </div>
+
+    {% if passwordForm %}
+        <div class="mtcws margin-bottom">
+            <legend>Mise à jour du mot de passe</legend>
+            <span>Si vous souhaitez modifier votre mot de passe, merci de cliquer sur le bouton, <b>soumettre</b></span>
+            {{ passwordForm | raw }}
+        </div>
+    {% endif %}
+
+    <div class="mtcws margin-bottom" >
+      <div id="email-send-status"></div>
+      <legend>{{ "Messages privés" | t }}</legend>
+        {{ profileForm }}
+    </div>
+    <br/>
+</article>

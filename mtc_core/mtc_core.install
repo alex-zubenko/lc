@@ -1,0 +1,48 @@
+<?php
+
+/**
+ * @file
+ * Install, update and uninstall functions for the mtc_core module.
+ */
+
+use Drupal\Core\Database\Database;
+
+/**
+ * Implements hook_install().
+ */
+function mtc_core_install() {
+  // As soon as we use this module instead of linecoaching module,
+  // we import settings from its configuration object.
+  $existing_config = \Drupal::configFactory()
+    ->get('linecoaching.settings')
+    ->get();
+  \Drupal::configFactory()
+    ->getEditable('mtc_core.settings')
+    ->setData($existing_config)
+    ->save();
+
+  // Majority of linecoaching module code should be deleted in favor of
+  // mtc_core so we must delete block configuration objects created by it.
+
+
+  $config_object_names = \Drupal::configFactory()->listAll('block.block.');
+  foreach ($config_object_names as $config_object_name) {
+    $config = \Drupal::configFactory()->getEditable($config_object_name);
+    $config_data = $config->get();
+    if (!empty($config_data['dependencies']['module']) && in_array('linecoaching', $config_data['dependencies']['module'])) {
+      $config_data['dependencies']['module'] = 'mtc_core';
+      $config_data['settings']['provider'] = 'mtc_core';
+      $config->setData($config_data)->save();
+    }
+  }
+
+  \Drupal::service('module_installer')->uninstall(['linecoaching_david']);
+}
+
+/**
+ * Implements hook_uninstall().
+ */
+function mtc_core_uninstall() {
+
+}
+

@@ -1,0 +1,301 @@
+{#
+/**
+ * @file
+ * Macro for page node dossier,blog expert, dossier recette
+ *  or nodes relating to their taxonomy fields.
+ *
+ */
+#}
+
+{#
+/**
+ * Displays articles of same theme (Dans le même rubrique) */
+#}
+{% macro show_same_theme(articles, currentTerm)%}
+    {% if articles %}
+        <section class="articles-same-theme-list">
+         <h3>Dans la même rubrique</h3>
+             {% for article in articles %}
+                 <article class="articles-same-theme">
+                       {% set articleUrl   = path('entity.node.canonical', {'node': article.id()}) %}
+                       {% set title        = article.getTitle() | capitalize%}
+                        <a title ="{{ title }}" href="{{ articleUrl }}">
+                          {% if article.type() == 'diaporama' %}
+                             {% set diaporama  = article.field_slider|field_collection_items|first %}
+                            <div class='image' style="background-image:url({{ file_url(diaporama.fileuri) }})">
+                            </div>
+                         {% else %}
+                            <div class='image' style="background-image:url({{ file_url(article.field_photo.entity.fileuri) }})">
+                            </div>
+                         {% endif %}
+                        </a>
+                        <h4><a title ="{{ title }}" href="{{ articleUrl }}">{{ title }}</a></h4>
+                        {% if article.field_tag_transverse_format  is defined %}
+                            {{ article.field_tag_transverse_format|display_tag_content|raw }}
+                        {% endif %}
+                         <span title="Réagissez à cet article" class="comment-count badge">{{ article.id|comment_count}}</span>
+                        {% if article.field_rating.value is not empty %}
+                            {{ drupal_field('field_rating', 'node', article.id()) }}
+                        {%  else %}
+                            {{ default_fivestar_widget(article.id()) }}
+                        {%  endif %}
+                        <div class="body">
+                            {% if article.type() == 'diaporama' %}
+                                 {% set diaporama  = article.field_slider|field_collection_items|first %}
+                                 {{ diaporama.text|strip_tags_allow_entity|truncate(170, true, true)|raw}}
+                            {% elseif article.type() == 'dossier_recette' %}
+                                 <div class="prep_carac">
+                                       <span class="prepspec num_person fa fa-user"><b>Nombre de personnes</b></span>
+                                       <span>{{ article.field_nb_personnes.value|raw}}</span>
+                                       <span class="prepspec preparation_time fa fa-clock-o"><b>Temps de préparation</b></span>
+                                       <span>{{ article.field_temp_preparation.value|raw|convert_time_to_minutes}}</span>
+                                       <span class="prepspec cooking_time fa fa-fire"><b>Temps de cuisson</b></span>
+                                       <span>{{ article.field_temp_cuisson.value|raw|convert_time_to_minutes}}</span>
+                                       <span class="prepspec level"><b>Coût</b>
+                                         {% for i in 0 .. article.field_cout.value %}
+                                            <i class="level fa fa-eur"></i>
+                                          {% endfor %}
+                                       </span>
+                                       {%  set  niveau = article.field_niveau.value %}
+                                       <span class="prepspec niveau fa fa-cutlery"><b>Niveau</b></span><span>
+                                           {% if niveau == 0 or niveau == 1 %}
+                                               Facile
+                                           {% elseif niveau == 2 %}
+                                              Intermédiaire
+                                           {% elseif niveau == 3 %}
+                                              Difficile
+                                           {% else %}
+                                             Facile
+                                           {% endif %}
+                                       </span>
+                                     </div>
+                                     {{ article.field_chapeau.value|strip_tags_allow_entity|truncate(170, true, true)|raw}}
+                            {% else %}
+                               {{ article.field_chapeau.value|strip_tags_allow_entity|truncate(170, true, true)|raw}}
+                            {% endif %}
+                         </div>
+                       <a class="more" title="{{ title }}" href="{{ url }}">
+                            Lire plus
+                        </a>
+                 </article>
+              {% endfor %}
+          {% if currentTerm.id() is defined %}
+            {% set themeUrl = path('entity.taxonomy_term.canonical', {'taxonomy_term': currentTerm.id()}) %}
+            <span class="all-themes"><a title = "{{ currentTerm.getName() }}" href="{{ themeUrl }}">Tous les articles de la rubrique</a></span>
+          {% endif %}
+        </section>
+    {% endif %}
+{% endmacro %}
+
+{#
+/**
+ * Displays linked articles */
+#}
+
+{% macro show_linked_articles(articles)%}
+    {% if articles %}
+        <section class="articles-related-list">
+         <h3>Articles liés</h3>
+            {% for article in articles %}
+                 <article class="article-related">
+                    {% set articleUrl   = path('entity.node.canonical', {'node': article.id()}) %}
+                    {% if article.field_tag_transverse_format  is defined %}
+                        {{ article.field_tag_transverse_format|display_tag_content|raw }}
+                    {% endif %}
+                    <h4><a title ="{{ article.getTitle() | capitalize }}" href="{{ articleUrl }}">{{ article.getTitle() | capitalize }}</a></h4>
+                </article>
+            {% endfor %}
+        </section>
+  {% endif %}
+{% endmacro %}
+
+{# Show articles of same series(lieé) in
+    carrousel form
+#}
+{% macro same_series_articles(articles)%}
+  {% if articles %}
+    <section id="article-same-series">
+          <h3> Dans la  même série</h3>
+          {% set length = articles|length %}
+            {% if length == 1 %}
+                {% set article = articles | first %}
+                {{ _self.same_series_display_article(article, 'col-sm-12') }}
+            {% elseif length == 2 %}
+                   {% for article in articles %}
+                    {{ _self.same_series_display_article(article, 'col-md-6') }}
+                   {% endfor %}
+            {% elseif length == 3 %}
+                {% for article in articles %}
+                    {{_self.same_series_display_article(article, 'col-sm-4 ') }}
+
+                {% endfor %}
+              {% else %}
+
+              {% endif %}
+        </section>
+   {% endif %}
+{% endmacro %}
+
+{% macro same_series_display_article(article, class) %}
+    {% set articleUrl = path('entity.node.canonical', {'node': article.id}) %}
+    {% set title = article.getTitle()| capitalize %}
+    <article class="same-series article-artivariablescle  {{ class }}">
+      <div class='col-sm-3 article-image' style="background-image:url({{ file_url(article.field_photo.entity.fileuri) }})">
+       </div>
+        <h4 class="title">
+             <a href="{{ articleUrl }}"title="{{ title }}">{{ title }}</a>
+        </h4>
+        <div class="block_widgets">
+             {{ article.field_tag_transverse_format|display_tag_content|raw }}
+             <span title="Réagissez à cet article" class="comment-count badge">{{ article.id|comment_count}}</span>
+             {% if article.field_rating['#object'] is defined %}
+                 {{ rating }}
+             {% else %}
+                {{ default_fivestar_widget(article.id) }}
+             {% endif %}
+          </div>
+        <a class="intro-text" title="{{ title | capitalize}}" href="{{ articleUrl }}">
+            {{ article.field_chapeau.value|strip_tags_allow_entity|truncate(250, true, true)|raw }}
+        </a>
+        <br><a class="more" title="{{ title }}" href="{{ articleUrl }}">
+         Lire plus
+        </a>
+  </article>
+{% endmacro %}
+{#
+/**
+ * @file
+ * Macro for taxonomy tags  in header for nodes
+ */
+#}
+{% macro display_header_tags(node) %}
+
+    <section class="header-tags">
+   {% set tagDossierList = obtain_term_information(node.field_tag_dossier) %}
+      <div class="tag-dossier pricing_btn">
+       {% for tagDossier in tagDossierList %}
+          {% if tagDossier.tid is defined %}
+               <a class="btn" href={{ path('entity.taxonomy_term.canonical', {'taxonomy_term': tagDossier.tid}) }}>
+                {{ tagDossier.name | capitalize}}</a>
+          {% endif %}
+      {% endfor %}
+         </div>
+    </section>
+{% endmacro %}
+{#
+Macro node widgets print ,rating social...
+#}
+
+{% macro widgets(rating, nid, field_tag_transverse_format, author_name, hide_ratings) %}
+   <section class="widgets">
+       {% if field_tag_transverse_format is defined  %}
+         {{ field_tag_transverse_format|display_tag_content(true)|raw }}
+       {% endif %}
+       {% if author_name is not empty %}
+          <span class="author">Par {{ author_name }} <b class="w_bullets">•</b></span>
+       {% endif %}
+       {# allow hide of ratings #}
+       {% if hide_ratings != true %}
+           {% if rating['#object'] is defined %}
+               {{ rating }}
+           {% else %}
+             {{ default_fivestar_widget(nid) }}
+           {% endif %}
+       {% endif %}
+       {% if nid  is not empty %}
+            <span title="Réagissez à cet article" class="comment-count badge">
+               <a href="#comment-header-anchor"> {{ nid|comment_count}}</a>
+            </span>
+       {% endif %}
+       <b class="w_bullets">•</b>
+        <div class="social-media taxonomy">
+            <a title="Imprimez cet article" href="#" class="print" onclick="window.print();" class="glyphicon glyphicon-print"></a>
+            <b class="w_bullets">•</b>
+           <!-- AddToAny BEGIN -->
+           <div class="a2a_kit a2a_kit_size_32 a2a_default_style">
+              <a class="a2a_button_email" title="Partagez cet article par Email"></a>
+              <a class="a2a_button_facebook" title="Partagez cet article sur Facebook"></a>
+              <a class="a2a_button_twitter" title="Partagez cet article sur Twitter"></a>
+           </div>
+          {{ attach_library('linecoaching_theme/addtoany.addtoanyjs') }}
+          <!-- AddToAny END -->
+       </div>
+   </section>
+{% endmacro %}
+
+{#
+Macro diaporama
+#}
+{% macro diaporama(diaporamas)%}
+  {% if diaporamas %}
+    <div id="diaporama-article-carousel" class="carousel slide" data-ride="carousel">
+          <div  class="flexslider-diaporama" role="listbox">
+            <ul class="slides">
+            {% for diaporama in diaporamas %}
+                <li class="item  {% if loop.first %} active {% endif %}" >
+                        {{ diaporama.fileuri|responsive_image('wide') }}
+                        <h2><span class="counter label label-primary">{{ loop.index }}/{{ loop.length}}</span>{{ diaporama.title }}</h2>
+                        <p>{{ diaporama.text|raw }}</p>
+                </li>
+            {% endfor %}
+            </ul>
+          </div>
+     </div>
+   {% endif %}
+{% endmacro %}
+
+{#
+/**
+ * @file
+ * Macro for page taxonomonie theme
+ * Display teaser for article (3  blocks per line)
+ */
+#}
+{% macro display_diaporama_articles(articles) %}
+     {% if articles %}
+         <section class="diaporama-list">
+         <h2>Découvrez d'autres diaporamas</h2>
+         {% for article in articles %}
+             {% set title = article.getTitle() | capitalize %}
+             {% set titleLng = title|length %}
+             {% set url   = path('entity.node.canonical', {'node': article.id()}) %}
+             {% set maxTxtLgth = 150 - titleLng %}
+             {% set diaporama =  article.field_slider|field_collection_items|first %}
+             {% set txt   = diaporama.text |strip_tags_allow_entity|truncate(maxTxtLgth,true, true)|raw  %}
+             <article class="screenshot col-sm-4 article-article">
+              {# use first element  as image background#}
+               <div class='article-image' style="background-image:url({{ file_url(diaporama.fileuri) }})">
+               </div>
+               <div class="caption-text screenshot-caption screenshot-caption_bottom">
+                   {{ article.field_tag_transverse_format|display_tag_content|raw }}
+                   {{ article.field_theme|display_tag_content(true, 3)|raw }}
+                   <h4 class="title"><a href="{{ url }}" title="{{ title }}"> {{ title }} </a></h4>
+                   <a title="{{ title }}" href="{{ url }}">{{txt }}</a>
+              </div>
+             </article>
+         {% endfor %}
+          <div class="pricing_btn"><a class="btn" href="/diaporama">Voir tout</a></div>
+         </section>
+     {% endif %}
+{% endmacro %}
+
+{#
+/**
+ * @file
+ * Macro for page taxonomonie theme
+ * Display teaser for article (3  blocks per line)
+ */
+#}
+{% macro display_interview(articles) %}
+     {% if articles %}
+        <section class="interview-list">
+         {% for article in articles %}
+          <div class="interview">
+             <span class="title"> {{ article.title }}</span>
+             <div class="reponse">{{ article.text|raw }}</div>
+          </div>
+         {% endfor %}
+         </section>
+     {% endif %}
+{% endmacro %}
+

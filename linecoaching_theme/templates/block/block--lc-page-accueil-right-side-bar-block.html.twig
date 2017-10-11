@@ -1,0 +1,134 @@
+{{ attach_library('linecoaching_theme/prog-d6-styling') }}
+<div class="panel-panel panel-col-last home-client">
+   <div class="inside">
+      <div class="panel-pane pane-views pane-friends" id="mes-infos">
+         <h2 class="pane-title">Mes Messages</h2>
+         <div class="pane-content">
+            <div class="view view-friends view-id-friends view-display-id-block_1 view-dom-id-2">
+               <div class="view-empty">
+                  <p>
+                   <a href="{{ path('message_private.messages.inbox', {'user': content.msgInfo.currentUid}) }}">
+                     {{ content.msgInfo.newMesCnt | raw }} nouveaux messages</a>
+                  </p>
+                   <p>
+                    <a href="{{ path('mtc_core.lc_messaging_private_add', {'user': content.msgInfo.coachUid}) }}">
+                      Ecrire à un coach</a>
+                    </p>
+               </div>
+            </div>
+         </div>
+      </div>
+      <div class="panel-pane pane-views pane-friends" id="online_friends">
+         <h2 class="pane-title">Mes amis en ligne</h2>
+         <div class="pane-content">
+            <div class="view view-friends view-id-friends view-display-id-block_1 view-dom-id-2">
+              {% if content.onlineFriends is empty %}
+               <div class="view-empty">
+                  <p>Aucun ami actuellement connecté.</p>
+               </div>
+               {% else %}
+                   <div class="view-content">
+                      <div class="item-list">
+                         <ul>
+                            {% for friend in content.onlineFriends %}
+                            <li class="views-row views-row-{{ loop.index + 1 }} views-row-odd  views-row-last">
+                               <div class="views-field-picture">
+                                  <div class="field-content">
+                                     <div class="picture">
+                                        <a href="{{ path('entity.user.canonical' ,{'user':friend.uid}) }}" title="Voir le profil utilisateur.">
+                                          <img src={{ file_url(friend.image_uri) }} alt="Portrait de Lyly" title="Portrait de Lyly"></a>
+                                     </div>
+                                  </div>
+                               </div>
+                               <div class="views-field-name">
+                                  <span class="field-content"><a href="{{ path('entity.user.canonical' ,{'user':friend.uid}) }}" title="Voir le profil utilisateur.">{{ friend.name }}</a></span>
+                               </div>
+                            </li>
+                            {% endfor %}
+                         </ul>
+                      </div>
+                      <div style="clear:both;"></div>
+                   </div>
+               {% endif %}
+            </div>
+         </div>
+      </div>
+      <div class="panel-pane pane-custom pane-3">
+         <div class="pane-content">
+         {# todo friend list #}
+            <div class="tousAmis"><a href="/user/12681/friends">Afficher tout &gt;</a></div>
+         </div>
+      </div>
+      <div class="panel-pane pane-views pane-en-tete-chat">
+         <h2 class="pane-title">Prochain chat</h2>
+         <div class="pane-content">
+            <div class="view view-en-tete-chat view-id-en_tete_chat view-display-id-block_1 view-dom-id-3">
+               <div class="view-content">
+                  <div class="views-row views-row-1 views-row-odd views-row-first views-row-last">
+                     <div class="chatEntete">
+                        <div class="bodyChatPro">
+                          {% if content.nextChat %}
+                             {{ content.nextChat.body | raw }}
+                          {% endif %}
+                        </div>
+                        <br>
+                        <div style="clear:both"></div>
+                     </div>
+                  </div>
+               </div>
+            </div>
+         </div>
+      </div>
+      <div class="panel-pane pane-custom pane-4">
+         <div class="pane-content">
+            <div class="tousAmis"><a href="/maigrir/la-communaute/chat-direct">Participer au chat &gt;</a></div>
+         </div>
+      </div>
+    <div class="panel-pane pane-block pane-lc-block-chat-group">
+       <div class="pane-content">
+          <div id="div_latest_chat_group">
+             <div class="title">Actualités des groupes</div>
+             <div class="txt">
+             {% for groupChat in content.groupNews %}
+                <div class="group_user" id="group_id_">{{ groupChat.group.title }}</div>
+                <div class="group_latest_chat">
+                <a class="link" href="{{ path('entity.node.canonical', {'node': groupChat.chat.nid}) }}"> {{ groupChat.chat.title }}</a></div>
+             {% endfor %}
+             </div>
+          </div>
+       </div>
+    </div>
+      <div class="panel-pane pane-custom pane-5">
+         <div class="pane-content">
+            <div class="tousAmis"><a href="/og">Voir les groupes &gt;</a></div>
+         </div>
+      </div>
+      <div class="panel-pane pane-views pane-active-topics">
+         <h2 class="pane-title">Le Forum</h2>
+         <div class="pane-content">
+            <div class="view view-active-topics view-id-active_topics view-display-id-default view-dom-id-1">
+               <div class="view-content">
+                  <div class="item-list">
+                     <ul>
+                     {%  for topic in content.activeForum %}
+                        <li class="views-row views-row-1  ">
+                           <div class="views-field-title">
+                              <span class="field-content">
+                              <a class="views-processed" title="{{ topic.title }}" href="{{ path('entity.node.canonical', {'node': topic.nid}) }}">{{ topic.title }}</a>
+                              </span>
+                           </div>
+                        </li>
+                     {% endfor %}
+                     </ul>
+                  </div>
+               </div>
+            </div>
+         </div>
+      </div>
+      <div class="panel-pane pane-custom pane-6">
+         <div class="pane-content">
+            <div class="tousAmis"><a href="/forum">Voir tout &gt;</a></div>
+         </div>
+      </div>
+   </div>
+</div>

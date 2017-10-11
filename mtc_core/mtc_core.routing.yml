@@ -1,0 +1,595 @@
+mtc_core.subscription_newsletter_form:
+  path: '/mtc_core/form/subscription_newsletter'
+  defaults:
+    _form: '\Drupal\mtc_core\Form\SubscriptionNewsletterForm'
+    _title: 'SubscriptionNewsletterForm'
+  requirements:
+    _access: 'TRUE'
+
+mtc_core.bilan_gratuit_form:
+  path: '/mtc_core/form/bilan_gratuit'
+  defaults:
+    _form: '\Drupal\mtc_core\Form\BilanGratuitForm'
+    _title: 'BilanGratuitForm'
+  requirements:
+    _access: 'TRUE'
+
+mtc_core.lc_comment_controller_index:
+  path: '/mtc_core/comment/{nid}'
+  defaults:
+    _controller: '\Drupal\mtc_core\Controller\LcCommentController::index'
+    _title: ''
+  requirements:
+    _permission: 'access comments'
+    nid: \d+
+
+mtc_core.lc_comment_controller_load_all:
+  path: '/mtc_core/comment/load-all/{nid}'
+  defaults:
+    _controller: '\Drupal\mtc_core\Controller\LcCommentController::loadAll'
+    _title: ''
+  requirements:
+    _permission: 'access comments'
+    nid: \d+
+
+mtc_core.lc_forum_controller_subject_no_comments:
+  path: '/forum/sans-reponse'
+  defaults:
+    _controller: '\Drupal\mtc_core\Controller\LcForumController::subjectNoComments'
+    _title: 'Sujets Sans réponses'
+  requirements:
+    _permission: 'access content'
+
+mtc_core.lc_forum_controller_subject_active:
+  path: '/forum/actifs'
+  defaults:
+    _controller: '\Drupal\mtc_core\Controller\LcForumController::subjectActive'
+    _title: 'Sujets Actifs'
+  requirements:
+    _permission: 'access content'
+
+mtc_core.lc_forum_controller_subject_new:
+  path: '/forum/nouveaux'
+  defaults:
+    _controller: '\Drupal\mtc_core\Controller\LcForumController::subjectNew'
+    _title: 'Nouveaux Sujets'
+  requirements:
+    _permission: 'access content'
+
+mtc_core.lc_forum_controller_forum_members:
+  path: '/forum/forum-members'
+  defaults:
+    _controller: '\Drupal\mtc_core\Controller\LcForumController::forumMembers'
+    _title: 'Tous les Membres'
+  requirements:
+    _user_is_logged_in: 'TRUE'
+
+mtc_core.lc_forum_controller_forum_members_search:
+  path: '/forum/forum-members/{searchText}'
+  defaults:
+    _controller: '\Drupal\mtc_core\Controller\LcForumController::forumMembers'
+    _title: 'Tous les Membres'
+  requirements:
+    _permission: 'access user profiles'
+
+mtc_core.lc_forum_controller_mark_all_read_topics:
+  path: '/mtc_core/forum/topics/mark-all-read'
+  defaults:
+    _controller: '\Drupal\mtc_core\Controller\LcForumController::topicsMarkAllRead'
+    _title: ''
+  requirements:
+    _permission: 'access content'
+
+mtc_core.lc_forum_controller_users_followers:
+  path: '/forum/users-followers'
+  defaults:
+    _controller: '\Drupal\mtc_core\Controller\LcForumController::loadUsersFollowers'
+    _title: 'Sujets suivis'
+  requirements:
+    _user_is_logged_in: 'TRUE'
+
+#lc header,footer,sidebar service rest
+mtc_core.lc_cobranding_controller_themeRegions:
+  path: '/mtc_core/cobranding/theme-regions'
+  defaults:
+    _controller: '\Drupal\mtc_core\Controller\LcContentController::themeRegions'
+    _title: ''
+  requirements:
+    _permission: 'access content'
+  options:
+     no_cache: TRUE
+
+mtc_core.taxonomy_term.forum_canonical:
+  defaults:
+    _controller: '\Drupal\mtc_core\Controller\LcForumController::redirectTaxonomy'
+    _title_callback: '\Drupal\taxonomy\Controller\TaxonomyController::termTitle'
+  requirements:
+    _permission: 'access content'
+
+
+#MtcCore offer query
+mtc_core.lc_cobranding_offer_duration:
+  path: '/mtc_core/cobranding/offer/{duration}/{premium}'
+  defaults:
+    _controller: '\Drupal\mtc_core\Controller\LcContentController::getRecommendedOffer'
+    _title: ''
+    duration: 6
+    premium: 1
+  requirements:
+    _permission: 'access content'
+    duration: \d+
+    premium: \d+
+
+mtc_core.lc_session_name:
+  path: '/mtc_core/session-name'
+  defaults:
+    _controller: '\Drupal\mtc_core\Controller\LcContentController::sesssionName'
+    _title: ''
+  requirements:
+    _permission: 'access content'
+
+mtc_core.lc_messaging_private_add:
+  path: '/messages/new/{user}'
+  defaults:
+    _controller: '\Drupal\mtc_core\Controller\LcUserContentController::addPrivateMessage'
+    _title: 'Envoyer une message'
+  requirements:
+    _user_is_logged_in: 'TRUE'
+
+# List of my friends
+mtc_core.lc_my_friends:
+  path: '/mes-amis'
+  defaults:
+    _controller: '\Drupal\mtc_core\Controller\LcUserContentController::listMyFriends'
+    _title: 'Mes amis'
+  requirements:
+    _user_is_logged_in: 'TRUE'
+
+# search website
+mtc_core.lc_search_controller:
+  path: '/recherche'
+  defaults:
+    _controller: '\Drupal\mtc_core\Controller\LcSearchController::indexAction'
+    _title: 'Recherche'
+  requirements:
+    _permission: 'access content'
+
+# USER ACCOUNT
+# todo: make title dynamic - replace _title with _title_callback or even _title_arguments.
+mtc_core.user.account.infos:
+  path: '/user/infos'
+  defaults:
+    _controller: '\Drupal\mtc_core\Controller\LcUserAccountController::infos'
+    _title: 'Mes informations : Linecoaching.com'
+  requirements:
+    _user_is_logged_in: 'TRUE'
+# <
+
+# HOME PROGRAM
+mtc_core.subscriber.home.program:
+  path: '/accueil-client'
+  defaults:
+    _controller: '\Drupal\mtc_core\Controller\LcUserAccountController::home'
+    _title: 'Votre espace personnel : Linecoaching.com'
+  requirements:
+    _permission: 'access content'
+  options:
+     no_cache: TRUE
+#Serveur therap
+mtc_core.subscriber.home.site.therap:
+  path: '/therapy'
+
+mtc_core.subscription.home:
+  path: 'user/mon-abonnement'
+  defaults:
+    _controller: '\Drupal\mtc_core\Controller\LcUserAccountController::homeSubscription'
+    _title: 'Mon abonnement : Linecoaching.com'
+  requirements:
+    _user_is_logged_in: 'TRUE'
+
+mtc_core.subscription.profile:
+  path: '/user/mon-profil'
+  defaults:
+    _controller: '\Drupal\mtc_core\Controller\LcUserAccountController::homeProfile'
+    _title: 'Mon Profile : Linecoaching.com'
+  requirements:
+    _user_is_logged_in: 'TRUE'
+  options:
+     no_cache: TRUE
+
+mtc_core.unsubscribe.confirmation:
+  path: '/desabonnement_newsletter'
+  defaults:
+    _controller: '\Drupal\mtc_core\Controller\LcUserAccountController::unsubscribeConfirmation'
+    _title: 'Se désabonner'
+  requirements:
+    _access: 'TRUE'
+
+# > PAYMENT TUNNEL
+mtc_core.ws.tunnel.offers:
+  path: '/jadopte-la-methode-mtc_core'
+  defaults:
+    _controller: '\Drupal\mtc_core\Controller\LcPaymentTunnelController::getStepOffer'
+    _title: 'Tous les Membres'
+  requirements:
+    _permission: 'access content'
+  options:
+     no_cache: TRUE
+
+mtc_core.ws.tunnel.payment:
+  path: '/abonnement/paiement'
+  defaults:
+    _controller: '\Drupal\mtc_core\Controller\LcPaymentTunnelController::getStepPayment'
+    _title: 'Tous les Membres'
+  requirements:
+    _permission: 'access content'
+  options:
+     no_cache: TRUE
+
+mtc_core.ws.tunnel.carepay.payment:
+  path: '/abonnement/carepay'
+  defaults:
+    _controller: '\Drupal\mtc_core\Controller\LcPaymentTunnelController::getStepCarePay'
+    _title: 'Tous les Membres'
+  requirements:
+    _permission: 'access content'
+  options:
+     no_cache: TRUE
+
+mtc_core.ws.tunnel.account:
+  path: '/abonnement/finalisation'
+  defaults:
+    _controller: '\Drupal\mtc_core\Controller\LcPaymentTunnelController::getStepAccount'
+    _title: 'Tous les Membres'
+  requirements:
+    _permission: 'access content'
+  options:
+     no_cache: TRUE
+
+mtc_core.ws.tunnel.thanks:
+  path: '/abonnement/merci'
+  defaults:
+    _controller: '\Drupal\mtc_core\Controller\LcPaymentTunnelController::getStepThanks'
+    _title: 'Tous les Membres'
+  requirements:
+    _permission: 'access content'
+  options:
+     no_cache: TRUE
+
+mtc_core.ws.tunnel.email.check:
+  path: '/ws/email/{email}/available'
+  defaults:
+    _controller: '\Drupal\mtc_core\Controller\LcPaymentTunnelController::wsEmailAvailable'
+    _title: 'Tous les Membres'
+  requirements:
+    _permission: 'access content'
+
+mtc_core.ws.tunnel.nickname.check:
+  path: '/ws/nickname/available'
+  defaults:
+    _controller: '\Drupal\mtc_core\Controller\LcPaymentTunnelController::wsNicknameAvailable'
+    _title: 'Tous les Membres'
+  requirements:
+    _permission: 'access content'
+# <
+
+# > WS MTC API (called from SVT, BO & TUNNEL PAYMENT)
+# keep route names
+mtc_core.mtc.api.create_user :
+  path: '/mtc_api/create_user'
+  defaults:
+    _controller: '\Drupal\mtc_core\Controller\MtcApiController::createUser'
+    _title: ''
+  requirements:
+    _permission: 'access content'
+
+mtc_core.mtc.api.sh_renold :
+  path: '/mtc_api/sh_renold'
+  defaults:
+    _controller: '\Drupal\mtc_core\Controller\MtcApiController::renameOldBlockUsers'
+    _title: ''
+  requirements:
+    _permission: 'access content'
+
+mtc_core.mtc.api.update_user :
+  path: '/mtc_api/update_user'
+  defaults:
+    _controller: '\Drupal\mtc_core\Controller\MtcApiController::updateUser'
+    _title: ''
+  requirements:
+    _permission: 'access content'
+
+mtc_core.mtc.api.update_roles :
+  path: '/mtc_api/update_roles'
+  defaults:
+    _controller: '\Drupal\mtc_core\Controller\MtcApiController::updateRoles'
+    _title: ''
+  requirements:
+    _permission: 'access content'
+
+mtc_core.mtc.api.login_user :
+  path: '/mtc_api/login_user'
+  defaults:
+    _controller: '\Drupal\mtc_core\Controller\MtcApiController::loginUser'
+    _title: ''
+  requirements:
+    _permission: 'access content'
+
+mtc_core.mtc.api.on_payment :
+  path: '/mtc_api/onpayment'
+  defaults:
+    _controller: '\Drupal\mtc_core\Controller\MtcApiController::onPayment'
+    _title: ''
+  requirements:
+    _permission: 'access content'
+
+mtc_core.mtc.api.subscribe_step1 :
+  path: '/mtc_api/subscribe_step1'
+  defaults:
+    _controller: '\Drupal\mtc_core\Controller\MtcApiController::validateTunnelStep1'
+    _title: ''
+  requirements:
+    _permission: 'access content'
+
+mtc_core.mtc.api.subscribe_step2 :
+  path: '/mtc_api/subscribe_step2'
+  defaults:
+    _controller: '\Drupal\mtc_core\Controller\MtcApiController::validateTunnelStep2'
+    _title: ''
+  requirements:
+    _permission: 'access content'
+
+mtc_core.mtc.api.subscribe_step3 :
+  path: '/mtc_api/subscribe_step3'
+  defaults:
+    _controller: '\Drupal\mtc_core\Controller\MtcApiController::validateTunnelStep3'
+    _title: ''
+  requirements:
+    _permission: 'access content'
+
+mtc_core.mtc.api.prelogin :
+  path: '/mtc_api/prelogin'
+  defaults:
+    _controller: '\Drupal\mtc_core\Controller\MtcApiController::preLoginInsured'
+    _title: ''
+  requirements:
+    _permission: 'access content'
+
+mtc_core.mtc.api.logout :
+  path: '/mtc_api/logout'
+  defaults:
+    _controller: '\Drupal\mtc_core\Controller\MtcApiController::LogoutInsured'
+    _title: 'Tous les Membres'
+  requirements:
+    _permission: 'access content'
+
+
+mtc_core.mtc.api.talk_infos :
+  path: '/mtc_api/talk_infos'
+  defaults:
+    _controller: '\Drupal\mtc_core\Controller\MtcApiController::talkInfos'
+    _title: ''
+  requirements:
+    _user_is_logged_in: 'TRUE'
+
+mtc_core.mtc.api.talk_proposal :
+  path: '/mtc_api/talk_proposal'
+  defaults:
+    _controller: '\Drupal\mtc_core\Controller\MtcApiController::talkProposal'
+    _title: ''
+  requirements:
+    _user_is_logged_in: 'TRUE'
+
+# <
+# service rest, content therapeutique
+mtc_core.lc_therapy_node_content_list:
+  path: '/lc_therapy/{nodeType}/{offset}/{limit}'
+  defaults:
+    _controller: '\Drupal\mtc_core\Controller\LcTherapyController::getNodeContentList'
+    _title: ''
+  requirements:
+    _user_is_logged_in: 'TRUE'
+    nodeType: "chat_general|chat_groups|comment_forum|article-mag"
+    offset: ^[0-9]+
+    limit: ^[0-9]+
+
+# service rest, message_prive  therapeutique
+mtc_core.lc_therapy_message_prive:
+  path: '/lc_therapy/retrieve_message_prive/{offset}/{limit}'
+  defaults:
+    _controller: '\Drupal\mtc_core\Controller\LcTherapyController::retrieveMessageCoach'
+    _title: ''
+  requirements:
+    _user_is_logged_in: 'TRUE'
+    offset: ^[0-9]+
+    limit: ^[0-9]+
+
+ # service rest, message_prive  therapeutique
+mtc_core.lc_therapy_post_message_prive:
+  path: '/lc_therapy/post_message_prive'
+  defaults:
+    _controller: '\Drupal\mtc_core\Controller\LcTherapyController::postMessageCoach'
+    _title: ''
+  methods: [POST]
+  requirements:
+    _user_is_logged_in: 'TRUE'
+
+ # page service og group : chat group
+mtc_core.og_group_chat_group_home:
+  path: '/og'
+  defaults:
+    _controller: '\Drupal\mtc_core\Controller\LcUserContentController::ogGroupChatGroupHome'
+    _title: 'Chat de groupe'
+  requirements:
+    _user_is_logged_in: 'TRUE'
+ # page service og group : chat group
+mtc_core.og_group_chat_group_subscription:
+  path: '/og-groupe-subscription/{type}/{nid}'
+  defaults:
+    _controller: '\Drupal\mtc_core\Controller\LcUserContentController::ogGroupChatGroupSubscription'
+    _title: 'Chat de groupe'
+  requirements:
+    _user_is_logged_in: 'TRUE'
+    type: subscribe|unsubscribe
+    node: ^[0-9]+
+
+ # page service og group : chat group
+mtc_core.chat_nasteo:
+  path: '/maigrir/la-communaute/chat-direct'
+  defaults:
+    _controller: '\Drupal\mtc_core\Controller\LcUserContentController::chatNasteo'
+    _title: 'Chat avec les experts'
+  requirements:
+    _user_is_logged_in: 'TRUE'
+  options:
+     no_cache: TRUE
+
+#Chat nasteo settings form
+mtc_core.chat_nasteo_settings:
+  path: '/admin/structure/chat_nasteo/settings'
+  defaults:
+    _form: '\Drupal\mtc_core\Form\ChatNasteoSettingsForm'
+    _title: 'Chat nasteo settings'
+  requirements:
+    _permission: 'administer site configuration'
+
+mtc_core.ajax_load_private_message_form_reply:
+  path: '/lc/ajax/ajax_load_private_message_form_reply/{user}/{top}/{message}'
+  defaults:
+    _title: 'AJAX forms under reply button'
+    _controller: '\Drupal\mtc_core\Controller\LcReplyFormAjaxController::ajaxReply'
+    top: 0
+    message: 0
+  options:
+    _theme: ajax_base_page
+  requirements:
+    _access: 'TRUE'
+    user: \d+
+
+#lc private received messages
+mtc_core.user.receivedMessages:
+  path: '/user/{user}/messages'
+  defaults:
+    _controller: '\Drupal\mtc_core\Controller\LcUserContentController::receivedPrivateMessages'
+    _title: 'Messages'
+  requirements:
+    _user_is_logged_in: 'TRUE'
+    user: ^[0-9]+
+  options:
+     no_cache: TRUE
+
+mtc_core.user.sentMessages:
+  path: '/user/{user}/messages/sent'
+  defaults:
+    _controller: '\Drupal\mtc_core\Controller\LcUserContentController::sentPrivateMessages'
+    _title: 'Messages'
+  requirements:
+    _user_is_logged_in: 'TRUE'
+    user: ^[0-9]+
+  options:
+     no_cache: TRUE
+
+#lc private message
+mtc_core.user.privateMessageConversation:
+  path: '/message/conversation/{mid}'
+  defaults:
+    _controller: '\Drupal\mtc_core\Controller\LcUserContentController::privateMessageConversation'
+    _title: 'Messages conversation'
+  requirements:
+    _user_is_logged_in: 'TRUE'
+    mid: ^[0-9]+
+  options:
+     no_cache: TRUE
+
+mtc_core.user.myBlog:
+  path: '/myblog'
+  defaults:
+    _controller: '\Drupal\mtc_core\Controller\LcUserMyBlogContentController::index'
+    _title: 'MyBlog'
+  requirements:
+    _user_is_logged_in: 'TRUE'
+    user: ^[0-9]+
+  options:
+     no_cache: TRUE
+
+mtc_core.user.reset_password:
+  path: '/user/{idUser}/reset-password'
+  defaults:
+    _controller: '\Drupal\mtc_core\Controller\LcUserPasswordController::finishPasswordReset'
+    _title: 'finishPasswordReset'
+  requirements:
+    idUser: ^[0-9]+
+    _access: 'TRUE'
+  options:
+    _maintenance_access: TRUE
+
+mtc_core.homepage:
+  path: '/'
+
+mtc_core.ws.annex.offers:
+  path: '/achat-entretiens-coaching'
+  defaults:
+    _controller: '\Drupal\mtc_core\Controller\LcSubscriptionController::annexOffers'
+    _title: 'Acheter un pack entretien'
+  requirements:
+    _user_is_logged_in: 'TRUE'
+
+mtc_core.user.wsLogin:
+  path: '/user/ws-login'
+  defaults:
+    _controller: '\Drupal\mtc_core\Controller\LcUserLoginController::checkLogin'
+    _title: 'Authentication'
+  requirements:
+    _access: 'TRUE'
+  options:
+    _maintenance_access: TRUE
+
+mtc_core.homepage.video.popup:
+  path: '/homepage/videopopup'
+  defaults:
+    _controller: '\Drupal\mtc_core\Controller\LcContentController::homepageVideoPopup'
+    _title: 'Voir la vidéo'
+  requirements:
+    _access: 'TRUE'
+
+mtc_core.user.reset_password:
+  path: '/user/{idUser}/reset-password'
+  defaults:
+    _controller: '\Drupal\mtc_core\Controller\LcUserPasswordController::finishPasswordReset'
+    _title: 'finishPasswordReset'
+  requirements:
+    idUser: ^[0-9]+
+    _access: 'TRUE'
+  options:
+    _maintenance_access: TRUE
+
+mtc_core.homepage:
+  path: '/'
+
+mtc_core.ws.annex.offers:
+  path: '/achat-entretiens-coaching'
+  defaults:
+    _controller: '\Drupal\mtc_core\Controller\LcSubscriptionController::annexOffers'
+    _title: 'Acheter un pack entretien'
+  requirements:
+    _user_is_logged_in: 'TRUE'
+
+mtc_core.user.ws.login.check:
+  path: '/user/ws/login/check'
+  defaults:
+    _controller: '\Drupal\mtc_core\Controller\LcUserLoginController::checkLogin'
+    _title: 'Authentication'
+  requirements:
+    _access: 'TRUE'
+  options:
+    _maintenance_access: TRUE
+
+mtc_core.user.ws.login:
+  path: '/user/ws/login'
+  defaults:
+    _controller: '\Drupal\mtc_core\Controller\LcUserLoginController::displayLogin'
+    _title: 'Authentication'
+  requirements:
+    _access: 'TRUE'
+  options:
+    _maintenance_access: TRUE

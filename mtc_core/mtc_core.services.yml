@@ -1,0 +1,77 @@
+services:
+
+  mtc_core.taxonomy_manager:
+    class: Drupal\mtc_core\Manager\TaxonomyManager
+    arguments: ["@database", "@entity.manager", "@entity.query"]
+
+  mtc_core.firebase_manager:
+    class: Drupal\mtc_core\Manager\FireBaseManager
+
+  mtc_core.lc_twig_extension:
+    class: Drupal\mtc_core\TwigExtension\LinecoachingTwigExtension
+    arguments: ['@renderer', '@url_generator', '@theme.manager', '@date.formatter']
+    tags:
+      - { name: twig.extension }
+
+  mtc_core.lc_david_twig_extension:
+    class: Drupal\mtc_core\TwigExtension\LinecoachingDavidTwigExtension
+    arguments: ['@renderer', '@url_generator', '@theme.manager', '@date.formatter']
+    tags:
+      - { name: twig.extension }
+
+  mtc_core.route_subscriber:
+    class: Drupal\mtc_core\Routing\RouteSubscriber
+    arguments: []
+    tags:
+      - { name: event_subscriber }
+
+#priority must be higher than termbuilder
+  mtc_core.lc_breadcrumb_builder:
+    class: Drupal\mtc_core\Builder\MtcCoreBreadcrumbBuilder
+    arguments: ['@entity.manager']
+    tags:
+      - { name: breadcrumb_builder, priority: 1005 }
+
+# main config service
+  mtc_core.config:
+    class: Drupal\mtc_core\Service\ConfigService
+
+# swift mailer service
+  mtc_core.swiftmailer:
+    class: Drupal\mtc_core\Service\SwiftMailerService
+
+# mediation service
+  mtc_core.ws_client:
+    class: Drupal\mtc_core\Service\WsClientService
+
+# mtc api service
+  mtc_core.mtc_auth:
+    class: Drupal\mtc_core\Service\MtcAuthService
+
+# mail manager driving swift mailer service
+  mtc_core.mail_manager:
+    class: Drupal\mtc_core\Manager\MailManager
+
+#manage connection to svt
+  mtc_core.svt_manager:
+    class: Drupal\mtc_core\Manager\SvtManager
+    arguments: ['@user.private_tempstore']
+
+#manage connection to A7 emailing plateform
+  mtc_core.a7_manager:
+    class: Drupal\mtc_core\Manager\A7Manager
+
+#add metatags header to page
+  mtc_core.metatag_manager:
+     class: Drupal\mtc_core\Manager\MetaTagManager
+
+#add init page
+  mtc_core.init:
+    class: Drupal\mtc_core\EventSubscriber\InitSubscriber
+    tags:
+      - { name: event_subscriber }
+
+  mtc_core.forum_last_comment:
+      class: Drupal\mtc_core\EventSubscriber\ForumSubscriber
+      tags:
+        - { name: event_subscriber, priority: 5000 }

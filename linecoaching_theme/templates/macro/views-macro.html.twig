@@ -1,0 +1,157 @@
+{#
+/**
+ * @file
+ * Macro for views
+ *
+ */
+#}
+{#
+Macro node widgets print ,rating social...
+#}
+
+{% macro social_widgets() %}
+    <div class="social-media">
+       <!-- AddToAny BEGIN -->
+       <div class="a2a_kit a2a_kit_size_32 a2a_default_style">
+          <a class="a2a_button_email" title="Partagez ce contenu par E-mail"></a>
+          <a class="a2a_button_facebook" title="Partagez ce contenu sur Facebook"></a>
+          <a class="a2a_button_twitter" title="Partagez ce contenu sur Twitter"></a>
+       </div>
+      {{ attach_library('linecoaching_theme/addtoany.addtoanyjs') }}
+      <!-- AddToAny END -->
+   </div>
+{% endmacro %}
+
+{# bilan gratuit #}
+{% macro bilan_gratuit() %}
+    <section class="bilan_gratuit views">
+        <h4>Mon bilan minceur gratuit en 4 minutes</h4>
+        <a class="btn btn-default" href="https://bilan.linecoaching.com" role="button">Je commence</a>
+    </section>
+{% endmacro %}
+
+{# index content.. #}
+{% macro view_row_index_class(index) %}
+   {% if (index%3) == 0 %}
+      {% set position = 'first' %}
+   {% elseif (index%3)  == 1  %}
+     {% set position = 'second' %}
+   {% else %}
+     {% set position = 'third' %}
+   {% endif %}
+    {{ position }}
+{% endmacro %}
+
+{#
+#Display articles for page temoignages (page list)
+#}
+{% macro list_articles_temoignage(fields, nid, index) %}
+
+    {% set url   = path('entity.node.canonical', {'node': nid}) %}
+    <a href="{{ url }}" target="_self">
+        <article class="{{ _self.view_row_index_class(index)|trim }} screenshot article-view col-sm-4">
+            {% if fields.field_image %}
+                <div class="image"  style="background-image:url({{ file_url(get_file_uri(nid, 'field_image')) }})"></div>
+            {% endif %}
+             <div class="caption-text screenshot-caption screenshot-caption_bottom">
+                 <h4 class="title">{{ fields.field_extrait.content| strip_tags_allow_entity(true) }}</h4>
+                 <p class="tem_text">
+                    {{ fields.body.content | strip_tags_allow_entity(true) }}
+                 </p>
+             </div>
+             <div class="lctooltip"><p>{{fields.field_impression.content|strip_tags_allow_entity|truncate(250, true, true)}}<span class="more-link">Lire</span></p></div>
+        </article>
+    </a>
+{% endmacro %}
+{#
+#Display article on one per line horizontally,no link to main content (node full) ,parole utilisateurs
+#}
+{% macro list_articles_parole(fields, nid, readMore) %}
+   {% set title = fields.title.content | raw  |capitalize %}
+   {% set picto = get_user_picto(fields.title.content) %}
+     <article class="avis_article">
+        <div class="avis_avatar" {% if picto is defined %}  style="background-image:url({{ file_url(picto) }})" {% endif %}></div>
+        <div class="avis_text">
+          {{fields.body.content}}
+        </div>
+        {% if fields.field_auteur is not empty %}
+            <span class="auteur">{{fields.field_auteur.content }}</span>
+          {% endif %}
+         <div class="edit-link">{{fields.edit_node.content}}</div>
+     </article>
+{% endmacro %}
+
+{# display livre d'experts #}
+{% macro list_livres_horizontal(fields, nid) %}
+{% import "themes/custom/linecoaching_theme/templates/macro/node-taxonomy-macro.html.twig" as display %}
+    {% set url   = path('entity.node.canonical', {'node': nid}) %}
+    <article class="article-artivariablescle livre-expert col-sm-12">
+            <a title="{{ title }}" href="{{ url }}">
+                <div class='col-sm-3 article-image'  style="background-image:url({{ file_url(get_file_uri(nid, 'field_image')) }})">
+                </div>
+            </a>
+            <h2 class="title">
+              <a href="{{ url }}"title="{{ fields.title.content | raw |capitalize }}">{{ fields.title.content }}</a> <span class="livre-auteur"> {{ fields.field_auteur.content }} </span>
+            </h2>
+            {{ fields.field_chapeau.content|raw }}
+            <br><a class="more" title="{{ fields.title.content | raw |capitalize  }}" href="{{ url }}">
+             Lire plus
+            </a>
+           <div class="edit-link">{{fields.edit_node.content}}</div>
+           {# to do fields rating #}
+           {{ display.widgets(fields.field_rating, nid, fields.field_tag_transverse_format, fields.author_name) }}
+    </article>
+
+{% endmacro %}
+{#
+#Display article  4 per line,no link to main content (node full)
+# notable page la presse (media content)
+#}
+{% macro list_articles_no_links(fields, nid, index) %}
+
+{% set type_class = [] %}
+{% if fields.field_audio.content|striptags|length > 2 %}
+    {% set type_class = type_class|merge(['type-audio']) %}
+{% endif %}
+{% if fields.field_file.content|striptags|length > 2 %}
+    {% set type_class = type_class|merge(['type-file']) %}
+{% endif %}
+{% if fields.field_link.content|striptags|length > 2 %}
+    {% set type_class = type_class|merge(['type-link']) %}
+{% endif %}
+{% if fields.field_title.content|striptags|length > 2 %}
+    {% set type_class = type_class|merge(['type-video']) %}
+{% endif %}
+
+      <article class="{{ _self.view_row_index_class(index)|trim }} screenshot article-view col-sm-4 {{ type_class|join(' ') }}">
+           <div class="image" style="background-image:url({{ file_url(get_file_uri(nid, 'field_image')) }})"></div>
+           <div class="caption-text screenshot-caption screenshot-caption_bottom">
+               <span class="auteur">{{fields.field_auteur.content | replace({'Source:' : ''})| strip_tags_allow_entity}}</span>
+               <h4 class="title">{{ fields.title.content|raw }}
+               {% if fields.field_extrait.content is defined %}
+                 :{{ fields.field_extrait.content| strip_tags_allow_entity| raw }}</h4>
+               {% endif %}
+            </div>
+            <div class="lctooltip">
+                <p>{{fields.body.content|strip_tags_allow_entity|truncate(400, true, true)}}</p>
+                {{fields.field_presse_link.content}}
+            </div>
+            <div class="edit-link">{{fields.edit_node.content}}</div>
+      </article>
+{% endmacro %}
+
+{# view page :element list widgets #}
+{% macro list_element_widgets(rating, nid) %}
+   <section class="widgets">
+       {% if rating['#object'] is defined %}
+           {{ rating }}
+       {% else %}
+         {{ default_fivestar_widget(nid) }}
+       {% endif %}
+       {% if nid  is not empty %}
+            <span title="Réagissez à cet article" class="comment-count badge">
+               <a href="{{ path('entity.node.canonical', {'node': nid}) }}#comment-header-anchor"> {{ nid|comment_count}}</a>
+            </span>
+       {% endif %}
+   </section>
+{% endmacro %}

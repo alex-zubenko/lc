@@ -1,0 +1,71 @@
+<?php
+use Drupal\Core\Database\Database;
+/**
+ * Implements hook_schema().
+ */
+function linecoaching_forum_notification_schema() {
+  $schema['lc_forum_notification'] = array(
+    'description' => 'The base table for notification statuses.',
+    'fields' => array(
+      'id' => array(
+        'description' => 'The primary identifier for a notifications status.',
+        'type' => 'serial',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+      'uid' => array(
+        'description' => 'User notification',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'nid' => array(
+        'description' => 'User notification',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+     'status' => array(
+        'description' => 'Boolean indicating whether the new post',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+    ),
+
+    'foreign keys' => array(
+      'uid' => array(
+        'table' => 'users',
+        'columns' => array('uid' => 'uid'),
+      ),
+    ),
+    'indexes' => array(
+      'status' => array('status'),
+      'user_notification' => array('uid'),
+      'entity_id' => array('nid'),
+    ),
+
+    'primary key' => array('id'),
+  );
+  return $schema;
+}
+
+/**
+ * SOLR config
+ */
+function linecoaching_forum_notification_update_8001() {
+  \Drupal::service('module_installer')
+    ->install(['linecoaching_feature_solr'], TRUE);
+  drush_features_import('linecoaching_feature_solr');
+}
+
+/**
+ * Settings metatag.
+ */
+function linecoaching_forum_notification_update_8002() {
+  \Drupal::service('module_installer')->install(['linecoaching_feature_metatag',], TRUE);
+  drush_features_import('linecoaching_feature_metatag');
+}

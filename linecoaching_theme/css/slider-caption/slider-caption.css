@@ -1,0 +1,45 @@
+.screenshot {
+  position: relative;
+  overflow: hidden;
+}
+
+.screenshot > * { display: block; }
+
+.screenshot-caption {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  /*customize below*/
+  background: rgba(44,62,80,.4);
+  color: #ffffff;
+  -webkit-transition: all 0.5s ease-out;
+  -moz-transition: all 0.5s ease-out;
+  transition: all 0.5s ease-out;
+}
+
+.screenshot-caption_bottom {
+  top: 100%;
+  left: 0;
+}
+.screenshot:hover .screenshot-caption {
+  top: 0;
+  left: 0;
+  -webkit-transition: all 0.25s ease-out;
+  -moz-transition: all 0.25s ease-out;
+  transition: all 0.25s ease-out;
+}
+
+.screenshot-caption > * {
+  -webkit-transition: opacity 1s ease;
+  -moz-transition: opacity 1s ease;
+  transition: opacity 1s ease;
+  opacity: 0;
+}
+
+.screenshot:hover .screenshot-caption > * {
+  -webkit-transition: opacity 1s ease;
+  -moz-transition: opacity 1s ease;
+  transition: opacity 1s ease;
+  opacity: 1;
+
+}

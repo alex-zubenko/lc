@@ -1,0 +1,75 @@
+ {# display block temoignage differently#}
+{% if content.field_temoignage[0]['#node'] is defined %}
+<div class="right-col-custom-block">
+    {%if content.field_temoignage[0]['#node'].field_image[0] is defined %}
+    <a
+        href="{{ path('entity.node.canonical', {'node': content.field_temoignage[0]['#node'].id}) | relative_to_absolute }}"
+        title="{{ content.field_temoignage[0]['#node'].title[0].value }}">
+        <div class="right-col-image"
+            style="background-image:url({{ file_url(content.field_temoignage[0]['#node'].field_image[0].entity.uri.value ) | relative_to_absolute }})">
+        </div>
+    </a>
+    {% endif %}
+    <div class="right-col-title">
+        {{ title_prefix }}
+        {{ label}}
+        {{ title_suffix }}
+    </div>
+    <div class="right-col-body">
+        {{ content.field_temoignage[0]['#node'].field_introduction[0].value | raw }}
+        {{ content.field_temoignage[0]['#node'].body[0].value | raw }}
+    </div>
+    <div class="right-col-link">
+        <a
+            href="{{ path('entity.node.canonical', {'node': content.field_temoignage[0]['#node'].id}) | relative_to_absolute}}"
+            class="btn more"
+            title="{{ content.field_temoignage[0]['#node'].title[0].value }}">
+            En savoir plus </a>
+    </div>
+</div>
+{% else %}
+<div class="right-col-custom-block">
+    {{ title_prefix }}
+    {{ title_suffix }}
+    {% if content.field_image['#object'] is not empty %}
+    <div class="right-col-image">
+        {# image clickable#}
+        {% if content.field_lien[0]['#url'] is defined %}
+        <a
+            href="{{ content.field_lien[0]['#url'].toString() | relative_to_absolute }}"
+            title="{{ label }}"> {{ content.field_image }}
+        </a>
+        {% else %}
+        {{ content.field_image }}
+        {% endif %}
+    </div>
+    {% endif %}
+
+    {% if content.field_video[0]['#type'] is defined %}
+    <a href="{{ content.field_video|get_video_url(true) }}" data-lity
+        class="right-col-video"> <img class="thumbnail"
+        src="{{ content.field_video | get_video_thumbnail | relative_to_absolute }}" />
+    </a>
+    {% endif %}
+
+    {% if label %}
+    <div class="right-col-title">
+        {{ title_prefix }}
+        {{ label}}
+        {{ title_suffix }}
+    </div>
+    {% endif %}
+
+    {% if content.body is not empty %}
+    <div class="right-col-body">
+        {{ content.body }}
+    </div>
+    {% endif %}
+    {% if content.field_lien[0] is not empty %}
+    <div class="right-col-link">
+        {{ link(content.field_lien['#items'].title, content.field_lien['#items'].uri | relative_to_absolute, { 'class':['btn']} ) }}
+    </div>
+    {% endif %}
+
+</div>
+{% endif %}

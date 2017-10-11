@@ -1,0 +1,79 @@
+{# /** * @file * Macro for that generates search box */ #} {# add params
+for search box ,mag type #}
+{% macro form_search_page(menu, taxonomy, search_query)%}
+<form action="/recherche" method="get" id="advanced-search-block-form"
+    accept-charset="UTF-8" data-drupal-form-fields="edit-keys">
+     {{ _self.simple_search_box(search_query) }}
+     <button type="submit" class="btn btn-lg btn-secondary">Rechercher</button>
+     <div class="clearfix">
+        <a class="alert alert-info" data-toggle="collapse" data-target="#advanced-search-field">Recherche avancée</a>
+     </div>
+     <br/>
+     <div id="advanced-search-field" class="collapse">
+          <div class="menu-search-box">
+            <h2 class="title">Dans quelle rubrique ?</h2>
+            <citation>Vous pouvez sélectionner plusieurs rubriques.</citation>
+            <div class="filter-commanuate">
+                <div class="checkbox">
+                    {# to do chec all if la commanuté si clickeked#}
+                     <label><input name="filter_type[]" type="checkbox">La communauté</label>
+                </div>
+                <div class="checkbox">
+                    <label><input name="filter_type[]" type="checkbox"
+                        value="page_chat">Chat</label>
+                </div>
+                <div class="checkbox">
+                    <label><input name="filter_type[]" type="checkbox" value="3">Forum</label>
+                </div>
+                {#<div class="checkbox">#}
+                    {#<label><input name="filter_type[]" type="checkbox"#}
+                        {#value="blog_post">Blogs</label>#}
+                {#</div>#}
+            </div>
+            {% set taxList = display_taxonomy('theme', 2) %}
+            <div class="filter-theme">
+                {% for item in taxList %}
+                  {% if loop.index == 1 %}
+                    <div class="{% if loop.index == 1 %} theme-root {% endif %}checkbox">
+                      <label><input  name="filter_theme[]" type="checkbox" value="{{ item.tid }}">{{ item.name | capitalize }}</label>
+                    </div>
+                    <div class="lemag-title-box">
+                      <h2 class="title">Quel(s) type(s) de rubrique Mag' ?</h2>
+                      <citation>Décochez les cases que vous ne souhaitez pas voir.</citation>
+                    </div>
+                  {% else %}
+                    <div class="checkbox">
+                      <label><input  name="filter_theme[]" type="checkbox" value="{{ item.tid }}">{{ item.name | capitalize }}</label>
+                    </div>
+                  {% endif %}
+                {% endfor %}
+            </div>
+        </div>
+
+        <div class="menu-search-box msb_type" style="display: none;">
+            <h2 class="title">Quel(s) type(s) de contenu Mag' ?</h2>
+            <citation>Décochez les cases que vous ne souhaitez pas voir.</citation>
+            {% set taxList = display_taxonomy('tag_transverse_format') %}
+            {% for item in taxList %}
+            <div class="checkbox">
+                <label><input name="filter_format[]" type="checkbox"
+                    value="{{ item.tid }}">
+                {{ item.name | capitalize }}</label>
+            </div>
+            {% endfor %}
+        </div>
+       <div class="clearfix">
+         <button type="submit" class="btn btn-lg btn-secondary dublicate">Rechercher</button>
+       </div>
+  </div>
+</form>
+{% endmacro %}
+{# Simple input search box without form & submit button #}
+{% macro simple_search_box(search_query)%}
+<div class="simple-search-box">
+    <h1 class="title">Que cherchez vous ?</h1>
+    <input title="Indiquer les termes à rechercher"
+        data-drupal-selector="edit-keys" type="search" id="edit-keys--2"
+        name="query" value="{{ search_query }}" size="15" maxlength="128" class="form-search">
+</div>
+{% endmacro %}

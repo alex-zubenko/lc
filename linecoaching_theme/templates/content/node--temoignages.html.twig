@@ -1,0 +1,85 @@
+{# /** * @file * Theme override to display a node temoignage. */ #}
+{%
+  set classes = [
+    'node',
+    'node--type-' ~ node.bundle|clean_class,
+    node.isPromoted() ? 'node--promoted',
+    node.isSticky() ? 'node--sticky',
+    not node.isPublished() ? 'node--unpublished',
+    view_mode ? 'node--view-mode-' ~ view_mode|clean_class,
+  ]
+%}
+{% import "themes/custom/linecoaching_theme/templates/macro/node-taxonomy-macro.html.twig" as display %}
+{% set title = node.getTitle()|capitalize %}
+<article {{ attributes.addClass(classes) }}>
+    {{ title_prefix }}
+    <h1>{{node.body.value | strip_tags_allow_entity | raw}} </h1>
+    {{ title_suffix}}
+    {{ display.widgets(false, false, false, false, true) }}
+    <div {{ content_attributes.addClass('node__content') }}>
+        <div class="image" style="background-image:url({{ file_url(node.field_image.entity.fileuri) }})">
+        </div>
+        <div class="introduction">
+            {{node.field_introduction.value|raw }}
+        </div>
+        {% if node.field_declic.value  %}
+        <div class="question title">Pourquoi Linecoaching?</div>
+        <div class="reponse text">
+            <span class="person">{{ title }}:</span>
+            {{node.field_declic.value |raw}}
+        </div>
+        {% endif %}
+        {% if node.field_methode.value  %}
+        <div class="question title">En quoi cette méthode est-elle
+            différente ?</div>
+        <div class="reponse text">
+            <span class="person">{{ title }}:</span>
+            {{node.field_methode.value |raw}}
+        </div>
+        {% endif %}
+        {% if node.field_impression.value %}
+        <div class="question title">Quelles sont vos impressions sur le
+            parcours de Linecoaching ?</div>
+        <div class="reponse text">
+            <span class="person">{{ title }}:</span>
+            {{node.field_impression.value |raw}}
+        </div>
+        {% endif %}
+        {% if node.field_interaction.value %}
+        <div class="question title">Vos interactions avec la communauté
+            ?</div>
+        <div class="reponse text">
+            <span class="person">{{ title }}:</span>
+            {{node.field_interaction.value |raw}}
+        </div>
+        {% endif %}
+        {% if node.field_outils.value %}
+        <div class="question title">Votre outil favori ?</div>
+        <div class="reponse text">
+            <span class="person">{{ title }}:</span>
+            {{node.field_outils.value |raw }}
+        </div>
+        {% endif %}
+        {% if node.field_outils.value %}
+        <div class="question title">Votre défi préféré ?</div>
+        <div class="reponse text">
+            <span class="person">{{ title }}:</span>
+            {{node.field_defis.value |raw}}
+        </div>
+        {% endif %}
+    </div>
+</article>
+{{ display.widgets(content.field_rating, node.id(), null, author_name) }}
+<section class="autre-temoignage">
+    {% set blockContent = drupal_view_with_title('temoignage', 'block_2') %}
+    <h2>
+        {{ blockContent.title }}
+    </h2>
+    {{ blockContent.content }}
+    <div class="pricing_btn">
+        <a class="btn" href="/maigrir/la-communaute/temoignages">Voir tous les témoignages</a>
+    </div>
+</section>
+<div class="alert alert-info" role="alert">
+   Les témoignages présentés sont des expériences individuelles. Comme pour tout programme de rééquilibrage alimentaire, les résultats qui peuvent être obtenus varient notamment en fonction des caractéristiques génétique, constitutionnelle, et d'historique pondéral de chacun.
+</div>

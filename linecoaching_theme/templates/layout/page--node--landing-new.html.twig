@@ -1,0 +1,372 @@
+{#
+/**
+ * @file
+ * Default theme implementation to display a single page.
+ *
+ * The doctype, html, head and body tags are not in this template. Instead they
+ * can be found in the html.html.twig template in this directory.
+ *
+ * Available variables:
+ *
+ * General utility variables:
+ * - base_path: The base URL path of the Drupal installation. Will usually be
+ *   "/" unless you have installed Drupal in a sub-directory.
+ * - is_front: A flag indicating if the current page is the front page.
+ * - logged_in: A flag indicating if the user is registered and signed in.
+ * - is_admin: A flag indicating if the user has permission to access
+ *   administration pages.
+ *
+ * Site identity:
+ * - front_page: The URL of the front page. Use this instead of base_path when
+ *   linking to the front page. This includes the language domain or prefix.
+ * - logo: The url of the logo image, as defined in theme settings.
+ * - site_name: The name of the site. This is empty when displaying the site
+ *   name has been disabled in the theme settings.
+ * - site_slogan: The slogan of the site. This is empty when displaying the site
+ *   slogan has been disabled in theme settings.
+ *
+ * Page content (in order of occurrence in the default page.html.twig):
+ * - messages: Status and error messages. Should be displayed prominently.
+ * - node: Fully loaded node, if there is an automatically-loaded node
+ *   associated with the page and the node ID is the second argument in the
+ *   page's path (e.g. node/12345 and node/12345/revisions, but not
+ *   comment/reply/12345).
+ *
+ * Regions:
+ * - page.header: Items for the header region.
+ * - page.navigation: Items for the Navigation region.
+ * - page.page_title: Used by Current page Title.
+ * - page.banner: Items for the banner region.
+ * - page.highlighted: Items for the highlighted top  region.
+ * - page.content_top: The main content top of the current page.
+ * - page.help: Item for the help region.
+ * - page.breadcrumb: Item for the Breadcrumb region.
+ * - page.content: The main content of the current page.
+ * - page.sidebar_first: Items for the first sidebar.
+ * - page.sidebar_second: Items for the second sidebar.
+ * - page.content_bottom: Items for the bottom in content region.
+ * - page.footer_top: Items for the footer top region.
+ * - page.footer_first: Items for the footer first region.
+ * - page.footer_second: Items for the footer Second region.
+ * - page.footer_third: Items for the footer third region.
+ * - page.footer_bottom: Items for the footer bottom region.
+ *
+ * @see template_preprocess_page()
+ * @see html.html.twig
+ *
+ * @ingroup themeable
+ */
+#}
+{{ attach_library('linecoaching_theme/homepage-styling') }}
+{{ attach_library('linecoaching_theme/aos') }}
+{{ attach_library('linecoaching_theme/jquery-visible') }}
+
+<!-- Header and Navbar -->
+<header id="main-header" class="main-header">
+  <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#main-navigation">
+    <span></span>
+    <!-- <span class="sr-only">Toggle navigation</span>
+    <span class="icon-bar"></span>
+    <span class="icon-bar"></span>
+    <span class="icon-bar"></span> -->
+  </button>
+  {% if show_social_icon or page.search or page.user_menu %}
+    <div class="row topnav-wrap">
+      <div class="container">
+        <div class="row">
+          {% if show_social_icon %}
+            <div class="col-sm-4 col-md-4">
+              <div class="social-media">
+                {% if facebook_url %}
+                  <a href="{{ facebook_url }}"  class="facebook" target="_blank" ><i class="fa fa-facebook"></i></a>
+                {% endif %}
+                {% if google_plus_url %}
+                  <a href="{{ google_plus_url }}"  class="google-plus" target="_blank" ><i class="fa fa-google-plus"></i></a>
+                {% endif %}
+                {% if twitter_url %}
+                  <a href="{{ twitter_url }}" class="twitter" target="_blank" ><i class="fa fa-twitter"></i></a>
+                {% endif %}
+                {% if linkedin_url %}
+                  <a href="{{ linkedin_url }}" class="linkedin" target="_blank"><i class="fa fa-linkedin"></i></a>
+                {% endif %}
+                {% if pinterest_url %}
+                  <a href="{{ pinterest_url }}" class="pinterest" target="_blank" ><i class="fa fa-pinterest"></i></a>
+                {% endif %}
+                {% if rss_url %}
+                  <a href="{{ rss_url }}" class="rss" target="_blank" ><i class="fa fa-rss"></i></a>
+                {% endif %}
+              </div>
+            </div>
+          {% endif %}
+          {% if page.search or page.user_menu %}
+            <div class="col-sm-8 col-md-8 top-user-menu">
+
+              <div class="icons_log_user">
+                {% if  logged_in %}
+                  <div class="menu-item mon-compte">
+                    <a href="#" data-drupal-link-system-path="user">Mon compte</a>
+
+                    <ul class="dropdown-menu">
+                      <li><a href="{{ path('mtc_core.subscriber.home.program')}}" title="Mon espace personel" >Mon espace personnel</a></li>
+                      <li><a href="{{ path('mtc_core.user.receivedMessages', {'user': user.id()} )}}" title="Mon Compte">Ma messagerie</a></li>
+                      <li><a href="{{ path('mtc_core.subscription.profile') }}" title="Mon Compte">Mon Compte</a></li>
+                      <li><a href="{{ path('user.logout.http') }}" title="Se déconnecter">Se déconnecter</a></li>
+                    </ul>
+                  </div>
+                {% else %}
+                  <div class="menu-item user-login se-connecter">
+                      <a nohref class="mtc-login" data-target="#MtcLoginModal" data-backdrop="true" data-toggle="modal" data-date="{{ 'now' | date('YmdHis') }}">Se connecter</a>
+                  </div>
+                {% endif %}
+              </div>
+
+              <ul class="list-inline">
+                {% if not logged_in %}
+                  <div class="region-user-menu">
+                    <li class="menu-item hp-bilan-gratuit-cta"><a title="Bilan Gratuit" href="{{ bilan_site }}">Bilan Gratuit</a></li>
+                  </div>
+                {% endif %}
+                {% if page.user_menu %}
+                  <li>{{ page.user_menu }}</li>
+                {% endif %}
+                {% if page.search %}
+                  <li>{{ page.search }}</li>
+                {% endif %}
+              </ul>
+            </div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  {% endif %}
+
+  <div class="nav-hr hidden-sm"></div>
+  <nav class="navbar navbar-default" role="navigation">
+    <div class="container">
+      <div class="row">
+        <div class="navbar-header col-md-3">
+          <div class="region region-header">
+            <div class="brand logo">
+              <a href="/" title="Maigrir sans régime avec Linecoaching" rel="home" class="site-branding__logo">
+                <img src="{{ site_logo }}" alt="Maigrir sans régime avec Linecoaching">
+              </a>
+              {% if logo_partner %}
+                <span class="logo-separator">En partenariat avec</span>
+                <a href="/" title="Maigrir sans régime avec Linecoaching" rel="home" class="partner-logo site-branding__logo">
+                  <img src="{{ logo_partner }}" alt="Maigrir sans régime avec Linecoaching">
+                </a>
+              {% endif %}
+            </div>
+            <div class="brand site-name">
+              <div class="site-branding__name">
+                <a href="/" title="Accueil" rel="home">Linecoaching</a>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Navigation -->
+        <div class="col-md-9">
+          {% if page.primary_menu %}
+            {{ page.primary_menu }}
+          {% endif %}
+        </div>
+        <!--End Navigation -->
+
+      </div>
+    </div>
+  </nav>
+
+</header>
+<!--End Header & Navbar -->
+
+{# top of page anchor #}
+<a id="top"></a>
+
+<!--showcase-->
+<div class="showcase-wrap dublicate" style="display: none">
+  {{ drupal_block('views_block__frontpage_blocks_block_7') }}
+</div>
+{% if page.showcase or page.showcase_footer %}
+  <div class="showcase-wrap">
+    <div class="row">
+      <div class="col-md-12">
+        {{ page.showcase }}
+      </div>
+    </div>
+  </div>
+  {# vertical scrollbar navigation #}
+  <div data-spy="affix" data-offset-top="100" id="dotNav" class="pull-right">
+    <ul>
+      {% if page.showcase.promesseduprogramme %}<li title="Accueil"><a href="#accueil"></a></li>{% endif %}
+      {% if page.showcase.views_block__frontpage_blocks_block_7 %}<li title="Promesse du programme"><a href="#programme"></a></li>{% endif %}
+      {% if page.showcase.views_block__frontpage_blocks_block_1 %}<li title="Les benefices"><a href="#les-benefices"></a></li>{% endif %}
+      {% if page.showcase.views_block__frontpage_blocks_block_2 %}<li title="La methode"><a href="#la-methode"></a></li>{% endif %}
+      {% if page.showcase.views_block__frontpage_blocks_block_3 %}<li title="Comment ça marche"><a href="#comment-ça-marche"></a></li>{% endif %}
+      {% if page.showcase.views_block__frontpage_blocks_block_4 %}<li title="Quel est votre profil?"><a href="#profil"></a></li>{% endif %}
+      {% if page.testimonials.views_block__temoignage_block_1 %}<li title="Témoignages"><a href="#temoignages"></a></li>{% endif %}
+      {% if page.showcase_footer.views_block__frontpage_blocks_block_5 %} <li title="La presse"><a href="#media"></a></li>{% endif %}
+    </ul>
+  </div>
+{% endif %}
+<!--End showcase-->
+
+<!--showcase_footer-->
+{% if page.showcase_footer %}
+  <div class="showcase-wrap showcase-footer duplicated" style="display: none;">
+    <div class="front container">
+      <div class="row">
+        <div class="col-md-12">
+          {{ page.showcase_footer }}
+        </div>
+      </div>
+    </div>
+  </div>
+{% endif %}
+<!--End showcase_footer-->
+
+<!-- Start priceIntroduction -->
+{% if page.price_introduction %}
+  <div id="prix" class="anchor"></div>
+  <section id="price_introduction" class="price_introduction_text hp-nav">
+    <div class="front container">
+      <div class="row">
+        <div class="col-md-12">
+          <div class="region region-price-introduction">
+            <div data-contextual-id="block:block=nosformulesadapteesavosbesoinslandingpage:langcode=fr|block_content:block_content=27:changed=1496221344&amp;langcode=fr" class="contextual" role="form"><button class="trigger visually-hidden focusable" type="button" aria-pressed="false">options de configuration Ouvert </button>
+              <ul class="contextual-links" hidden=""><li class="block-configure"><a href="/admin/structure/block/manage/nosformulesadapteesavosbesoinslandingpage?destination=node/26131">Configurer le bloc</a></li><li class="block-contentblock-edit"><a href="/block/27?destination=node/26131">Modifier</a></li></ul>
+            </div>
+            <div data-quickedit-field-id="block_content/27/body/fr/full"><h2>{{ price_title }}</h2>
+              <div class="row three-col">
+                <div class="col-md-4 col-1">
+                  <p>{{ price_left }}</p>
+                </div>
+                <div class="col-md-4 col-2">
+                  <p>
+                    <img alt="icon promo" height="160" src="/sites/default/files/inline-images/icon_promo_1.png" width="160">
+                  </p>
+                </div>
+                <div class="col-md-4 col-3">
+                  <p><small>{{ price_right_small }}</small><br><strong>{{ price_right }}</strong></p>
+                </div>
+              </div>
+              <div class="pricing_btn"><a class="btn" href="{{ price_url_button }}">{{ price_title_button }}</a></div>
+              <p>&nbsp;</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+{% endif %}
+<!-- End priceIntroduction -->
+
+<!--- Start testimonials -->
+{% if page.testimonials%}
+  <div id="temoignages" class="anchor"></div>
+  <div class="testimonials-wrap widget-group">
+    <h2{{ title_attributes }}>Leurs expériences</h2>
+    <div class="container">
+      <div class="row testimonials-carousel">
+        <div class="col-md-12 carousel-inner">
+          {{ page.testimonials }}
+        </div>
+      </div>
+    </div>
+  </div>
+{% endif %}
+<a class="anchor-arrow" href="#prix"><span class="glyphicon glyphicon-arrow-down"></span></a>
+<!---End testimonials -->
+<div></div>
+<!--showcase_footer-->
+{% if page.showcase_footer %}
+  <div class="showcase-wrap showcase-footer">
+    <div class="front container">
+      <div class="row">
+        <div class="col-md-12">
+          {{ page.showcase_footer }}
+        </div>
+      </div>
+    </div>
+  </div>
+{% endif %}
+<!--End showcase_footer-->
+
+<!--- Start media -->
+{% if page.media %}
+  <div class="media-widgets">
+    {{ page.media }}
+  </div>
+{% endif %}
+<!---End media -->
+
+<!-- start: Footer -->
+{% if page.footer_first or page.footer_second or page.footer_third %}
+  <div class="footerwidget widget-group">
+    <div class="container">
+
+      <div class="row">
+
+        <!-- Start Footer First Region -->
+        <div class = {{ footer_class }}>
+          {% if page.footer_first %}
+            {{ page.footer_first }}
+          {% endif %}
+        </div>
+        <!-- End Footer First Region -->
+
+        <!-- Start Footer Second Region -->
+        <div class = {{ footer_class }}>
+          {% if page.footer_second %}
+            {{ page.footer_second }}
+          {% endif %}
+        </div>
+        <!-- End Footer Second Region -->
+
+        <!-- Start Footer third Region -->
+        <div class = {{ footer_third_class }}>
+          {% if page.footer_third %}
+            {{ page.footer_third }}
+          {% endif %}
+        </div>
+        <!-- End Footer Third Region -->
+      </div>
+    </div>
+  </div>
+{% endif %}
+<!--End Footer -->
+<div id="topnav"><a class="topnavhref" href="#top">Haut de page&nbsp;</a></div>
+
+<!-- Start Footer Menu -->
+{% if page.footer_menu %}
+  <div class="footer-menu">
+    <div class="container">
+      <div class="row">
+        <div class="col-md-12">
+          {{ page.footer_menu }}
+        </div>
+      </div>
+    </div>
+  </div>
+{% endif %}
+<!-- End Footer Menu -->
+
+<div class="nav-hr hidden-sm"></div>
+<div class="copyright">
+  <div class="container">
+    <div class="row">
+      <!-- Copyright -->
+      <div class="col-sm-6 col-md-6">
+        <p>© 2011-{{ "now"|date("Y") }} Meta-Coaching. Tous droits réservés</p>
+      </div>
+      <!-- End Copyright -->
+      <!-- Credit link -->
+      {% if show_credit_link %}
+        <div class="col-sm-6 col-md-6">
+        </div>
+      {% endif %}
+      <!-- End Credit link -->
+
+    </div>
+  </div>
+</div>

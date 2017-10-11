@@ -1,0 +1,786 @@
+@font-face { font-family: 'OpenSans-Light';
+    src: url('fonts/OpenSans-Light.eot');
+    src: url('fonts/OpenSans-Light.eot?#iefix') format('embedded-opentype'),
+         url('fonts/OpenSans-Light.woff') format('woff'),
+         url('fonts/OpenSans-Light.ttf') format('truetype'),
+         url('fonts/OpenSans-Light.svg#OpenSans-Light') format('svg');
+}
+.mtc-amount {
+    font-family:OpenSans-Light !important; /*, arial;*/
+}
+
+.mtc-remind-order {
+    color: #3498db !important;
+}
+#DOB-error {
+    margin-left: 200px;
+}
+.info_finaliser {
+    font-size:1.4rem;
+}
+.abonnement_ps_rappel_commande {
+/*
+    margin-left:10px;
+*/
+}
+#customer_info .pull-right {
+    margin-right:20px;
+}
+
+#subscribe_form {
+    margin-top:10px;
+}
+/*
+#form_customer_info .form-group,
+.format_form_customer_informations .form-group,
+.format_form_customer_informations .form-group.has-error {
+    margin-bottom:0px;
+}
+*/
+.row-fluid > div.span3 {
+    position:absolute;
+}
+
+.offer_message {
+    background-color: #fcd3d7;
+    color: #f00;
+    display: none;
+    font-weight: bold;
+    margin-bottom: 20px;
+    padding: 10px;
+    text-align: center;
+}
+.clear {
+    clear: both;
+}
+p.resume span:not(.orange) {
+    min-width:190px;
+    display:inline-block;
+}
+
+.failed {
+    background-color: #faebe7;
+    border: 1px solid #f00;
+    color: #f00;
+}
+.payment_message {
+    font-weight: bold;
+    margin-bottom: 10px;
+    padding: 10px 5px;
+    text-align: center;
+    margin-top:10px;
+}
+
+.row-fluid h1, .row-fluid h2 {
+   padding-bottom:5px;
+   line-height:30px;
+}
+
+.required_info_bottom i,
+.control-label i {
+    color:#990000;
+    font-style:normal;
+    font-size:1.6rem;
+}
+
+.help-block {
+    clear: both;
+    margin: 5px 0 0 5px;
+    width: 250px;
+}
+
+#top-footer ul {
+    margin:0;
+}
+#discountCode {
+    margin-bottom: 5px;
+}
+
+.row {
+/*
+    margin-bottom: 15px;
+*/
+}
+
+.row-fluid [class*="span"] {
+    box-sizing: border-box;
+    display: block;
+    float: left;
+/*
+    margin-left: 2.5641%;
+*/
+    min-height: 30px;
+/*
+    width: 100%;
+*/
+}
+.mtc-wspt-payment .row-fluid [class*="span"] {
+    float:none !important;
+}
+
+.row-fluid .span3 {
+    width: 23.0769%;
+}
+
+#next, #engagement {
+/*
+    float: right;
+*/
+}
+.je_m_abonne {
+    font-size: 13px;
+    font-weight: normal;
+    line-height: 20px;
+    margin: 0 auto;
+    text-align: center;
+    width: 248px;
+}
+.je_m_abonne .bt_suivant {
+    font-size: 17px;
+    font-weight: bold;
+    height: 45px;
+    width: 248px;
+}
+.offer_checkbox .bt_selection, .bt_suivant, .bt_demarrage, .bt_valid_payment, .bt_valid_dc, .bt_valid_payment {
+    background: rgba(0, 0, 0, 0) linear-gradient(#3498db, #005e9e) repeat scroll 0 0;
+    border: 0px solid #a3a0a0;
+    border-radius:4px;
+    color: #fff;
+    padding: 5px 10px;
+    text-transform: uppercase;
+}
+
+.form-control-feedback {
+    display: block;
+    height: 15px;
+    line-height: 15px;
+    pointer-events: none;
+    position: absolute;
+    right: 0;
+    text-align: center;
+    top: 0;
+    width: 15px;
+    z-index: 2;
+}
+.relative {
+    position: relative;
+}
+.mtc-form-glyphicon-position {
+    left:440px !important;
+    top:8px !important;
+    position:absolute !important;
+}
+.mtc-form-glyphicon-position-card {
+    left: 440px !important;
+    position: absolute !important;
+    top: 8px !important;
+}
+.mtc-form-glyphicon-position-cvv {
+    left: 301px !important;
+    position: absolute !important;
+    top: 8px !important;
+}
+.icon-ok {
+    color:#3c763d !important;
+}
+.input-ok {
+    background: #d2e7d3 none repeat scroll 0 0 !important;
+}
+.input-failed {
+    background: #fcd3d7 none repeat scroll 0 0 !important;
+}
+.error_message {
+    color: #ff0000;
+    font-weight: bold;
+}
+.icon-remove {
+    color: #ff0000;
+}
+.control-label {
+    color: #333333 !important;
+}
+.mtc-form-glyphicon-color {
+    color: #3c763d;
+}
+#ajax-loader-page, #ajax-loader, #ajax-loader-discount {
+    display: none;
+}
+.abonnement_block {
+    margin-top: 15px;
+}
+.abonnement_discount_code_input {
+    display: none;
+}
+.abonnement_offers h1, .abonnement_ps_rappel_commande h1, .abonnement_ps_pref_paiement h1, .abonnement_ps_pb h1 {
+    font-size: 2.0rem !important;
+    
+/*
+    text-transform: uppercase;
+*/
+    margin:0
+}
+.abonnement_offers h1:first-letter, .abonnement_ps_rappel_commande h1:first-letter, .abonnement_ps_pref_paiement h1:first-letter, .abonnement_ps_pb h1:first-letter {
+    text-transform: uppercase
+}
+.abonnement_form_customer_informations h2, .abonnement_ps_rappel_commande h2, .abonnement_ps_pref_paiement h2, .abonnement_ps_pb h2 {
+/*
+    font-size: 1.4rem;
+*/
+/*
+    text-transform: uppercase;
+*/
+}
+.abonnement_form_customer_informations button {
+    display: block;
+    width: 150px;
+}
+.format_form_customer_informations {
+    margin: 15px 10px 0 35%;
+/*
+    width: 60%;
+*/
+}
+.abonnement_form_customer_informations
+.format_form_customer_informations {
+    width: 90%;
+    margin: 15px auto 0;
+}
+/*
+.format_form_customer_informations {
+    clear: both;
+    margin: 15px auto 0;
+    width: 530px;
+}
+*/
+.format_form_customer_informations .deja_inscrit {
+    display: none;
+}
+/*.format_form_customer_informations .control-label, */
+.form-inline .form-control {
+    display:inline-block;
+}
+.format_form_customer_informatiomns input {
+    border-radius: 0;
+    margin-bottom: 5px;
+    width: 275px !important;
+}
+.format_form_customer_paybox input {
+/*
+    border-radius: 0;
+*/
+    margin-bottom: 5px;
+    width: 220px !important;
+}
+.format_form_customer_informations select {
+    border-radius: 4;
+    margin-right: 5px;
+}
+.format_form_customer_informations .day_input {
+    width: 70px;
+}
+.format_form_customer_informations .month_input {
+    width: 70px;
+}
+.format_form_customer_informations .year_input {
+    width: 80px;
+}
+.format_form_customer_informations .sex_select {
+    width: 70px;
+}
+.format_form_customer_informations label, .format_form_customer_paybox label {
+    display: block;
+    float: left;
+    padding-right: 10px;
+    text-align: right;
+/*
+    width: 200px;
+*/
+}
+.format_form_customer_informations input, .format_form_customer_paybox input {
+    float: left;
+    width: 235px;
+}
+.abonnement_ps_pb.format_form_customer_paybox h6.info_finaliser {
+    color: #ff0000;
+    text-align: center;
+}
+.mtc-ws-step-ctnr {
+    margin: 0 auto;
+    max-width: 700px;
+}
+.wsoffers-head {
+    margin-bottom:20px;
+}
+@media screen and (max-width: 1600px) {
+    .mtc-ws-step-ctnr {
+        margin: 0 auto;
+        max-width: 700px;
+    }
+}
+@media screen and (max-width: 1200px) {
+    .mtc-ws-step-ctnr {
+        margin: 0 auto;
+        max-width: 700px;
+    }
+    .mtc-ws-step-ctnr .col-sm-12,
+    .mtc-ws-step-ctnr .col-lg-12 {
+        padding-left:0;
+        padding-right:0;
+    }
+    .mtc-ws-step-ctnr .row {
+        margin-right: -45px;
+    }
+    .mtc-ws-step-ctnr .form-horizontal .form-group {
+        margin-right: -50px;
+    }
+    .col-md-4 {
+        width: 33.3% !important;
+    }
+}
+@media screen and (max-width: 800px) {
+    .mtc-ws-step-ctnr .row {
+        margin-right: -15px;
+    }
+    .mtc-ws-step-ctnr .form-horizontal .form-group {
+        margin-left: -15px;
+        margin-right: -15px;
+    }
+    .col-md-4 {
+/*
+        width: 100% !important;
+*/
+        display:block !important;
+    }
+    .mtc-ws-step-ctnr {
+        margin:auto !important;
+    }
+}
+@media screen and (max-width: 675px) {
+    .col-md-4 {
+        width: 100% !important;
+        display:block !important;
+    }
+}
+@media screen and (max-width: 979px) {
+.format_form_customer_informations input, .format_form_customer_paybox input {
+    width: 210px;
+}
+.mtc-form-glyphicon-position {
+    left: 420px;
+}
+}
+.abonnement_form_customer_informations label.declaration {
+    display: block;
+    padding-left: 20px;
+    text-align: justify;
+    text-indent: -20px;
+}
+.rappel_commande {
+    background-color: #ECF0F1;
+    border: 1px solid #ECF0F1;
+    color: #3498db;
+    padding: 5px 10px;
+    position: relative;
+}
+.rappel_commande_libelle {
+    display: inline-block;
+}
+.rappel_commande_price {
+    display: inline-block;
+    vertical-align: middle;
+}
+.border_logo_visa_mastercard {
+    border: 4px solid #e2eaf7;
+}
+.logo_visa_mastercard {
+    background: #e2eaf7 none repeat scroll 0 0;
+    display: inline-block;
+    float: right;
+    padding: 0 20px;
+    text-align: center;
+    vertical-align: middle;
+    width: 70px;
+}
+.logo_visa_mastercard img {
+    background-color: #e2eaf7;
+    bottom: 0;
+    margin: auto;
+    position: absolute;
+    right: 0;
+    top: 0;
+}
+.logo_cb {
+    display:none;
+    left: 7%;
+    position: absolute;
+    top: 30px;
+}
+.payment_form {
+    margin: 0 auto;
+    width: 510px;
+}
+.logo_paybox {
+    display:none;
+    position: absolute;
+    right: 4%;
+    top: 55px;
+}
+.logo_responsive {
+    display: none;
+    text-align: center;
+}
+.block_padding {
+    padding: 6px;
+}
+.chosen_offer {
+    font-weight: bold;
+}
+.total_libelle {
+    font-size: 15px;
+    font-weight: bold;
+    text-transform: uppercase;
+}
+.total_price {
+    font-size: 15px;
+    font-weight: bold;
+    text-transform: uppercase;
+}
+.rappel_price_container {
+    display: inline;
+    height: 100%;
+    position: absolute;
+    right: 10px;
+    text-align: right;
+    top: 0;
+    width: 100%;
+}
+.rappel_price_container .total_price {
+    font-size: 40px;
+}
+.vertical {
+    display: inline-block;
+    height: 100%;
+    vertical-align: middle;
+    width: 1px;
+}
+.abo_lien {
+    color: #674eac;
+    font-weight: bold;
+    text-decoration: underline;
+}
+.abo_formule_recommandee {
+    border: 2px solid #42bf48;
+    border-radius: 10px;
+    color: #42bf48;
+    font-weight: bold;
+    margin: 10px auto 0;
+    padding: 3px 0;
+    text-transform: uppercase;
+    width: 150px;
+}
+.shadow {
+    box-shadow: 1px 1px 8px #888;
+}
+.legal_mentions {
+    font-size: 10px;
+    padding-top: 40px;
+    text-align: justify;
+}
+#fa_num_etranger {
+    margin-left: 10px;
+    width: 30px !important;
+}
+.num_etranger {
+    width: 275px !important;
+    text-align: left !important;
+}
+.radio {
+    background: #f6f6f6 none repeat scroll 0 0;
+    border: 1px solid #ccc;
+    padding-left: 30px;
+}
+.expiration_date {
+    display: inline;
+    margin-left: 15px;
+}
+.expiration select[name="month"] {
+    width: 80px;
+}
+.expiration select[name="year"] {
+    width: 120px;
+}
+.cvv input[name="cvv"] {
+    width: 80px !important;
+}
+.do_not_modify_text {
+    line-height: 32px;
+}
+.required_info_top {
+    display: none;
+}
+.required_info_bottom {
+    font-style: italic;
+    margin-bottom: 15px;
+    text-align: right;
+    margin-right: 25px;
+}
+.secured_payment {
+    background: #fff none repeat scroll 0 0;
+    max-width: 470px;
+    position: relative;
+}
+.secured_payment_desc {
+    max-width: 300px;
+}
+.payment_pref {
+    line-height: 30px;
+}
+.bt_back_to_offers {
+    display: block;
+}
+.label-indication-pwd {
+    max-width:235px;
+}
+.label-indication-pwd, .label-indication-pwd-responsive {
+    clear: both;
+    color: #666;
+    font-size: 12px;
+    font-style: italic;
+/*
+    margin-left: 112px;
+*/
+}
+.label-indication-pwd-responsive {
+    display: none;
+    margin-left: 0;
+}
+.has-success .form-control {
+    border-color: #ccc;
+}
+.info-block {
+    color: #ff6c00;
+}
+@media screen and (max-width: 767px) {
+.promo_margin {
+    margin-top: 75px !important;
+}
+.abo_offer {
+    margin: 0 0 55px;
+}
+.abo_offer_block_header {
+    height: 40px;
+}
+.abo_offer_block {
+    height: auto;
+}
+.mobile-price {
+    display: block;
+    line-height: 17px;
+    position: absolute;
+    right: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+}
+.abo_offer_block .offer_name {
+    margin-left: 15px;
+    text-align: left;
+}
+.abo_offer_details {
+    display: block;
+    padding: 10px 10px 0;
+}
+.collapse-btn {
+    float: right;
+}
+.see_details {
+    cursor: pointer;
+    float: left;
+    font-weight: bold;
+}
+.offer_checkbox {
+    bottom: initial;
+    padding: 10px 0;
+    position: relative;
+}
+.abo_offer_block .collapse {
+    overflow: hidden !important;
+}
+.abo_offer_block {
+    border-left: 1px solid #999 !important;
+}
+.selected_offer {
+    border: 4px solid #3498db !important;
+}
+.rappel_commande_libelle {
+    float: none;
+}
+.total_libelle {
+    float: none;
+    font-size: 15px;
+    font-weight: bold;
+    text-transform: uppercase;
+}
+.required_info_top {
+    display: initial;
+    font-style: italic;
+    text-align: left;
+}
+.required_info_bottom {
+    display: none;
+}
+.bt_back_to_offers {
+    display: none;
+}
+.payment_form {
+    margin: 0 auto;
+    width: auto;
+}
+.abonnement_form_customer_informations,
+.format_form_customer_informations {
+    width: 90%;
+    margin: 15px auto 0;
+}
+.format_form_customer_informations label, .format_form_customer_paybox label {
+    text-align:left;
+    width:100%;
+}
+.rappel_price_container {
+    display: inline;
+    height: auto;
+    right: auto;
+    position: relative;
+    text-align: center;
+    top: 0;
+    width: 100%;
+}
+.total_price {
+    display: block;
+    float: none;
+    margin-top:-10px;
+}
+}
+@media screen and (min-width: 768px) and (max-width: 979px) {
+.mobile-price {
+    display: none;
+}
+}
+@media screen and (min-width: 768px) and (max-width: 1024px) {
+.abo_offer:nth-child(3) .abo_offer_block {
+    border-left: 1px solid #999;
+}
+.help-block {
+    margin-left: 225px;
+}
+}
+@media screen and (max-width: 419px) {
+.rappel_commande_price {
+    position: initial;
+    text-align: left;
+}
+}
+@media screen and (max-width: 480px) {
+.mtc-form-glyphicon-position {
+    left: 235px;
+    position: absolute;
+    top: 8px;
+}
+.mtc-form-glyphicon-position {
+    left: 200px;
+}
+.mtc-form-glyphicon-position-card {
+    left: 215px;
+    position: absolute;
+    top: 8px;
+}
+.mtc-form-glyphicon-position-cvv {
+    left: 76px;
+    position: absolute;
+    top: 8px;
+}
+.help-block {
+    clear: both;
+    margin: 5px 0 0;
+}
+.logo_visa_mastercard img {
+    background: #e2eaf7 none repeat scroll 0 0;
+    bottom: 0;
+    margin: auto;
+    padding: 23px 4px 15px 7px;
+    position: absolute;
+    right: 0;
+    top: 0;
+}
+.block_padding {
+    padding: 10px;
+    width: 215px;
+}
+.expiration_date {
+    display: block;
+}
+.label-indication-pwd {
+    display: none;
+}
+.label-indication-pwd-responsive {
+    display: block;
+}
+.emptyLabel {
+    display: none !important;
+}
+#fa_num_etranger {
+    margin: 2px 5px 0 0;
+    text-align: left;
+    width: 10px !important;
+}
+.num_etranger {
+    text-align: left !important;
+}
+.format_form_customer_informations {
+    clear: both;
+    margin: 15px auto 0;
+    width: auto;
+}
+.abonnement_form_customer_informations
+.format_form_customer_informations {
+    width: 100%;
+    margin: 15px auto 0;
+}
+.format_form_customer_informations label, .format_form_customer_paybox label {
+    text-align:left;
+    width:100%;
+}
+}
+
+.form-inline .control-label {
+    padding-right:30px;
+}
+
+div.mtc-start-prog {
+    text-align:center; padding:20px;
+}
+
+.mtc-start-prog .btn {
+    border: 1px solid #ff0055 !important;
+    color:#ff0055 !important
+}
+.mtc-start-prog .btn:hover {
+    background-color: #ff0055 !important;
+    color:white !important;
+}
+#order_summary {
+    width:100%;
+}
+.successfulOrder {
+    font-size:1.4rem;
+}
+.successfulOrder .resume {
+    font-size:1.4rem;
+}
+.successfulOrder .orange {
+    color:#3498db;
+    font-weight:bold;
+}
+
+.cga-accept {
+    display:block;
+    padding:10px; font-size:1.4rem; text-align:center;
+}

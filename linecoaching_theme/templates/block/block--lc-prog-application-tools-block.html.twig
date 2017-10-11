@@ -1,0 +1,172 @@
+{{  attach_library('linecoaching_theme/prog-d6-styling') }}
+{% set toolsList = content.svtData.svtToolsCategoryList %}
+<div class="lc-prog-application panel-panel panel-col-first">
+   <div class="inside">
+      <div class="panel-pane pane-mcnavprog">
+         <div class="pane-content">
+            <div class="liensNavigation">
+               <div class="espace_perso"><a href="/accueil-client">mon espace personnel</a></div>
+               {% if content.svtData.svtAlimentaire %}
+               <div class="parcours_alimentaire"><a href="{{ content.svtData.svtAlimentaire.body.continue }}">CONTINUER <br> mon parcours alimentaire</a></div>
+               {% endif %}
+               {% if content.svtData.svtForm %}
+               <div class="parcours_forme"><a href="{{ content.svtData.svtForm.body.continue }}">CONTINUER <br> mon parcours forme</a></div>
+               {% endif %}
+            </div>
+         </div>
+      </div>
+      <div class="panel-pane pane-mcapplis">
+         <div class="pane-content">
+            <div class="blocApplication">
+               <div class="titreApplication">
+                  <span class="spanTitreApp up">Mes applications</span>
+               </div>
+               <div class="iconeApplication">
+                  <table>
+                     <tbody>
+                        <tr>
+                           <td class="imgApplication">
+                              <a href="/blog/{{ user.id() }}" title="Mon blog" class="journal">Mon blog</a>
+                           </td>
+                           <td class="imgApplication">
+                              <a href="/prog/comportement-alimentaire/mes-defis" title="Mes défis" class="defis">Mes défis</a>
+                           </td>
+                           <td class="imgApplication">
+                               <a href="{{ path('mtc_core.subscription.profile') }}" title="Mon compte" class="compte">Mon compte</a>
+                           </td>
+                        </tr>
+                        <tr>
+                           <td class="imgApplication">
+                              <a href="/forum" title="Communauté" class="communaute">Communauté</a>
+                           </td>
+                           <td class="imgApplication">
+                              <a  href="{{ path('message_private.messages', {'user': user.id()} )}}" title="Mes messages" class="message">Mes messages</a>
+                           </td>
+                           <td class="imgApplication">
+                              <a href="/prog/comportement-alimentaire/aide" title="Aide" class="aide">Aide</a>
+                           </td>
+                        </tr>
+                        <tr>
+                           <td class="imgApplication">
+                              <a href="/prog/comportement-alimentaire/comportement/bilans" title="Histo Bilan" class="bilan">Historique de Mes Bilans</a>
+                           </td>
+                           <td class="imgApplication">
+                              <a href="/prog/comportement-alimentaire/sport/index" title="Sport" class="sport">Parcours Forme</a>
+                           </td>
+                           <td class="imgApplication">
+                              <a href="/prog/comportement-alimentaire/comportement/index" title="Comportement Alimentaire" class="ca">Parcours Alimentaire</a>
+                           </td>
+                        </tr>
+                     </tbody>
+                  </table>
+               </div>
+            </div>
+         </div>
+      </div>
+      <div class="panel-pane pane-mctools">
+         <div class="pane-content">
+            <div class="blocOutils">
+               <div class="titreOutils fleche_down_tool">
+                  <span class="spanTitreOutils">Mes outils</span>
+               </div>
+               <div class="iconeOutils" style="display:none">
+                  <div class="explicationOutils">
+                     <span>Ces outils sont des optionnels et se débloquent au fil de votre progression</span>
+                  </div>
+                  <table>
+                     <tbody>
+                        <tr>
+                        <td class="outils_menu_0">
+                          <a href="/prog/comportement-alimentaire/les-outils/POU/CNT/PA" title="Carnet" class="toolCarnet">
+                            {% if toolsList[0] == 2 %}
+                               <img alt="Nouvel outil!" src="/themes/custom/linecoaching_theme/images/prog-images/newtool.png"/>
+                             {% endif %}
+                            mes carnets
+                          </a>
+                        </td>
+                        <td class="outils_menu_1">
+                          <a href="/prog/comportement-alimentaire/les-outils/POU/CA/PA" title="Comportement alimentaire" class="toolComportement">
+                            {% if toolsList[1] == 2 %}
+                                <img alt="Nouvel outil!" src="/themes/custom/linecoaching_theme/images/prog-images/newtool.png"/>
+                            {% endif %}
+                            comportement alimentaire
+                          </a>
+                        </td>
+                        <td class="outils_menu_1">
+                          <a href="/prog/comportement-alimentaire/les-outils/POU/EMO/PA" title="Emotionnel" class="toolEmotion">
+                              {% if toolsList[2] == 2 %}
+                                    <img alt="Nouvel outil!" src="/themes/custom/linecoaching_theme/images/prog-images/newtool.png"/>
+                              {% endif %}
+                            émotionnel
+                          </a>
+                        </td>
+                      </tr>
+                      <tr>
+                        <td class="outils_menu_1">
+                          <a href="/prog/comportement-alimentaire/les-outils/POU/PC/PA" title="Pleine conscience" class="toolConscience">
+                            {% if toolsList[3] == 2 %}
+                             <img alt="Nouvel outil!" src="/themes/custom/linecoaching_theme/images/prog-images/newtool.png"/>
+                           {% endif %}
+                            pleine conscience
+                          </a>
+                        </td>
+                        <td class="outils_menu_1">
+                          <a href="/prog/comportement-alimentaire/forme/seances-libres/SL1" title="Forme" class="toolForme">forme</a>
+                        </td>
+                        <td class="outils_menu_1">
+                          <a href="/prog/comportement-alimentaire/les-outils/OUT/COU/POI" title="Ma courbe de poids" class="toolCourbe">
+                            {% if toolsList[4] == 2 %}
+                              <img alt="Nouvel outil!" src="/themes/custom/linecoaching_theme/images/prog-images/newtool.png"/>' : ''; ?>
+                            {% endif %}
+                            ma courbe de poids
+                          </a>
+                        </td>
+
+                        </tr>
+                        <tr>
+                           <td class="outils_menu_1">
+                              <a href="/prog/comportement-alimentaire/les-outils/POU/MOT/PA" title="Ma motivation" class="toolMotivation">ma motivation</a>
+                           </td>
+                           <td class="outils_menu_1">
+                              <a href="/glossaire" title="Glossaire" class="toolLexique">lexique</a>
+                           </td>
+                        </tr>
+                     </tbody>
+                  </table>
+                  <div class="lienOutil">
+                     <a href="/prog/comportement-alimentaire/les-outils">plus d'info sur les outils<span style="color:#000"> &gt; </span></a>
+                  </div>
+               </div>
+            </div>
+            <div class="blocOutils">
+               <div class="titreOutils_favoris"><span>Mes outils favoris</span></div>
+               <div class="iconeOutils_favoris">
+               {%  if content.svtData.progFavouriteToolList| length > 0 %}
+                       {% for tool in content.svtData.progFavouriteToolList  %}
+                          <div class="outil_fav">
+                            <table>
+                              <tbody>
+                                <tr>
+                                  <td class="icone_image_out_fav {{ tool.codeTheme }}">
+                                    <a title="{{ tool.title }}" href="/{{ tool.url }}"><span>{{ tool.title | truncate(60)}}</span></a>
+                                  </td>
+                                </tr>
+                              </tbody>
+                            </table>
+                          </div>
+                       {% endfor %}
+               {% else %}
+               <div class="iconeOutils_favoris">
+                  <div class="blocAucunOutilFavo">
+                     <div class="textAucunOutilFavo">
+                        <span>Pour ajouter ou retirer un outil, utiliser les boutons "Ajouter à mes outils favoris" ou "Retirer de mes outils favoris" en bas à droite de la page de l'outil lui-même.</span>
+                     </div>
+                  </div>
+               </div>
+               {% endif %}
+            </div>
+         </div>
+      </div>
+   </div>
+ </div>
+</div>

@@ -1,0 +1,33 @@
+{% set data = content.response %}
+{% set highlighting = content.highlighting %}
+{% if data.docs | length == 0 %}
+    <div class="alert alert-info">
+      <b>0</b> résultat pour «<b>{{ query }}</b>»
+    </div>
+{% else %}
+  <div class="alert alert-info">
+    <b>{{ numFound }}</b> résultat pour «<b>{{ query }}</b>»
+  </div>
+{% endif %}
+{% for doc in data.docs %}
+  {% set extrait = highlighting[doc.id] %}
+   <article class="search-result">
+     {% if doc.its_fid_photo is not empty %}
+      <span class='image' style="background-image:url({{ file_url( doc.its_fid_photo | get_image_from_fid ) }})"></span>
+     {% endif %}
+     {% if doc.its_fid_image is not empty %}
+        <span class='image' style="background-image:url({{ file_url( doc.its_fid_image | get_image_from_fid ) }})"></span>
+      {% endif %}
+       <span class="count">{{ data.start + loop.index }}</span>
+       <a href="{{ doc.sm_url | first | raw }}" title="Lire la suite"><span class="title">{{ doc.ts_title | raw }}</span></a>
+       {% if doc.sens %}
+         {#<span class="extrait">{{ doc.sens | raw }}</span>#}
+         <span class="body">{{ doc.sens | truncate(350, true, true) | raw }}</span>
+       {% else %}
+         <span class="body">{{ doc.ts_body | truncate(350, true, true)}}</span>
+         {#<span class="extrait">{{ extrait.spell | join('...') | raw }}</span>#}
+       {% endif %}
+       <span class="created">{{ doc.ds_changed | date("m/d/Y") }}</span>
+       <span class="lire"><a href="{{ doc.sm_url | first | raw }}" title="Lire la suite">Lire la suite</a></span>
+   </article>
+{% endfor %}

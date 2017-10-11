@@ -1,0 +1,35 @@
+ <h1 class="title">Mes amis</h1>
+{% if content is  empty %}
+  <div class="alert alert-info">
+      Vous n'avez pas encore ajouté des amis
+  </div>
+{% else %}
+  <table class="table table-hover">
+    <thead>
+      <tr>
+        <th>Avatar</th>
+        <th>Nom</th>
+        <th>Online</th>
+        <th>Action</th>
+      </tr>
+    </thead>
+    <tbody>
+     {% for friend in content %}
+      <tr>
+        <td><img src="{{ file_url(friend.uri) }}" alt="{{ friend.name }}" /></td>
+        <td><a href="{{ path('entity.lc_user_profile_entity.canonical', {'lc_user_profile_entity': friend.uid}) }}" title="Mon profile">{{ friend.name }}</a></td>
+        <td> {% if (friend.access + 900) - friend.request_time > 0  %}
+                <div class="online"></div>
+              {% else %}
+                    <div class="offline"></div>
+             {% endif %}
+         </td>
+        <td>
+            <a href="{{ path('flag.action_link_unflag', {'flag': 'friend_list', 'entity_id':friend.uid})}}&destination=mes-amis"
+              title="Supprimer">Supprimer</a>
+         </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+{% endif %}

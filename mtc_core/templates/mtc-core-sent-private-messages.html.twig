@@ -1,0 +1,81 @@
+<h1 class="message-table">Messages envoyés</h1>
+  {{ bulk }}
+  <div class="button-message-block">
+    <a href="{{ path('mtc_core.user.receivedMessages', {'user': user.id()} )}}" class="custom-button" role="button" aria-pressed="true">Boîte de réception</a>
+    <a href="{{ path('message_private.messages.sent', {'user': user.id()}) }}"  class="custom-button active" role="button" aria-pressed="true">Messages envoyés</a>
+  </div>
+  <div class="new-message-wrapper">
+    <span class="modified-mode">Modifier</span>
+    <span class="modified-functionality">
+      <span data-value="1">Supprimer</span>
+    </span>
+    <a href="{{ path('message_ui.add_page')}}" class="new-message revert-button btn btn-primary btn-lg active" role="button" aria-pressed="true">Nouveau message</a>
+  </div>
+  {% if messages | length > 0 %}
+  <table class="table private-messsage">
+    {% if messages | length > 0 %}
+      <thead>
+      <tr>
+        <th></th>
+        <th></th>
+        <th>Destinataire</th>
+        <th>Objet</th>
+        <th>Message</th>
+        <th>Date</th>
+      </tr>
+      </thead>
+    {% endif %}
+    <tbody>
+    {%for messageForSubject in  messages %}
+      {%for messageList in  messageForSubject %}
+        {% set totalMessagesCnt = messageList.total_count %}
+        {% set messageAccordion = messageList.accordian_class %}
+        {% set newMessagesCnt = messageList.new_messages_count %}
+        {% set messages = messageList.messages %}
+        {% set author = messageList.author %}
+        {%for message in  messages %}
+          <tr {% if loop.index == 1 %}
+            {% if totalMessagesCnt > 1 %}
+              data-href='{{ path('lc.user.privateMessageConversation', {'mid':message.mid}) }}'
+            {% else %}
+              data-href='{{ path('entity.message.canonical', {'message':message.mid}) }}'
+            {% endif %}
+            class="clickable-row"
+          {% else %}
+            class="collapse message-{{ messageAccordion }} clickable-row" data-href='{{ path('entity.message.canonical', {'message':message.mid}) }}'
+            {% endif %}>
+            <td class="all_td">
+              <input type="checkbox" name="all_massages_val" id="mes{{ message.mid }}" value="{{ message.mid }}" class="form-checkbox">
+              <label for="mes{{ message.mid }}">
+                              <span>
+                              </span>
+              </label>
+            </td>
+            <td class="message-button" data-toggle="collapse" data-target=".message-{{messageAccordion }}"> {% if loop.index == 1  and totalMessagesCnt > 1 %}
+                <button class="btn btn-default btn-xs"><span class="glyphicon glyphicon-list"></span>
+                </button>
+              {% endif %}
+              {% if loop.index > 1  and totalMessagesCnt > 1 %}
+                &gt;
+              {% endif %}
+            </td>
+            <td class="message-sender"> {{ message.recipient.pseudo | trim }}</td>
+            {% if loop.index == 1  and totalMessagesCnt > 1 %}
+              <td class="message-subject"><a href="{{ path('lc.user.privateMessageConversation', {'mid':message.mid}) }}">{{ message.subject | raw | trim}}</a> </td>
+            {% else %}
+              <td class="message-subject"><a href="{{ path('entity.message.canonical', {'message':message.mid}) }}">{{ message.subject | raw | trim}}</a> </td>
+            {% endif %}
+            <td class="message-text">{{ message.body | strip_tags_allow_entity | truncate(50, true, true) | raw | trim}}</td>
+            <td class="message-date">{{ message.created | date("m/d/Y") }}</b></td>
+          </tr>
+
+        {% endfor %}
+      {% endfor %}
+    {% endfor %}
+    </tbody>
+  </table>
+{% else %}
+  <div class="no-messages">
+    {{ 'No messages' | t }}
+  </div>
+{% endif %}

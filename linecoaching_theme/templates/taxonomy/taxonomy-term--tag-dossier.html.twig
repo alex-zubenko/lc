@@ -1,0 +1,52 @@
+{# /** * @file * Theme override to display a taxonomy term. * *
+Available variables: * - url: URL of the current term. * - name: Name of
+the current term. * - content: Items for the content of the term (fields
+and description). * Use 'content' to print them all, or print a subset
+such as * 'content.description'. Use the following code to exclude the *
+printing of a given child element: * @code * {{
+content|without('description') }} * @endcode * - attributes: HTML
+attributes for the wrapper. * - page: Flag for the full page state. * -
+term: The taxonomy term entity, including: * - id: The ID of the
+taxonomy term. * - bundle: Machine name of the current vocabulary. * -
+view_mode: View mode, e.g. 'full', 'teaser', etc. * * @see
+template_preprocess_taxonomy_term() */ #}
+{%
+  set classes = [
+    'taxonomy-term-dossier',
+    'vocabulary-' ~ term.bundle|clean_class,
+  ]
+%}
+{{ attach_library('linecoaching_theme/taxonomy-article-styling') }}
+{% import "themes/custom/linecoaching_theme/templates/macro/taxonomy-macro.html.twig" as display %}
+
+<div
+    {{ attributes.setAttribute('id', 'taxonomy-term-' ~ term.id).addClass(classes) }}>
+    {% set promotedArticle = content.mainTerm.termFields.showCaseNode %}
+    {% set parentTerm = content.parentTerm %}
+    <div class="content">
+        {{ title_suffix }}
+        {% if content.mainTerm.termFields.h1Title.0.value is defined %}
+        <h1 class="title">
+            {{ content.mainTerm.termFields.h1Title.0.value }}
+        </h1>
+        {% endif %}
+        {{ title_suffix }}
+        <div class="tag_sm">
+            {{ display.social_media() }}
+        </div>
+        <span class="tag-title">{{ content.mainTerm.title}}</span>
+        {% if content.mainTerm.termFields.introText.0.value is defined %}
+        <div class="introduction-text">
+            {{ content.mainTerm.termFields.introText.0.value| raw }}
+        </div>
+        {% endif %}
+        {% if promotedArticle is not null %}
+        {{ display.promoted_article_narrow(promotedArticle) }}
+        {% endif %}
+        {{ display.list_articles(content.mainTerm.articles) }}
+        {{ content.mainTerm.pager }}
+        <div class="content-footer">
+            {{ display.social_media() }}
+        </div>
+    </div>
+</div>

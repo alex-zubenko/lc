@@ -1,0 +1,23 @@
+{# /** * @file * Theme override to display a node dossier. */ #}
+{%
+  set classes = [
+   'taxonomy-article',
+   'node--type-chat-nasteo'
+  ]
+%}
+{% import "themes/custom/linecoaching_theme/templates/macro/node-taxonomy-macro.html.twig" as display %}
+<article {{ attributes.addClass(classes) }}>
+    <h1>
+        {{ content.title }}
+    </h1>
+        <div class=" col-sm-3 article-image" style="background-image:url({{ file_url(content.photoUri) }})"></div>
+        <div class="title">
+            {{ content.body | raw }}
+        </div>
+        <div class="nasteo-iframe">
+            {{ iframe | raw }}
+        </div>
+        <div class="chat-links">
+        <a href="{{ url('view.chat_historique.page_1') }}" class="btn btn-info" >Voir l'historique des chats</a>
+        </div>
+</article>

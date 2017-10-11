@@ -1,0 +1,38 @@
+{#
+/**
+ * @file
+ * Theme override for a 'form' element.
+ *
+ * Available variables
+ * - attributes: A list of HTML attributes for the wrapper element.
+ * - children: The child elements of the form.
+ *
+ * @see template_preprocess_form()
+ */
+#}
+<form{{ attributes }}>
+    {{ element.field_prenom }}
+    {{ element.name }}
+    {{ element.mail }}
+    {{ element.field_telephone }}
+       <div class="form-group">
+          <label for="edit-subject" class="form-required">Subject</label>
+          <select required data-drupal-selector="edit-subject" id="edit-subject" name="subject[0][value]" class="form-control form-select">
+               <option value="">Sélectionnez...</option>
+               <option value="contact_coach">Contacter un coach</option>
+               <option value="gestion_abonnement">Gestion de l'abonnement</option>
+               <option value="retractation">Rétractation</option>
+               <option value="code_acces">Code d'accès</option>
+               <option value="partenariat">Partenariat</option>
+               <option value="relations_presse">Relations presse</option>
+               <option value="assistance_technique">Assistance Technique</option>
+          </select>
+       </div>
+    {{ element.message }}
+    <div class="actions">
+        {{ element.actions.submit }}
+     </div>
+    {{ element.form_build_id }}
+    {{ element.form_token }}
+    {{ element.form_id }}
+</form>

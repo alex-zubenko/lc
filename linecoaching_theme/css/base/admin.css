@@ -1,0 +1,11 @@
+
+.lc-user-profile-entity-edit-form .field--name-user-picture .form-item-select-avatar,
+.user-form .form-item-select-avatar
+{
+    float:left;
+}
+
+li.search-choice {
+    background-color: #dae3f3 !important;
+    background-image: none !important;
+}

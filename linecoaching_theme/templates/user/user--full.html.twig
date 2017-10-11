@@ -1,0 +1,96 @@
+{#
+/**
+ * @file
+ * Theme override to present all user profile.
+ *
+ * This template is used when viewing a registered user's page,
+ * e.g., example.com/user/123. 123 being the user's ID.
+ *
+ * Available variables:
+ * - content: A list of content items. Use 'content' to print all content, or
+ *   print a subset such as 'content.field_example'. Fields attached to a user
+ *   such as 'user_picture' are available as 'content.user_picture'.
+ * - attributes: HTML attributes for the container element.
+ * - user: A Drupal User entity.
+ *
+ * @see template_preprocess_user()
+ */
+#}
+{%
+  set classes = [
+    'user',
+    'user-full',
+    'user-profile'
+  ]
+%}
+<article {{ attributes.addClass(classes) }}>
+    <h1>Profil</h1>
+    <div class="panel panel-default">
+       <div class="panel-heading">
+            <h2 class="panel-title pseudo">{{ pseudo| raw }}</h2>
+           {% if default_user_profile_image is defined %}
+            <img src="{{ default_user_profile_image }}"  alt="avatar" />
+          {% endif %}
+           <div class="user-badge">
+             {% if rangs %}
+               <img src="{{ rangs.uri }}" title="{{ rangs.name }}" alt="{{ rangs.name }}" />
+             {% endif %}
+             {% if qual %}
+               <img src="{{ qual.uri }}" title="{{ qual.name }}" alt="{{ qual.name }}" />
+             {% endif %}
+          </div>
+          {% if profile['#lc_user_profile_entity'].ville.value is defined %}
+             <h2 class="panel-title ville">Ville : {{ profile['#lc_user_profile_entity'].ville.value | raw }} </h2>
+          {% endif %}
+          <h2 class="panel-title date">Inscription : {{ user.getCreatedTime() | date("d/m/Y") }} </h2>
+         {% if statut %}
+           <h2 class="panel-title inscription">Status : {{ statut }} </h2>
+         {% endif %}
+         <div class="send-private-message-online">
+           <h2 class="panel-title in_online">
+             {% if online  %}
+               <span  class="online"></span>En ligne
+             {% else %}
+               <span class="offline"></span>Hors ligne
+             {% endif %}
+           </h2>
+         </div>
+          <div class="send-private-message glyphicon glyphicon-inbox">
+            <a  href="{{ path('mtc_core.lc_messaging_private_add', {'user': user.id}) }}">Envoyer un message privé</a>
+          </div>
+       </div>
+    </div>
+
+    <div class="panel panel-default">
+       <div class="panel-heading">
+          <h3 class="panel-title">Ma présentation et mes motivations</h3>
+       </div>
+       <div class="panel-body">
+        {{ profile.profile_experience.value | raw }}
+       </div>
+    </div>
+     <div class="panel panel-default">
+       <div class="panel-heading">
+          <h3 class="panel-title">Mon histoire</h3>
+       </div>
+       <div class="panel-body">
+        {{ profile.profile_mon_histoire.value | raw }}
+       </div>
+    </div>
+     <div class="panel panel-default">
+       <div class="panel-heading">
+          <h3 class="panel-title">Mes conseils à partager</h3>
+       </div>
+       <div class="panel-body">
+        {{ profile.profile_conseils.value | raw }}
+       </div>
+    </div>
+     <div class="panel panel-default">
+       <div class="panel-heading">
+          <h3 class="panel-title">Mes centres d'intérêt</h3>
+       </div>
+       <div class="panel-body">
+        {{ profile.profile_interet.value | raw }}
+       </div>
+    </div>
+</article>

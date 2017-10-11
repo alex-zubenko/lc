@@ -1,0 +1,27 @@
+.region-content .mtcws {
+    font-size:1.4rem;
+}
+.region-content .mtcws .ws-error,
+.region-content .mtcws .ws-control {
+    font-size:1.4rem;
+    line-height: 1.8rem;
+}
+.region-content .mtcws legend {
+    font-size:1.8rem;
+}
+.region-content .mtcws fieldset {
+    max-width:550px;
+    min-width:250px;
+    border:none;
+}
+.region-content .mtcws .ws-info {
+    font-size: 1.0rem;
+}
+
+.mtcws.margin-top {
+    margin-top: 20px;
+}
+
+.mtcws.margin-bottom {
+    margin-bottom: 20px;
+}

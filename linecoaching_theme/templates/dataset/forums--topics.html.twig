@@ -1,0 +1,41 @@
+{#
+/**
+ * @file
+ * Theme override to display a forum.
+ *
+ * May contain forum containers as well as forum topics.
+ *
+ * Available variables:
+ * - forums: The forums to display (as processed by forum-list.html.twig).
+ * - topics: The topics to display.
+ * - topics_pager: The topics pager.
+ * - forums_defined: A flag to indicate that the forums are configured.
+ *
+ * @see template_preprocess_forums()
+ */
+#}
+{% import "themes/custom/linecoaching_theme/templates/macro/taxonomy-macro.html.twig" as display %}
+<h1 class="forum-title">{{ term.name.value }}</h1>
+{% if term.description.value is not empty%}
+    <div class="node__content"><div class="chapeau">{{ term.description.value}}</div></div>
+{% endif %}
+{{ display.forum_header(logged_in) }}
+{{ 'blocksinscriregratuitement'|twig_load_block('blockparrainage') }}
+
+{% if logged_in %}
+<div class="action-links"><a href="/node/add/forum?forum_id={{ term.tid.value }}" class="button button-action" data-drupal-link-query="{'forum_id':{{ term.tid.value }}}" data-drupal-link-system-path="node/add/forum">Créer un nouveau sujet de discussion</a></div>
+<div class="action-links"><a id="mark-as-read" data-href="{{ path('mtc_core.lc_forum_controller_mark_all_read_topics') }}" class="button button-action" data-drupal-link-query="{{ path('mtc_core.lc_forum_controller_mark_all_read_topics') }}">Marquer tous les sujets comme lus</a></div>
+{% endif %}
+
+<article class="forum forum-container">
+    {% if forums_defined %}
+      {{ topics_pager }}
+      {{ forums }}
+      {{ topics }}
+      {{ topics_pager }}
+    {% endif %}
+</article>
+
+{% if logged_in %}
+<div class="action-links"><a href="/node/add/forum?forum_id={{ term.tid.value }}" class="button button-action" data-drupal-link-query="{'forum_id':{{ term.tid.value }}}" data-drupal-link-system-path="node/add/forum">Créer un nouveau sujet de discussion</a></div>
+{% endif %}
