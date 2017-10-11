@@ -1,5 +1,4 @@
-{
-    "name": "mtc_core",
+{    
     "repositories": [
         {
             "type": "composer",
